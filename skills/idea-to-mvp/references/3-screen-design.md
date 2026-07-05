@@ -53,6 +53,7 @@ Prototype·MVP PRD엔 이 정보를 박지 않고 screen-design 참조로 redire
 ### 2.1 단계 시작 — market-research 최종 서비스 기획 요약 내용 base
 
 - `market-research.md` §최종 서비스 기획 요약 내용(최종 아이디어 · 비목표 · 검증 가설)을 base로 인터뷰. **비목표는 화면 범위의 가드레일** — 비목표로 "안 만들 것"은 화면 명세에서 명시 제외한다(부풀음 방지).
+- **진입 스냅샷 작성** (SKILL.md §2.3): `screen-design.md` 머리에 `# 진입 스냅샷` 섹션을 박는다 — 직전 스냅샷(market-research §요약)과 대조해 변경 없으면 `변경 없음 — market-research.md §최종 서비스 기획 요약 내용 그대로` 한 줄, 변경 있으면 4개(최종 아이디어·비목표·검증 가설·북극성) 전문 재기술 + `## 변경`에 무엇이 왜. **이 단계 진행 중 방향이 바뀌어도 market-research.md를 고치지 않는다** — 이 스냅샷을 갱신한다.
 - 옛 단계 evidence는 SKILL.md §2.3 검토 절차(4 체크 질문 + 라벨)를 거쳐 사용.
 - screen-design 산출물 이미 있음(스킬 중간 재실행 등): 내용 읽고 §3 체크리스트 검증, 부족분만 보완. 검증 화면이 이미 있으면 명세와 동기 맞는지 확인.
 
@@ -201,6 +202,7 @@ Prototype·MVP PRD엔 이 정보를 박지 않고 screen-design 참조로 redire
 
 다음이 모두 충족되어야 다음 단계(Prototype)로 진입.
 
+- [ ] **진입 스냅샷 박힘** (SKILL.md §2.3) — `변경 없음` 한 줄 또는 4개 전문 재기술 + `## 변경`.
 - [ ] **사용자 플로우** 처음부터 끝까지 단계 리스트 또는 다이어그램으로 정리됨.
 - [ ] **IA·내비 구조** — 사이트맵 텍스트 다이어그램 + 탭바·햄버거·진입 분기 매트릭스 박힘.
 - [ ] **전 화면 명세 — 누락 0**: 플로우·IA에 등장하는 모든 화면이 §4 형식으로 채워짐.
@@ -221,7 +223,7 @@ Prototype·MVP PRD엔 이 정보를 박지 않고 screen-design 참조로 redire
 **들고 갈 input — 정확히 3개**:
 
 1. `planning/mvp/screen-design.md` — **단일 SoT**. 플로우·IA·내비·전 화면 명세·시나리오 + *검증화면에서 다듬은 최신 카피*까지 통합. Claude Design 메인 입력 — 명세한 화면을 그대로 디자인, 카피는 그대로 사용, IA는 그대로 시각화.
-2. `planning/mvp/market-research.md` §최종 서비스 기획 요약 내용 — 최종 아이디어·비목표·검증 가설·북극성. *무엇·왜·누구·스코프·톤*.
+2. **최신 진입 스냅샷** — 최종 아이디어·비목표·검증 가설·북극성. *무엇·왜·누구·스코프·톤*. `screen-design.md` 머리 스냅샷이 `변경 없음`이면 `planning/mvp/market-research.md` §최종 서비스 기획 요약 내용이 그 원문 (SKILL.md §2.3).
 3. **두 전문가 렌즈 블록** (`4-prototype.md` §2.1.1 — Accenture Song 경험 전략 · Apple Senior UX Researcher 사용성). *처음부터* 이 렌즈로 디자인하라는 설계 원칙 — 사후 점검보다 산출 품질이 높다. 4-prototype.md §2.1.1의 두 표를 그대로 복붙해 전달.
 
 > **🔁 검증화면(`wireframes/`)은 input으로 *들고 가지 않는다***. 검증화면은 *3단계(ScreenDesign) 안 작업 비계* — 플로우·IA 클릭 검증 + 카피 다듬기 도구로 쓰이고, 핸드오프 직전에 **카피가 `screen-design.md`로 일괄 sync**된다(§3.1.1). 검증화면 html을 input으로 주면 DOM 구조가 layout anchor로 작용해 Claude Design 자유 재설계를 묶을 위험. *단일 SoT인 screen-design.md로 통합*이 깔끔.
@@ -270,6 +272,10 @@ planning/mvp/
 created_at: YYYY-MM-DD
 updated_at: YYYY-MM-DD
 ---
+
+# 진입 스냅샷 (SKILL.md §2.3)
+변경 없음 — market-research.md §최종 서비스 기획 요약 내용 그대로.
+(변경 시: 최종 아이디어 한 문단 / 비목표 / 검증 가설 / 북극성(선택) 전문 재기술 + ## 변경 — 무엇이 왜 바뀌었는지 한 줄씩. 이후 이 스냅샷이 아이디어·가설의 SoT.)
 
 # 사용자 플로우
 [진입] → S1 → S2 → ... → [끝]. 재방문 경로 별도 표기.
@@ -540,7 +546,7 @@ UI 카피 작성·swap·재구성 *직후*마다 `ux-writing-reviewer` 에이전
    > *"플로우 + IA + 카피 sync까지 끝! 이제 외부 Claude Design 갈 차례야.*
    > *🔵 들고 갈 거 3개:*
    >   *1. `screen-design.md` (플로우·IA·전 화면 명세·시나리오 + 최신 카피까지 통합된 단일 입력)*
-   >   *2. `market-research.md` §최종 서비스 기획 요약 내용 (무엇·왜·누구·톤)*
+   >   *2. 최신 진입 스냅샷 (무엇·왜·누구·톤 — `변경 없음`이면 `market-research.md` §최종 서비스 기획 요약 내용)*
    >   *3. 두 전문가 렌즈 블록 (4-prototype.md §2.1.1 — 경험·사용성, 처음부터 이 렌즈로 디자인하게)*
    > *🔵 받아 올 거: **zip 핸드오프 패키지** 하나 (안에 reference HTML 데모·정답지 + README 설계도 + 토큰·컴포넌트 소스)*
    > *받아 오면 내가 `prototype-ver-1/` 폴더로 저장하고 4단계(프로토타입 검증) 본격 시작할게."*
