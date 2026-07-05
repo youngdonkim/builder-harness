@@ -21,7 +21,7 @@ disable-model-invocation: true
 
 왜 최종 판정이 인터뷰가 아니라 실트래픽인가 — 인터뷰는 *말*이라 면전 호의에 물들지만(엄마 테스트 문제), 광고 클릭→가입→사용→결제는 *행동*이라 거짓말을 못 한다. 통과 기준③은 가볍게, 통과 기준④가 무겁게.
 
-**6·7단계(MvpBuild·MvpLaunch)는 의도적으로 얇다** — PRD·Architecture 같은 무거운 단계를 두지 않는다. `screen-design.md`(명세) + prototype zip README(설계도)가 이미 스펙이고, LLM 시대에 이 수준 빌드는 싸다. 문서는 빌더 자신을 위한 최소(계측 정의·런치 기준·판정 기록)만.
+**6·7단계(MvpBuild·MvpLaunch)는 의도적으로 얇다** — PRD·Architecture 같은 무거운 단계를 두지 않는다. `screen-design.md`(명세) + prototype standalone.html(화면·인터랙션 정답지)가 이미 스펙이고, LLM 시대에 이 수준 빌드는 싸다. 문서는 빌더 자신을 위한 최소(계측 정의·런치 기준·판정 기록)만.
 
 **Production은 이 스킬의 범위 밖** — 통과 기준④에서 가설 검증되면 production(매출 스케일업·운영 자동화·다채널 확장)으로 졸업하며, 그건 분기별 KPI·실험 트래킹·운영 도구의 영역이라 이 하네스가 다루지 않는다. 폐기되면 새 아이디어로 새 프로젝트에서 처음부터 새로 시작.
 
@@ -30,7 +30,7 @@ disable-model-invocation: true
 - `planning/mvp/`에서 §2 표 산출물의 존재·완성도를 단계 순으로 검사.
 - 비거나 미완성인 가장 빠른 단계 = 진행 대상.
 - 사용자가 특정 단계를 콕 집어 지시하면 그 단계로 점프 (평가는 "사용자 명시 점프" 사유로 통과).
-- **Prototype 단계는 프로젝트 루트도 함께 확인**: `planning/mvp/prototype-ver-{N}/`뿐 아니라 **프로젝트 루트**(이 저장소 최상위 폴더)의 `[projectName]-proto.html`(projectName = 프로젝트 폴더명) 존재 여부도 본다 — 있으면 "프로토타입 빌드 라운드는 끝났고 지금은 테스트 단계"로 판단해 곧장 사용자 검증 안내 + 5단계(ProtoRetro) 전환 제안으로 이어간다 (`4-prototype.md` §2.3).
+- **Prototype 단계는 `planning/mvp/`가 아니라 프로젝트 루트로 판별**: `planning/mvp/`엔 Prototype 산출물이 없다 — **프로젝트 루트**(이 저장소 최상위 폴더)의 `[projectName]-proto.html`(projectName = 프로젝트 폴더명) 존재 여부 하나로 판별한다. 있으면 "프로토타입 빌드 라운드는 끝났고 지금은 테스트 단계"로 판단해 곧장 사용자 검증 안내 + 5단계(ProtoRetro) 전환 제안으로 이어간다 (`4-prototype.md` §2.3).
 
 ### 1.3 단계별 references 라우팅 + 응대 톤
 
@@ -79,7 +79,7 @@ disable-model-invocation: true
 | 1   | IdeaValidation     | `idea-validation.md` (출처별 mini-interview + 진입 Painkiller 평가)                                            | `1-idea-validation.md`      |
 | 2   | **MarketResearch** | `market-research.md` (Agent deep research + 경쟁자 분석 + 차별화 axis + 카테고리 재정의 + 끝에 최종 서비스 기획 요약 내용: 최종 아이디어·비목표·검증 가설) | `2-market-research.md`      |
 | 3   | ScreenDesign       | `screen-design.md` (플로우 + IA·내비 구조 + 전 화면 명세(7요소) + 시나리오 = SoT) + `wireframes/` (손으로 짠 검증 화면 — 플로우·IA 점검·확정용 스캐폴딩)          | `3-screen-design.md`        |
-| 4   | **Prototype**      | `prototype-ver-{N}/` 폴더 (사용자가 외부 Claude Design에 screen-design + market-research 요약 + **두 전문가 렌즈** 입력 → **zip 핸드오프 패키지** 받아 와 압축 해제. mock data + localStorage 등 브라우저 저장으로 실사용 흐름이 끝까지 도는 React 앱 수준 — 4-prototype §2) + **프로젝트 루트**의 `[projectName]-proto.html` 신호 파일 (4-prototype §2.3) | `4-prototype.md`            |
+| 4   | **Prototype**      | **프로젝트 루트**의 `[projectName]-proto.html` 하나 (사용자가 외부 Claude Design에 screen-design + market-research 요약 + **두 전문가 렌즈** 입력 → **standalone.html** 받아 와 루트에 저장. 폰트·이미지·컴포넌트 소스까지 전부 내장된 자급자족 단일 파일, mock data + localStorage 등 브라우저 저장으로 실사용 흐름이 끝까지 도는 수준 — 4-prototype §2) | `4-prototype.md`            |
 | 5   | **ProtoRetro**     | `proto-retro.md` (데모 후 인터뷰 N=5+ 권장 + 종료 Painkiller 평가 + MvpBuild 진입 go/no-go — 통과 기준③)          | `5-proto-retro.md`          |
 | 6   | MvpBuild           | **앱 코드 (프로젝트 루트 폴더)** + `mvp-build.md` (스택 ADR 링크 + 퍼널 계측 이벤트 정의 + 배포 URL). 백엔드·DB·auth 연동 + 배포 + 계측 + (지불 가설 있으면) 실결제 | `6-mvp-build.md`            |
 | 7   | **MvpLaunch**      | `launch-plan.md` (광고 **집행 전** 동결: 퍼널 go 선·예산·기간·채널) + `launch-retro.md` (실측 vs 기준 + 최종 판정 — 통과 기준④)   | `7-mvp-launch.md`           |
@@ -93,7 +93,7 @@ disable-model-invocation: true
 | 경쟁자 분석 · 차별화 axis · 카테고리 정의 | **market-research.md** | screen-design는 참조만 |
 | **아이디어·가설**(최종 아이디어·타겟·비목표·검증 가설·북극성) | **가장 최신 단계의 진입 스냅샷** (§2.3 — 시작점은 market-research.md §최종 서비스 기획 요약 내용 = 2단계 스냅샷) | 옛 단계 스냅샷은 frozen 기록 — 소급 수정 금지 |
 | 시나리오 · 플로우 · **IA·내비 구조(사이트맵·탭바·햄버거·진입 분기)** · 화면 간 전환 · **화면별 IA 요소·내용·행동·상태(빈·로딩·에러)·데이터** (`wireframes/` 검증 화면은 이 SoT를 점검·확정하는 스캐폴딩 — 그 자체가 SoT 아님) | **screen-design.md** — **단, Prototype 등장 후 SoT는 아래 행으로 승격** (§2.3 "화면 SoT의 코드 승격" 참조) | MvpBuild는 참조만 — 빌드 문서에 화면 명세 중복 금지 |
-| 시각 디자인·layout·컴포넌트·완성 프로토타입 화면 + 디자인 토큰·룰 + **(Prototype 등장 후엔) 플로우·IA·상태·전환까지 화면 영역 전부** | **`prototype-ver-{N}/` zip 패키지** (가장 큰 N — 진입 reference HTML · 설계도 README · 토큰 `src/tokens/`; `design-system.html`은 있을 수도 없을 수도) | MvpBuild 빌드의 입력 (README 설계도 + reference 정답지). screen-design.md는 이 시점부터 frozen 입력 — `wireframes/`와 동일 처지 |
+| 시각 디자인·layout·컴포넌트·완성 프로토타입 화면 + 디자인 토큰·룰 + **(Prototype 등장 후엔) 플로우·IA·상태·전환까지 화면 영역 전부** | **`[projectName]-proto.html`** (프로젝트 루트, 항상 최신 하나 — 폰트·이미지·컴포넌트 소스까지 전부 내장된 자급자족 standalone 파일) | MvpBuild 빌드의 입력 (파일 열어 클릭 검증 + 필요 시 내장 소스 직접 참고). screen-design.md는 이 시점부터 frozen 입력 — `wireframes/`와 동일 처지 |
 | 스택 결정 · 퍼널 계측 이벤트 정의 · 배포 정보                                                | **mvp-build.md** (+ `planning/adr.md`) | launch-plan은 참조만 |
 | 런치 기준 (퍼널 go 선 · 예산 · 기간 · 채널) — 광고 집행 전 동결                              | **launch-plan.md**     | launch-retro가 이 기준으로 판정 |
 | 런치 실측 · 최종 판정 · production 입력                                                     | **launch-retro.md**    |                                                   |
@@ -136,13 +136,13 @@ disable-model-invocation: true
 
 #### 화면 SoT의 코드 승격 (Prototype 등장 후) — 피봇 시 옛 문서 재작성 금지
 
-Prototype 단계가 zip을 받은 순간부터, §2.1 매트릭스의 화면 영역(플로우·IA·상태·전환 전부)의 SoT는 **`screen-design.md`에서 `prototype-ver-{N}/` 코드로 통째 승격**된다. `wireframes/`가 프로토타입 등장 후 임무를 다하는 것과 같은 논리 — `screen-design.md`도 이 시점부터 *frozen 입력*이지 갱신 대상이 아니다.
+Prototype 단계가 `[projectName]-proto.html`을 받은 순간부터, §2.1 매트릭스의 화면 영역(플로우·IA·상태·전환 전부)의 SoT는 **`screen-design.md`에서 이 standalone 파일로 통째 승격**된다. `wireframes/`가 프로토타입 등장 후 임무를 다하는 것과 같은 논리 — `screen-design.md`도 이 시점부터 *frozen 입력*이지 갱신 대상이 아니다.
 
 **왜**: 프로토타입 코드가 화면에 대해 아는 전부를 담고 있는데, 그 위에 텍스트 명세를 이중으로 유지하면 (1) 둘이 어긋날 때마다 어느 쪽이 진실인지 판단하는 세금이 생기고 (2) 실제로 아무도 다시 안 읽는 문서를 계속 고치는 ceremony가 된다.
 
 **따라서 Prototype 등장 이후 피봇(화면·플로우·IA가 바뀌는 경우)의 기록 방법은 "위 단계로 되돌아가기"가 아니라 다음 2~3가지뿐이다**:
 
-1. **코드로 반영** — 변경을 프로토타입에 직접 반영한다. 규모가 크면 Claude Design 재호출로 새 `prototype-ver-{N+1}/` (기본 경로), 자잘한 예외면 in-place 보정 (4-prototype.md §2.2 그대로).
+1. **코드로 반영** — 변경을 프로토타입에 직접 반영한다. 규모가 크면 Claude Design 재호출로 새 standalone.html 받아 `[projectName]-proto.html` 덮어쓰기 (기본 경로, 버전 번호 없음), 자잘한 예외면 in-place 보정 (4-prototype.md §2.2 그대로).
 2. **스냅샷만 새로 기술** — `screen-design.md`를 고치지 않는다. 대신 **아직 안 쓴, 가장 가까운 다음 단계 산출물**(보통 `proto-retro.md` — 아직 파일이 없으면 그 머리에 미리 만들어둠)의 `# 진입 스냅샷`에 바뀐 최종 아이디어·비목표·검증 가설·북극성만 새로 기술한다.
 3. **지식 추출 (선택)** — 프로토타입 코드에 하드코딩된 도메인 지식 중 *프로토타입 자체보다 수명이 긴 것*(체크리스트·분기 규칙·가중치·용어 풀이 등, MVP에서 정식 데이터·로직으로 승격될 성격)은 작은 문서로 뽑아 남긴다 (예: `planning/mvp/{주제}-knowledge.md`). 프로토타입은 MvpBuild에서 버려지는 중간물이니, 화면 자체보다 오래 살아야 할 지식만 선별해 코드 밖으로 꺼내는 것 — 화면 명세를 문서로 다시 옮기는 게 아니다.
 
@@ -190,11 +190,11 @@ Prototype 단계가 zip을 받은 순간부터, §2.1 매트릭스의 화면 영
 
 ## 3. 산출물 관리
 
-산출물 위치: `planning/mvp/` — vN 없음. 한 폴더에 7단계 산출물 (`idea-validation.md` · `market-research.md` · `screen-design.md` + `wireframes/` · `prototype-ver-{N}/` · `proto-retro.md` · `mvp-build.md` · `launch-plan.md` · `launch-retro.md`).
+산출물 위치: `planning/mvp/` — vN 없음. 한 폴더에 6단계 산출물 (`idea-validation.md` · `market-research.md` · `screen-design.md` + `wireframes/` · `proto-retro.md` · `mvp-build.md` · `launch-plan.md` · `launch-retro.md`). **Prototype 단계만 예외** — 아래 참조.
 
 **앱 코드는 프로젝트 루트 폴더에** — 6단계 MvpBuild부터 `package.json`·`src/` 등이 프로젝트 루트 폴더에 생긴다. `planning/`은 문서 산출물만 (`planning/`은 git 추적 제외 — 로컬 전용. 앱 코드는 git 추적).
 
-**예외 — Prototype 단계는 ver-N 폴더 (zip 패키지)**: Prototype은 사용자가 외부 Claude Design에서 받아 온 **zip 핸드오프 패키지**(압축 해제)가 SoT다 — 진입 reference HTML(데모·정답지, 파일명 가변) + README(설계도) + `src/tokens/`·컴포넌트 소스 (+ `design-system.html`은 있을 수도 없을 수도). 단일 `prototype.md` 없음 — 버전별 폴더로 누적한다. 가장 큰 N의 `prototype-ver-{N}/`가 현재 SoT. 첫 ver는 사용자가 외부 Claude Design 호출 후 zip을 가져옴, 큰 변경은 외부 재호출(새 zip)·자잘한 예외만 reference HTML 직접 보정 (4-prototype.md §2.2). zip 전체는 MvpBuild의 입력. 상세는 `references/4-prototype.md` §2·§5.
+**예외 — Prototype 단계는 `planning/mvp/`에 아무것도 안 둔다**: Prototype 산출물은 **프로젝트 루트**의 `[projectName]-proto.html` 파일 하나뿐이다. 사용자가 외부 Claude Design에서 **standalone.html**(자급자족 단일 파일 — 폰트·이미지·컴포넌트 소스까지 전부 내장)을 받아 와 프로젝트 루트에 이 이름으로 저장하면 그게 SoT. 버전 폴더·zip 압축해제·README 없음 — 매번 같은 파일명으로 **덮어쓴다** (버전 번호 없음, 항상 최신 하나만 존재). 수정은 Claude Design 재호출(새 standalone.html로 덮어쓰기)이 기본, 자잘한 예외만 in-place 보정 (4-prototype.md §2.2). 이 파일 전체가 MvpBuild의 입력. 상세는 `references/4-prototype.md` §2·§5.
 
 **3단계 `wireframes/`는 스캐폴딩**: 손으로 짠 검증 화면은 *플로우가 맞는지 점검*하는 임시 도구라 ver 없이 한 폴더에서 갈아끼운다 — SoT는 `screen-design.md`. Prototype 단계가 Claude Design으로 디자인 완성본을 만들면 검증 화면은 역할을 다한다(폴더는 history로 남겨도 OK).
 

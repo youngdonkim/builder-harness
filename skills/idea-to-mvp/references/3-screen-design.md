@@ -242,11 +242,11 @@ Prototype·MVP PRD엔 이 정보를 박지 않고 screen-design 참조로 redire
 
 이후 `screen-design.md`가 *플로우·IA·구조 SoT + 최신 카피*를 모두 담은 단일 SoT가 되어 4단계(Prototype) Claude Design 핸드오프 input으로 그대로 들어감.
 
-**받아 와야 할 output — zip 핸드오프 패키지** (4-prototype.md §1·§4 산출물):
+**받아 와야 할 output — standalone.html 하나** (4-prototype.md §1·§4 산출물):
 
-- Claude Design이 프로토타입을 거의 완성해 **zip 하나**로 내보낸다. 안에는 진입 **reference HTML**(브라우저로 더블클릭하면 도는 *작동 데모이자 시각 정답지* — 파일명 가변, README가 진입 파일 지정) + **README**(화면·토큰·동작 설계도 + 이식·TDS 매핑) + `src/tokens/`·컴포넌트 소스(MVP 빌드용)가 들어 있다. (`design-system.html`은 있을 수도, 없을 수도.)
+- Claude Design이 프로토타입을 거의 완성해 **standalone.html 파일 하나**로 내보낸다 — 폰트·이미지·컴포넌트 소스(JSX/CSS/토큰)까지 전부 내장된 자급자족 단일 파일이라, 브라우저로 더블클릭하면 그대로 도는 *작동 데모이자 시각 정답지*다. 별도 zip·README·컴포넌트 폴더 없음.
 
-받아 온 **zip은 Claude Code(여기)에서 `planning/mvp/prototype-ver-1/`에 압축 해제 → 4단계(Prototype) 본격 시작** (4-prototype.md §2.1).
+받아 온 **standalone.html은 Claude Code(여기)에서 프로젝트 루트에 `[projectName]-proto.html`로 저장 → 4단계(Prototype) 본격 시작** (4-prototype.md §2.1).
 
 ## 4. 산출물 스펙
 
@@ -548,6 +548,6 @@ UI 카피 작성·swap·재구성 *직후*마다 `ux-writing-reviewer` 에이전
    >   *1. `screen-design.md` (플로우·IA·전 화면 명세·시나리오 + 최신 카피까지 통합된 단일 입력)*
    >   *2. 최신 진입 스냅샷 (무엇·왜·누구·톤 — `변경 없음`이면 `market-research.md` §최종 서비스 기획 요약 내용)*
    >   *3. 두 전문가 렌즈 블록 (4-prototype.md §2.1.1 — 경험·사용성, 처음부터 이 렌즈로 디자인하게)*
-   > *🔵 받아 올 거: **zip 핸드오프 패키지** 하나 (안에 reference HTML 데모·정답지 + README 설계도 + 토큰·컴포넌트 소스)*
-   > *받아 오면 내가 `prototype-ver-1/` 폴더로 저장하고 4단계(프로토타입 검증) 본격 시작할게."*
+   > *🔵 받아 올 거: **standalone.html** 파일 하나 (폰트·이미지·컴포넌트 소스까지 전부 내장된 자급자족 단일 파일 — 데모이자 정답지)*
+   > *받아 오면 내가 프로젝트 루트에 `[projectName]-proto.html`로 저장하고 4단계(프로토타입 검증) 본격 시작할게."*
 - 검증화면 *자체는* input으로 *안 들고 간다*는 점도 짚기. 검증화면은 *비계로 보존* (retro·history 참고용, §3.1).
