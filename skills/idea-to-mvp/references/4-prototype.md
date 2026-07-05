@@ -25,7 +25,7 @@ description: 프로토타입 완성하기 단계 가이드. 3단계에서 확정
 
 **SoT 책임**: SKILL.md §2.1 SoT 매트릭스에 따라 prototype이 SoT인 영역:
 - 시각 디자인·layout·컴포넌트·완성 프로토타입 화면 + 디자인 토큰·룰 — `prototype-ver-{N}/` zip 패키지 (진입점 = reference HTML, 설계도 = README, 토큰 = `src/tokens/`)
-- *상태(빈·로딩·에러)·전환 명세 자체는 screen-design가 SoT* — 프로토타입은 screen-design가 정한 상태·전환을 **시각화·구현만** 한다.
+- **ver-1이 생기는 순간부터 상태(빈·로딩·에러)·전환 명세까지 화면 영역 전체의 SoT가 이 zip으로 승격**된다 (SKILL.md §2.3 "화면 SoT의 코드 승격"). `screen-design.md`는 ver-1의 *입력*이었을 뿐 — 이후 화면이 바뀌면 `screen-design.md`를 고치는 게 아니라 §2.2대로 코드(새 ver 또는 in-place)로 반영하고, 아이디어·가설이 바뀐 부분만 `proto-retro.md` 진입 스냅샷에 새로 적는다.
 
 ## 2. 진행 절차
 
