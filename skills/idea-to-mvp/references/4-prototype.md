@@ -36,7 +36,7 @@ description: 프로토타입 완성하기 단계 가이드. 3단계에서 확정
 **외부 Claude Design에 들고 갈 input — 3개** (사용자가 진입 *전*에 준비):
 
 1. `planning/mvp/screen-design.md` — **단일 SoT**. 전 화면 명세(진입·내용·행동·전환·상태·데이터)·플로우·핵심 시나리오 + *검증화면에서 다듬은 최종 카피까지 통합된 상태* (3-screen-design.md §3.1.1 sync 절차). Claude Design 메인 입력 — 명세한 화면을 그대로 디자인, 카피는 그대로 사용.
-2. `planning/mvp/market-research.md` §최종 서비스 기획 요약 내용 — 최종 아이디어·비목표·검증 가설·북극성 (무엇·왜·누구·스코프·톤).
+2. **최신 진입 스냅샷** — 최종 아이디어·비목표·검증 가설·북극성 (무엇·왜·누구·스코프·톤). `screen-design.md` 머리 스냅샷이 원문이거나, `변경 없음`이면 `planning/mvp/market-research.md` §최종 서비스 기획 요약 내용 (SKILL.md §2.3).
 3. **두 전문가 렌즈 블록** (아래 §2.1.1 — 복붙). *처음부터* 이 렌즈로 디자인하라는 설계 원칙.
 
 디자인 시스템·토큰은 Claude Design이 위 input에서 *스스로 생성*해 zip에 담는다 — 별도 brand 입력 없음.
