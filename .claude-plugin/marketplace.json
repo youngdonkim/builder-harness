@@ -1,0 +1,14 @@
+{
+  "name": "builder-harness",
+  "owner": {
+    "name": "youngdonkim"
+  },
+  "description": "AI 빌더용 하네스 플러그인 마켓플레이스 — idea-to-mvp 7단계 작업 시스템",
+  "plugins": [
+    {
+      "name": "builder-harness",
+      "source": "./",
+      "description": "AI 빌더용 하네스 — idea-to-mvp 7단계를 스킬·서브에이전트·훅으로 묶은 재사용 작업 시스템"
+    }
+  ]
+}

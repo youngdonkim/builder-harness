@@ -1,0 +1,8 @@
+{
+  "name": "builder-harness",
+  "displayName": "Builder Harness",
+  "description": "AI 빌더용 하네스 — idea-to-mvp 7단계(아이디어 검증→프로토타입→MVP 런치)를 스킬·서브에이전트·훅으로 묶은 재사용 작업 시스템",
+  "author": {
+    "name": "youngdonkim"
+  }
+}
