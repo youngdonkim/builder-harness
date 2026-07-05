@@ -65,3 +65,4 @@ disable-model-invocation: true
 - ❌ 자동으로 하네스 파일 수정 — 위치·내용 결정만, 실제 작성은 사용자 확인 후
 - ❌ 기존 파일 일괄 리팩터 — 트리거된 파일 하나씩
 - ❌ `.claude/hooks/`·`.claude/settings.json` 변경 — CLAUDE.md `needs_review` 룰에 따라 사용자 명시 승인 필수
+- ❌ **builder-harness 플러그인의 기존 skill(`idea-to-mvp` 등) 자체의 절차·로직 업데이트** — 이 스킬은 "이 내용을 어디(CLAUDE.md/rules/skills/agents)에 넣을지 애매할 때" 위치를 정하는 용도다. 프로젝트 진행 중 새로 튀어나온 룰·지식을 codify할 위치를 정할 때 쓴다. 이미 `builder-harness` repo 안 특정 skill 파일(예: `skills/idea-to-mvp/references/4-prototype.md`)을 고쳐야 함이 명확한 경우 — 즉 위치가 하나도 안 애매한 경우 — 는 이 스킬을 거치지 말고 그 파일을 바로 수정한다.
