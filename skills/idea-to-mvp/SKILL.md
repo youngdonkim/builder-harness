@@ -30,6 +30,7 @@ disable-model-invocation: true
 - `planning/mvp/`에서 §2 표 산출물의 존재·완성도를 단계 순으로 검사.
 - 비거나 미완성인 가장 빠른 단계 = 진행 대상.
 - 사용자가 특정 단계를 콕 집어 지시하면 그 단계로 점프 (평가는 "사용자 명시 점프" 사유로 통과).
+- **Prototype 단계는 프로젝트 루트도 함께 확인**: `planning/mvp/prototype-ver-{N}/`뿐 아니라 **프로젝트 루트**(이 저장소 최상위 폴더)의 `[projectName]-proto.html`(projectName = 프로젝트 폴더명) 존재 여부도 본다 — 있으면 "프로토타입 빌드 라운드는 끝났고 지금은 테스트 단계"로 판단해 곧장 사용자 검증 안내 + 5단계(ProtoRetro) 전환 제안으로 이어간다 (`4-prototype.md` §2.3).
 
 ### 1.3 단계별 references 라우팅 + 응대 톤
 
@@ -78,7 +79,7 @@ disable-model-invocation: true
 | 1   | IdeaValidation     | `idea-validation.md` (출처별 mini-interview + 진입 Painkiller 평가)                                            | `1-idea-validation.md`      |
 | 2   | **MarketResearch** | `market-research.md` (Agent deep research + 경쟁자 분석 + 차별화 axis + 카테고리 재정의 + 끝에 최종 서비스 기획 요약 내용: 최종 아이디어·비목표·검증 가설) | `2-market-research.md`      |
 | 3   | ScreenDesign       | `screen-design.md` (플로우 + IA·내비 구조 + 전 화면 명세(7요소) + 시나리오 = SoT) + `wireframes/` (손으로 짠 검증 화면 — 플로우·IA 점검·확정용 스캐폴딩)          | `3-screen-design.md`        |
-| 4   | **Prototype**      | `prototype-ver-{N}/` 폴더 (사용자가 외부 Claude Design에 screen-design + market-research 요약 + **두 전문가 렌즈** 입력 → **zip 핸드오프 패키지** 받아 와 압축 해제. mock data + localStorage 등 브라우저 저장으로 실사용 흐름이 끝까지 도는 React 앱 수준 — 4-prototype §2) | `4-prototype.md`            |
+| 4   | **Prototype**      | `prototype-ver-{N}/` 폴더 (사용자가 외부 Claude Design에 screen-design + market-research 요약 + **두 전문가 렌즈** 입력 → **zip 핸드오프 패키지** 받아 와 압축 해제. mock data + localStorage 등 브라우저 저장으로 실사용 흐름이 끝까지 도는 React 앱 수준 — 4-prototype §2) + **프로젝트 루트**의 `[projectName]-proto.html` 신호 파일 (4-prototype §2.3) | `4-prototype.md`            |
 | 5   | **ProtoRetro**     | `proto-retro.md` (데모 후 인터뷰 N=5+ 권장 + 종료 Painkiller 평가 + MvpBuild 진입 go/no-go — 통과 기준③)          | `5-proto-retro.md`          |
 | 6   | MvpBuild           | **앱 코드 (프로젝트 루트 폴더)** + `mvp-build.md` (스택 ADR 링크 + 퍼널 계측 이벤트 정의 + 배포 URL). 백엔드·DB·auth 연동 + 배포 + 계측 + (지불 가설 있으면) 실결제 | `6-mvp-build.md`            |
 | 7   | **MvpLaunch**      | `launch-plan.md` (광고 **집행 전** 동결: 퍼널 go 선·예산·기간·채널) + `launch-retro.md` (실측 vs 기준 + 최종 판정 — 통과 기준④)   | `7-mvp-launch.md`           |
