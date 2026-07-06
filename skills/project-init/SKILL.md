@@ -28,7 +28,7 @@ description: 새 프로젝트에 builder-harness 하네스 적용 — CLAUDE.md 
 
 ### 3. rules 복사
 
-[templates/rules/](templates/rules/)의 모든 파일을 프로젝트의 `.claude/rules/`로 복사한다 (폴더 없으면 생성). 현재 포함: `threat-model.md` (외부 도달 위협 모델 — 6단계 MvpBuild부터 실질 작동).
+[templates/rules/](templates/rules/)의 모든 파일을 프로젝트의 `.claude/rules/`로 복사한다 (폴더 없으면 생성). 현재 포함: `threat-model.md` (외부 도달 위협 모델 — 6단계 MvpBuild부터 실질 작동), `markdown-style.md` (마크다운 목차는 중첩 리스트로 — `**/*.md` 편집 시 트리거).
 
 ### 4. planning 구조 생성
 
