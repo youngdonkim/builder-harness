@@ -80,24 +80,32 @@ claude plugin install builder-harness@builder-harness --scope project
 
 → CLAUDE.md 뼈대 + `.claude/rules/` 템플릿이 프로젝트에 복사된다 (플러그인이 CLAUDE.md·rules를 직접 못 싣기 때문).
 
-## 업데이트 흐름
+## 업데이트 — 설치한 사람이 새 버전 받기
 
-업데이트는 두 단계다 — **마켓플레이스 갱신은 컴퓨터에 한 번, 플러그인 갱신은 프로젝트마다**. 아래 1번은 하네스 개발자(역할 B)가 하는 일이고, 2번부터는 새 버전을 받아 쓰려는 사람(역할 A·B 모두)이 자기 컴퓨터에서 하는 일이다.
+위 설치 절차(마켓플레이스 등록 + 플러그인 설치)를 마친 사람이 새 버전을 받는 방법이다. 역할 A·B 누구든 자기 컴퓨터에서 똑같이 한다. 명령은 전부 **터미널**에서.
 
-1. **(하네스 개발자)** 어느 프로젝트에서든 하네스 개선점 발견 → **이 저장소에서** 수정·커밋·push (`claude-harness-tuning` 스킬로 위치·작성 기준 결정)
-2. **마켓플레이스 갱신 — 아무 경로에서나, 컴퓨터에 한 번**. 새 버전을 받아만 두는 단계라 아직 어떤 프로젝트에도 영향 없음:
-   ```
-   claude plugin marketplace update builder-harness
-   ```
-3. **플러그인 갱신 — 새 버전을 쓸 프로젝트 안에서 각각**:
-   ```
-   cd <프로젝트 경로>
-   claude plugin update builder-harness@builder-harness --scope project
-   ```
-   이 명령을 실행한 프로젝트만 새 버전으로 올라가고, 실행하지 않은 프로젝트는 기존 버전에 머문다. 스코프가 헷갈리면 그 프로젝트에서 `claude plugin list`로 `Scope:` 값을 확인해 그대로 넣는다 — 안 맞으면 "not found"/"not installed" 에러.
-4. **적용 시점**: 지금 이미 열려 있는 Claude Code 세션에는 반영되지 않고, **다음에 새로 여는 세션부터** 적용된다("Restart to apply changes"). 지금 세션에 바로 반영하고 싶다면 그 세션 안에서 `/reload-plugins`를 치면 된다.
+**1) 새 버전 받아두기 — 아무 폴더에서나, 컴퓨터에 한 번**:
+
+```
+claude plugin marketplace update builder-harness
+```
+
+이 단계는 새 버전을 컴퓨터에 받아만 두는 것이다 — 아직 어떤 프로젝트에도 반영되지 않는다.
+
+**2) 프로젝트에 적용 — 새 버전을 쓸 프로젝트 폴더마다 각각**:
+
+```
+cd <프로젝트 경로>
+claude plugin update builder-harness@builder-harness --scope project
+```
+
+이 명령을 실행한 프로젝트만 새 버전으로 올라가고, 실행하지 않은 프로젝트는 기존 버전에 머문다. 스코프가 헷갈리면 그 프로젝트에서 `claude plugin list`로 `Scope:` 값을 확인해 그대로 넣는다 — 안 맞으면 "not found"/"not installed" 에러가 난다.
+
+**3) 언제부터 적용되나**: 지금 이미 열려 있는 Claude Code 세션에는 반영되지 않고, **다음에 새로 여는 세션부터** 적용된다("Restart to apply changes"). 지금 세션에 바로 반영하고 싶다면 그 세션 안에서 `/reload-plugins`를 치면 된다.
 
 **자동 갱신**을 원하면 프로젝트의 `.claude/settings.json` 파일에서 `extraKnownMarketplaces.builder-harness` 항목에 `"autoUpdate": true`를 추가한다 — 그러면 Claude Code 세션을 새로 열 때마다 자동으로 최신본을 확인한다. (이 저장소처럼 Anthropic이 아니라 개인·커뮤니티가 만든 마켓플레이스는 기본적으로 이 자동 확인이 꺼져 있어서, 켜고 싶으면 직접 설정해야 한다.) 이 경우도 방금 받아온 걸 지금 열린 세션에서 바로 쓰려면 `/reload-plugins`는 그대로 쳐야 한다.
+
+**새 버전은 어떻게 만들어지나 (역할 B — 하네스 개발자)**: 어느 프로젝트에서든 하네스 개선점 발견 → 이 저장소에서 수정 → PR → 관리자가 main에 합침(merge) (`claude-harness-tuning` 스킬로 위치·작성 기준 결정). merge된 순간부터 위 1)~2) 절차로 누구나 새 버전을 받을 수 있다.
 
 버전 번호는 `plugin.json`에 따로 적지 않는다 — 커밋할 때마다 자동으로 생기는 고유 값(커밋 해시)이 버전 역할을 해서, 커밋 하나하나가 전부 새 버전으로 인식된다. 만든 사람이 직접 매일 써보면서 바로바로 고치는 중이라 이렇게 해뒀다(이런 방식을 "도그푸딩"이라고도 부른다). 나중에 다른 사람들에게 정식으로 배포할 때는 버전 번호를 정해서 관리하는 방식으로 바꿀 것이다.
 
