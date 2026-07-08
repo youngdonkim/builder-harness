@@ -24,7 +24,7 @@ description: 새 프로젝트에 builder-harness 하네스 적용 — CLAUDE.md 
 
 ### 2. CLAUDE.md 생성
 
-이 스킬 폴더의 [templates/CLAUDE.md.template](templates/CLAUDE.md.template)을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(idea-to-mvp 모델·스타일·검증 섹션)는 **수정하지 않고 그대로** — 하네스 표준이다. 프로젝트 고유 내용만 placeholder에 들어간다.
+이 스킬 폴더의 [templates/CLAUDE.md.template](templates/CLAUDE.md.template)을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(응대·문서 작성 스타일 + 앱 개발 컨벤션 자리)는 **수정하지 않고 그대로** — 하네스 표준이다. **idea-to-mvp 방법론 설명은 CLAUDE.md에 넣지 않는다** — 방법론은 스킬 발동 중에만 필요하고 스킬이 전부 관리한다. CLAUDE.md는 만드는 제품(앱)과 사용자 취향의 자리다.
 
 ### 3. rules 복사
 
@@ -45,7 +45,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 - 하네스 스킬·에이전트·훅은 플러그인에서 자동 로드 — 이 repo에 복사 안 됨. 하네스 개선은 하네스 repo(`~/dev/builder-harness`)에서.
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋).
-- 다음 단계: `/builder-harness:idea-to-mvp`로 1단계 IdeaValidation 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.)
+- 다음 단계: `/idea-to-mvp`로 1단계 IdeaValidation 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
 
 ## 안 하는 것 (의도적)
 
