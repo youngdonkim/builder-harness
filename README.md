@@ -75,10 +75,15 @@ claude plugin install builder-harness@builder-harness --scope project
 **3) 새 프로젝트 첫 세팅 — 그 프로젝트의 Claude Code 세션 프롬프트에서**:
 
 ```
-/builder-harness:project-init
+/project-init
 ```
 
 → CLAUDE.md 뼈대 + `.claude/rules/` 템플릿이 프로젝트에 복사된다 (플러그인이 CLAUDE.md·rules를 직접 못 싣기 때문).
+
+두 가지 알아둘 것:
+
+- **2번 설치 직후 같은 세션이라면** 새로 설치한 플러그인의 스킬이 아직 안 잡힌다 — `/reload-plugins`를 먼저 치거나, 세션을 새로 연다.
+- **스킬 이름은 짧은 형태로 친다** — 입력창 자동완성에는 `/project-init`·`/idea-to-mvp`처럼 짧은 이름만 추천으로 뜨고, 긴 정식 이름(`/builder-harness:project-init`)을 치면 오히려 추천 목록에 나타나지 않는다. 긴 이름은 같은 이름의 스킬이 여러 플러그인에 있을 때 구분하는 용도일 뿐이다.
 
 ## 업데이트 — 설치한 사람이 새 버전 받기
 
