@@ -53,7 +53,7 @@ description: MvpBuild 단계 가이드. 프로젝트 루트의 프로토타입 s
 
 **mandated core 밖**은 프로젝트별 추가 (지도=leaflet, 아이콘=lucide, 결제 PG 등) — 검증 가설에 필요할 때만. core에서 빼거나 다른 것으로 갈아타는 건 이 단계에서 하지 않는다. (결제: 지불 가설 있으면 실결제 PG(토스페이먼츠·Stripe 등) 추가 — 심사 리드타임 있어 빌드와 병렬 시작.)
 
-**이 단계에서 실제로 하는 일 = 고정 스택의 최신 호환 버전 조합을 상호 의존성 고려해 조사·적용** (초안 모드 — AI가 조사·적용·보고, 사용자 선택 없음). **버전 숫자는 휘발성이라 이 references에 박지 않는다** (principles.md ❌ codify — 의존성 버전은 stale 위험). 조합은 빌드 시점에 조사해 `mvp-build.md`·ADR에 기록한다:
+**이 단계에서 실제로 하는 일 = 고정 스택의 최신 호환 버전 조합을 상호 의존성 고려해 조사·적용** (초안 모드 — AI가 조사·적용·보고, 사용자 선택 없음). **버전 숫자는 휘발성이라 이 references에 박지 않는다** (의존성 버전은 stale 위험). 조합은 빌드 시점에 조사해 `mvp-build.md`·ADR에 기록한다:
 
 1. Next.js 최신 stable 확인 → 그것이 요구하는 React·Node 버전(peer deps) 파악.
 2. TypeScript·eslint-config-next를 그 Next와 호환되는 최신으로.

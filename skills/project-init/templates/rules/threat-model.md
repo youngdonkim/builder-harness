@@ -29,4 +29,4 @@ preview URL·공유 링크·봇 prefetch·검색엔진·우연한 ID 추측 — 
 - **업로드**: 크기·MIME 타입·확장자 검증, 저장 경로 격리
 - **API**: rate limit, input validation, error 메시지에 stack·sql 노출 X
 
-영역별 상세 룰이 필요해지면 `.claude/rules/`에 별도 파일로 추가 (`claude-harness-tuning` 스킬로 위치·작성 기준 결정).
+영역별 상세 룰이 필요해지면 `.claude/rules/`에 별도 파일로 추가.
