@@ -10,11 +10,16 @@
 #   3. 이미 staged 파일 존재        → 사용자 수동 작업(부분 stage 등) 의도 보호
 #   4. 변경 없음                    → 빈 커밋 방지
 #   5. 시크릿 패턴 파일 staging 대상 → .gitignore 불완전 시 마지막 안전망
+#      (.env.example/.sample/.template 예시 템플릿은 예외 — 커밋 허용)
 #
 # 커밋 메시지: wip: <last user msg 힌트> — <파일1>, <파일2> 외 N개 (+X -Y)
 # 푸시: 절대 안 함 (push는 사용자 명시 지시 시에만)
 #
-# 자세히: .claude/rules/deploy.md
+# 힌트 추출 관련 버그 수정 (2026-07-27):
+#   - cut -c가 로케일 미설정 시 바이트 단위로 잘라 한글이 깨지던 문제 → UTF-8 로케일 지정,
+#     없으면 바이트 컷 후 불완전한 멀티바이트 꼬리 제거로 방어.
+#   - 마지막 user 메시지가 task-notification 등 하네스 생성 블록이면 그걸 힌트로 쓰던 문제
+#     → 뒤에서부터 최대 10개까지 거슬러 올라가며 진짜 사람 입력을 찾음.
 
 set -uo pipefail
 
@@ -55,9 +60,14 @@ if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
   exit 0
 fi
 
-# 5. 시크릿 패턴 검사 — staging 대상 파일에 위험 패턴 있으면 abort
+# 5. 시크릿 패턴 검사 — staging 대상 파일에 위험 패턴 있으면 abort.
+#    단 .env.example/.sample/.template(값 없는 예시 템플릿)은 커밋 허용 대상이라 예외로 뺀다
+#    — 안 빼면 .env.example 수정만으로 매 턴 전체 wip 커밋이 통째로 skip된다(CLAUDE.md: .env.example 제외).
 candidate_files=$(git status --porcelain | sed -E 's/^...//' | awk -F ' -> ' '{print $NF}')
-suspicious=$(printf '%s\n' "$candidate_files" | grep -iE '(^\.env$|/\.env$|^\.env\.|/\.env\.|\.key$|\.pem$|secret|credentials\.json$|id_rsa|id_ed25519)' || true)
+suspicious=$(printf '%s\n' "$candidate_files" \
+  | grep -iE '(^\.env$|/\.env$|^\.env\.|/\.env\.|\.key$|\.pem$|secret|credentials\.json$|id_rsa|id_ed25519)' \
+  | grep -ivE '(^|/)\.env\.(example|sample|template)$' \
+  || true)
 if [ -n "$suspicious" ]; then
   echo "[auto-wip] 시크릿 패턴 파일 감지 — skip:" >&2
   printf '  %s\n' $suspicious >&2
@@ -65,18 +75,102 @@ if [ -n "$suspicious" ]; then
   exit 0
 fi
 
-# 6. 마지막 user 메시지에서 힌트 추출 (transcript 있을 때만)
+# 6. 사람이 실제로 친 마지막 메시지에서 힌트 추출 (transcript 있을 때만)
+#    - system-reminder 태그뿐 아니라 task-notification/local-command-stdout 같은
+#      하네스가 만들어 낸 블록도 "type: user" 문자열 메시지로 섞여 들어온다.
+#      그런 걸 힌트로 쓰면 </task-notification> 같은 쓰레기가 커밋 메시지에 박히므로
+#      뒤에서부터 거슬러 올라가며 하네스 산물이 아닌 메시지를 찾는다.
+
+# 알려진 하네스 블록 태그 제거 + 줄바꿈 공백화 + 공백 정규화.
+# (제거 후에도 '<'로 시작하거나 비어 있으면 호출부에서 하네스 산물로 판단)
+strip_harness_tags() {
+  printf '%s' "$1" \
+    | awk 'BEGIN{RS=""} {
+        gsub(/<system-reminder>[^<]*<\/system-reminder>/, "");
+        gsub(/<task-notification>[^<]*<\/task-notification>/, "");
+        gsub(/<local-command-stdout>[^<]*<\/local-command-stdout>/, "");
+        gsub(/<local-command-caveat>[^<]*<\/local-command-caveat>/, "");
+        gsub(/<command-name>[^<]*<\/command-name>/, "");
+        gsub(/<command-message>[^<]*<\/command-message>/, "");
+        gsub(/<command-args>[^<]*<\/command-args>/, "");
+        print
+      }' \
+    | tr '\n' ' ' \
+    | sed -E 's/  +/ /g; s/^ +//; s/ +$//'
+}
+
+# 최소 환경(로케일 미설정)에서도 문자 단위 컷이 되도록 시스템에 설치된 UTF-8 로케일을 하나 찾는다.
+pick_utf8_locale() {
+  local avail cand
+  avail=$(locale -a 2>/dev/null)
+  for cand in C.UTF-8 en_US.UTF-8 en_GB.UTF-8 ko_KR.UTF-8 POSIX.UTF-8; do
+    printf '%s\n' "$avail" | grep -qx "$cand" && { printf '%s' "$cand"; return 0; }
+  done
+  return 1
+}
+
+# UTF-8 로케일을 못 찾아 바이트 단위로 자른 경우, 끝에 남은 불완전한 멀티바이트
+# 시퀀스(글자가 중간에 잘린 것)를 찾아 통째로 잘라낸다 — 깨진 바이트만은 안 남기려는 최후 방어.
+trim_incomplete_utf8_tail() {
+  local s="$1" len i pos b ord need_len=0 start=-1 max_back=4
+  len=${#s}
+  [ "$len" -lt "$max_back" ] && max_back=$len
+  for (( i = 0; i < max_back; i++ )); do
+    pos=$(( len - 1 - i ))
+    b="${s:pos:1}"
+    ord=$(printf '%d' "'$b")
+    if (( (ord & 0xC0) != 0x80 )); then
+      start=$pos
+      if (( (ord & 0x80) == 0 )); then need_len=1
+      elif (( (ord & 0xE0) == 0xC0 )); then need_len=2
+      elif (( (ord & 0xF0) == 0xE0 )); then need_len=3
+      elif (( (ord & 0xF8) == 0xF0 )); then need_len=4
+      else need_len=1
+      fi
+      break
+    fi
+  done
+  if [ "$start" -ge 0 ]; then
+    local have_len=$(( len - start ))
+    (( have_len < need_len )) && s="${s:0:start}"
+  fi
+  printf '%s' "$s"
+}
+
 hint=""
 if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
-  # JSONL — type=user, content가 string인 메시지의 마지막 것
-  raw=$(jq -r 'select(.type == "user" and (.message.content | type == "string")) | .message.content' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1)
+  # JSONL을 스트림으로 읽어 type=user, content가 string인 메시지 최근 10개를
+  # NUL이 아닌 구분자(RS, \x1e)로 이어 붙인다 — 메시지 내부 줄바꿈은 보존해야 해서
+  # 줄 단위 tail로는 메시지 경계를 못 나눈다.
+  sep=$'\x1e'
+  joined=$(jq -n -j --arg sep "$sep" '
+    [inputs | select(.type == "user" and (.message.content | type == "string")) | .message.content] as $all
+    | ($all[-10:] // []) | join($sep)
+  ' "$TRANSCRIPT_PATH" 2>/dev/null)
+
+  raw=""
+  if [ -n "$joined" ]; then
+    # read는 IFS 설정과 무관하게 개행에서 한 줄을 끊어버리므로 -d ''로 그 동작을 끄고
+    # \x1e만 구분자로 쓴다 — 메시지 내부의 진짜 줄바꿈이 잘리는 걸 막기 위함.
+    IFS=$'\x1e' read -r -d '' -a _candidates <<< "$joined"
+    # 뒤(최신)에서부터 앞으로 훑으며 하네스 산물이 아닌 첫 메시지를 찾는다
+    for (( idx = ${#_candidates[@]} - 1; idx >= 0; idx-- )); do
+      cleaned=$(strip_harness_tags "${_candidates[idx]}")
+      if [ -n "$cleaned" ] && [[ "$cleaned" != "<"* ]]; then
+        raw="$cleaned"
+        break
+      fi
+    done
+  fi
+
   if [ -n "$raw" ]; then
-    # system-reminder 태그 블록 제거 + 줄바꿈 공백화 + 공백 정규화 + 60자 컷
-    hint=$(printf '%s' "$raw" \
-      | awk 'BEGIN{RS=""} {gsub(/<system-reminder>[^<]*<\/system-reminder>/, ""); print}' \
-      | tr '\n' ' ' \
-      | sed -E 's/  +/ /g; s/^ +//; s/ +$//' \
-      | cut -c1-60)
+    utf8_locale=$(pick_utf8_locale 2>/dev/null || true)
+    if [ -n "$utf8_locale" ]; then
+      hint=$(printf '%s' "$raw" | LC_ALL="$utf8_locale" cut -c1-60)
+    else
+      hint=$(printf '%s' "$raw" | cut -c1-60)
+      hint=$(trim_incomplete_utf8_tail "$hint")
+    fi
   fi
 fi
 
