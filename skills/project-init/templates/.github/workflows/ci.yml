@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      # Supabase 환경 변수(NEXT_PUBLIC_SUPABASE_URL 등) 없이 확인 완료:
+      # src/lib/supabase.ts는 함수 호출 시점에만 값을 읽고(값이 없으면 빈 문자열로 대체),
+      # 어디서도 import되지 않아 빌드·프리렌더 중에 실행되지 않는다.
+      # 그래서 자리표시자 env 없이도 npm run build가 그대로 통과한다.
+      - run: npm run build

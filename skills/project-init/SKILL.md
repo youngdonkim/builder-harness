@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: 새 프로젝트에 builder-harness 하네스 적용 — CLAUDE.md 뼈대 + .claude/rules/ 템플릿 복사 + planning/ 구조 생성. 트리거 예 "새 프로젝트 시작하자", "하네스 적용해줘", "이 repo에 하네스 세팅", 플러그인 설치 직후 첫 세팅.
+description: 새 프로젝트에 builder-harness 하네스 적용 — CLAUDE.md 뼈대 + .claude/rules/ 템플릿 복사 + mvp/ 산출물 폴더·docs/git-workflow.md·CI 워크플로 생성. 트리거 예 "새 프로젝트 시작하자", "하네스 적용해줘", "이 repo에 하네스 세팅", 플러그인 설치 직후 첫 세팅.
 ---
 
 # project-init — 새 프로젝트에 하네스 적용
@@ -24,31 +24,36 @@ description: 새 프로젝트에 builder-harness 하네스 적용 — CLAUDE.md 
 
 ### 2. CLAUDE.md 생성
 
-이 스킬 폴더의 [templates/CLAUDE.md.template](templates/CLAUDE.md.template)을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(응대·문서 작성 스타일 + 앱 개발 컨벤션 자리)는 **수정하지 않고 그대로** — 하네스 표준이다. **idea-to-mvp 방법론 설명은 CLAUDE.md에 넣지 않는다** — 방법론은 스킬 발동 중에만 필요하고 스킬이 전부 관리한다. CLAUDE.md는 만드는 제품(앱)과 사용자 취향의 자리다.
+이 스킬 폴더의 [templates/CLAUDE.md.template](templates/CLAUDE.md.template)을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(작업 원칙 + 디자인 시스템 adapter 자리 + 앱 개발 컨벤션 자리)는 **수정하지 않고 그대로** — 하네스 표준이다. **idea-to-mvp 방법론 설명은 CLAUDE.md에 넣지 않는다** — 방법론은 스킬 발동 중에만 필요하고 스킬이 전부 관리한다. CLAUDE.md는 만드는 제품(앱)과 사용자 취향의 자리다.
 
 ### 3. rules 복사
 
-[templates/rules/](templates/rules/)의 모든 파일을 프로젝트의 `.claude/rules/`로 복사한다 (폴더 없으면 생성). 현재 포함: `threat-model.md` (외부 도달 위협 모델 — 6단계 MvpBuild부터 실질 작동), `markdown-style.md` (마크다운 목차는 중첩 리스트로 — `**/*.md` 편집 시 트리거).
+[templates/rules/](templates/rules/)의 모든 파일을 프로젝트의 `.claude/rules/`로 복사한다 (폴더 없으면 생성). 현재 포함: `threat-model.md` (외부 도달 위협 모델 — 5단계 MvpBuild부터 실질 작동), `markdown-style.md` (마크다운 목차는 중첩 리스트로 — `**/*.md` 편집 시 트리거).
 
-### 4. planning 구조 생성
+### 4. mvp 구조 생성
 
 ```
-planning/mvp/          # 단계 산출물 (market-research.md 등이 단계 진행하며 생김)
+mvp/                   # 단계 산출물 (market-research.md 등이 단계 진행하며 생김)
 docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 ```
 
-빈 폴더는 git이 추적 안 하므로 `.gitkeep` 넣기.
+**`mvp/`는 git 추적 제외(로컬 전용)가 하네스 정책** — 프로젝트 `.gitignore`에 `/mvp/`를 추가한다.
 
-### 5. 마무리 안내
+### 5. 문서·CI 템플릿 복사
+
+- [templates/docs/git-workflow.md](templates/docs/git-workflow.md)를 프로젝트의 `docs/git-workflow.md`로 복사한다 — `no-main-push`·`auto-wip-commit` 훅과 `new-task`·`done-task`·`rewind-task` 스킬이 따르는 워크플로를 사람이 읽게 정리해둔 문서다.
+- [templates/.github/workflows/ci.yml](templates/.github/workflows/ci.yml)을 프로젝트의 `.github/workflows/ci.yml`로 복사한다 — lint + build를 도는 CI로, `done-task`가 머지 전에 이 통과를 기다린다.
+
+### 6. 마무리 안내
 
 사용자에게 알린다:
 
 - 하네스 스킬·에이전트·훅은 플러그인에서 자동 로드 — 이 repo에 복사 안 됨. 하네스 개선은 하네스 repo(`~/dev/builder-harness`)에서.
-- 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋).
-- 다음 단계: `/idea-to-mvp`로 1단계 IdeaValidation 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
+- 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
+- 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
 
 ## 안 하는 것 (의도적)
 
-- ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 6단계 MvpBuild 영역
+- ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 5단계 MvpBuild 영역
 - ❌ GitHub repo 생성·push — 사용자가 원할 때 별도로
 - ❌ 기존 CLAUDE.md 무단 덮어쓰기

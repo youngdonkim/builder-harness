@@ -1,6 +1,6 @@
 # builder-harness
 
-AI 빌더(혼자 AI로 며칠~몇 주에 작동하는 걸 만들어 시장 반응으로 검증하는 사람)를 위한 **Claude Code 하네스 플러그인**. 아이디어 검증부터 MVP 런치까지 **idea-to-mvp 7단계** 한 흐름을 스킬·서브에이전트·훅으로 제공한다.
+AI 빌더(혼자 AI로 며칠~몇 주에 작동하는 걸 만들어 시장 반응으로 검증하는 사람)를 위한 **Claude Code 하네스 플러그인**. 아이디어 검증부터 MVP 런치까지 **idea-to-mvp 6단계** 한 흐름을 스킬·서브에이전트·훅으로 제공한다.
 
 **설계 원칙**: 빌드는 AI가 거의 공짜로 해주니 — 팀·투자자에게 설명하려는 무거운 문서(ceremony)는 버리고, 빌더 자신이 뭘 만들고 뭘 안 만들지 정하는 최소 전략 + AI가 정확히 빌드하게 만드는 구체 명세만 남긴다.
 
@@ -8,11 +8,14 @@ AI 빌더(혼자 AI로 며칠~몇 주에 작동하는 걸 만들어 시장 반�
 
 | 종류 | 이름 | 역할 |
 |---|---|---|
-| 단계 스킬 | `idea-to-mvp` | 7단계: IdeaValidation · MarketResearch · ScreenDesign · Prototype · ProtoRetro · MvpBuild · MvpLaunch (통과 기준 4개) |
+| 단계 스킬 | `idea-to-mvp` | 6단계: UserStory · MarketResearch · Mockup · DemoValidation · MvpBuild · MvpLaunch (통과 기준 2개) |
 | 횡단 스킬 | `project-init` | 새 프로젝트에 하네스 적용 — CLAUDE.md 뼈대 + rules 템플릿 복사 |
-| 횡단 스킬 | `done-task` | WIP 커밋 → push → PR → merge → 원격 브랜치 삭제 한 흐름 |
+| 횡단 스킬 | `done-task` | WIP 커밋 → push → PR → (팀 권한 판별 후 오너면) CI 대기 → merge → 원격 브랜치 삭제 한 흐름 — 팀원은 PR까지, 오너는 머지까지 |
 | 횡단 스킬 | `new-task` | main 싱크 + 옛 브랜치 정리 + 새 feature 브랜치 생성 |
+| 횡단 스킬 | `rewind-task` | wip 시점 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
+| 서브에이전트 | `git-flow` | `new-task`·`done-task`·`rewind-task`의 fork 실행자 |
+| 서브에이전트 | `user-scenario-writer` | 영화 시나리오형 유저 스토리 작성 |
 | 서브에이전트 | `ux-writing-reviewer` | UI 카피를 UX writing 원칙 대조 후 직접 교정 |
 | 훅 | `no-main-push` | main 직접 push 차단 (PR 워크플로 강제) |
 | 훅 | `auto-wip-commit` | 응답 종료마다 feature 브랜치에 wip 자동 커밋 |
@@ -123,5 +126,7 @@ claude plugin update builder-harness@builder-harness --scope project
 skills/              # 단계·횡단 스킬
 agents/              # 서브에이전트
 hooks/               # hooks.json + 스크립트
-skills/project-init/templates/   # 새 프로젝트에 복사되는 CLAUDE.md·rules 템플릿
+skills/project-init/templates/   # 새 프로젝트에 복사되는 CLAUDE.md·rules·docs·CI 템플릿
+skills/project-init/templates/docs/              # git-workflow.md — 훅·done-task가 참조하는 워크플로 문서
+skills/project-init/templates/.github/workflows/ # ci.yml — done-task가 머지 전 통과를 기다리는 lint+build CI
 ```
