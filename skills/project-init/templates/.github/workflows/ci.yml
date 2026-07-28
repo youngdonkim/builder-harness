@@ -12,17 +12,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # 앱 코드가 생기기 전(5단계 MvpBuild 이전)에는 검사할 것이 없어 통과 처리한다.
+      # package-lock.json이 생기는 순간부터 아래 Node 단계들이 자동으로 돌기 시작한다.
+      - name: Node 프로젝트 여부 확인
+        id: node
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "package-lock.json 없음 — 앱 코드 생기기 전이라 빌드 검사를 건너뜀 (통과)"
+          fi
+
+      - if: steps.node.outputs.present == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
 
-      - run: npm ci
+      - if: steps.node.outputs.present == 'true'
+        run: npm ci
 
-      - run: npm run lint
+      - if: steps.node.outputs.present == 'true'
+        run: npm run lint
 
       # Supabase 환경 변수(NEXT_PUBLIC_SUPABASE_URL 등) 없이 확인 완료:
       # src/lib/supabase.ts는 함수 호출 시점에만 값을 읽고(값이 없으면 빈 문자열로 대체),
       # 어디서도 import되지 않아 빌드·프리렌더 중에 실행되지 않는다.
       # 그래서 자리표시자 env 없이도 npm run build가 그대로 통과한다.
-      - run: npm run build
+      - if: steps.node.outputs.present == 'true'
+        run: npm run build
