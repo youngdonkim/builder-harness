@@ -9,7 +9,7 @@ AI 빌더(혼자 AI로 며칠~몇 주에 작동하는 걸 만들어 시장 반�
 | 종류 | 이름 | 역할 |
 |---|---|---|
 | 단계 스킬 | `idea-to-mvp` | 6단계: UserStory · MarketResearch · Mockup · DemoValidation · MvpBuild · MvpLaunch (통과 기준 2개) |
-| 횡단 스킬 | `project-init` | 새 프로젝트에 하네스 적용 — CLAUDE.md 뼈대 + rules 템플릿 복사 |
+| 횡단 스킬 | `project-init` | 새 프로젝트에 하네스 적용 — CLAUDE.md 뼈대 + rules 템플릿 복사. 이미 적용된 프로젝트에서 재실행하면 복사본을 최신 템플릿과 비교해 동기화 |
 | 횡단 스킬 | `done-task` | WIP 커밋 → push → PR → (팀 권한 판별 후 오너면) CI 대기 → merge → 원격 브랜치 삭제 한 흐름 — 팀원은 PR까지, 오너는 머지까지 |
 | 횡단 스킬 | `new-task` | main 싱크 + 옛 브랜치 정리 + 새 feature 브랜치 생성 |
 | 횡단 스킬 | `rewind-task` | wip 시점 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
@@ -111,6 +111,12 @@ claude plugin update builder-harness@builder-harness --scope project
 
 **3) 언제부터 적용되나**: 지금 이미 열려 있는 Claude Code 세션에는 반영되지 않고, **다음에 새로 여는 세션부터** 적용된다("Restart to apply changes"). 지금 세션에 바로 반영하고 싶다면 그 세션 안에서 `/reload-plugins`를 치면 된다.
 
+**템플릿 사본 동기화 — 프로젝트마다 따로 챙겨야 하는 것**: 위 1)~2)로 새로 받는 건 스킬·서브에이전트·훅뿐이다. `project-init`이 예전에 각 프로젝트로 **복사해준 파일들**(`.claude/rules/*`, `docs/git-workflow.md`, `.github/workflows/ci.yml`)은 이미 그 프로젝트 저장소의 일부라, 플러그인을 업데이트해도 저절로 바뀌지 않는다.
+
+템플릿이 개선된 새 버전을 받았다면, 그 파일을 쓰고 있는 프로젝트의 세션에서 `/project-init`을 다시 실행하면 된다. 이미 적용된 프로젝트에서는 자동으로 동기화 모드로 동작한다 — 복사본과 최신 템플릿을 비교해서, 같으면 그냥 넘어가고, 새로 생긴 파일은 복사하고, 달라진 파일은 뭐가 바뀌는지 보여주고 확인을 받은 뒤에 갱신한다(프로젝트가 일부러 손봐둔 커스텀은 그대로 보호된다). 갱신된 파일은 그 프로젝트의 git 워크플로(feature 브랜치 → PR)로 커밋한다.
+
+팀 프로젝트라면 이렇게 갱신해서 main에 합쳐두는 것만으로 충분하다 — 그 저장소를 새로 내려받거나(clone) 당겨오는(pull) 팀원은 고쳐진 사본을 자동으로 받는다. 팀원이 따로 할 일은 자기 컴퓨터에서 플러그인을 설치·업데이트해두는 것뿐이다.
+
 **자동 갱신**을 원하면 프로젝트의 `.claude/settings.json` 파일에서 `extraKnownMarketplaces.builder-harness` 항목에 `"autoUpdate": true`를 추가한다 — 그러면 Claude Code 세션을 새로 열 때마다 자동으로 최신본을 확인한다. (이 저장소처럼 Anthropic이 아니라 개인·커뮤니티가 만든 마켓플레이스는 기본적으로 이 자동 확인이 꺼져 있어서, 켜고 싶으면 직접 설정해야 한다.) 이 경우도 방금 받아온 걸 지금 열린 세션에서 바로 쓰려면 `/reload-plugins`는 그대로 쳐야 한다.
 
 **새 버전은 어떻게 만들어지나 (역할 B — 하네스 개발자)**: 어느 프로젝트에서든 하네스 개선점 발견 → 이 저장소에서 수정 → PR → 관리자가 main에 합침(merge). merge된 순간부터 위 1)~2) 절차로 누구나 새 버전을 받을 수 있다.
@@ -128,5 +134,5 @@ agents/              # 서브에이전트
 hooks/               # hooks.json + 스크립트
 skills/project-init/templates/   # 새 프로젝트에 복사되는 CLAUDE.md·rules·docs·CI 템플릿
 skills/project-init/templates/docs/              # git-workflow.md — 훅·done-task가 참조하는 워크플로 문서
-skills/project-init/templates/.github/workflows/ # ci.yml — done-task가 머지 전 통과를 기다리는 lint+build CI
+skills/project-init/templates/.github/workflows/ # ci.yml — done-task가 머지 전 통과를 기다리는 lint+build CI. 앱 코드(package-lock.json)가 아직 없는 프로젝트에서는 자동으로 통과 처리되고, 생기는 순간부터 실제 lint+build가 돌기 시작한다
 ```
