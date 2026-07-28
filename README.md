@@ -117,7 +117,22 @@ claude plugin update builder-harness@builder-harness --scope project
 
 팀 프로젝트라면 이렇게 갱신해서 main에 합쳐두는 것만으로 충분하다 — 그 저장소를 새로 내려받거나(clone) 당겨오는(pull) 팀원은 고쳐진 사본을 자동으로 받는다. 팀원이 따로 할 일은 자기 컴퓨터에서 플러그인을 설치·업데이트해두는 것뿐이다.
 
-**자동 갱신**을 원하면 프로젝트의 `.claude/settings.json` 파일에서 `extraKnownMarketplaces.builder-harness` 항목에 `"autoUpdate": true`를 추가한다 — 그러면 Claude Code 세션을 새로 열 때마다 자동으로 최신본을 확인한다. (이 저장소처럼 Anthropic이 아니라 개인·커뮤니티가 만든 마켓플레이스는 기본적으로 이 자동 확인이 꺼져 있어서, 켜고 싶으면 직접 설정해야 한다.) 이 경우도 방금 받아온 걸 지금 열린 세션에서 바로 쓰려면 `/reload-plugins`는 그대로 쳐야 한다.
+**자동 갱신**을 원하면 프로젝트의 `.claude/settings.json` 파일에서 `extraKnownMarketplaces.builder-harness` 항목에 `"autoUpdate": true`를 추가한다 — 그러면 Claude Code 세션을 새로 열 때마다 자동으로 최신본을 확인한다. (이 저장소처럼 Anthropic이 아니라 개인·커뮤니티가 만든 마켓플레이스는 기본적으로 이 자동 확인이 꺼져 있어서, 켜고 싶으면 직접 설정해야 한다.) 설정 예시:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "builder-harness": {
+      "source": { "source": "github", "repo": "youngdonkim/builder-harness" },
+      "autoUpdate": true
+    }
+  }
+}
+```
+
+이걸 직접 손으로 쓸 필요는 없다 — `/project-init`이 새 프로젝트를 세팅할 때(또는 이미 적용된 프로젝트에서 템플릿 동기화를 다시 실행할 때)마다 자동 갱신을 켤지 물어보고, 켜기로 하면 기존 설정(특히 `enabledPlugins`)을 보존한 채 위 항목을 대신 넣어준다.
+
+`.claude/settings.json`은 이 저장소(프로젝트)에 커밋되는 파일이라, 팀원 한 명이 이 설정을 켜서 main에 합쳐두면 그 저장소를 새로 내려받거나(clone) 당겨오는(pull) 팀원 전원에게 똑같이 적용된다. 다만 각자 컴퓨터에서 처음 한 번은 Claude Code의 마켓플레이스 신뢰 확인을 직접 통과해야 한다. 이 경우도 방금 받아온 걸 지금 열린 세션에서 바로 쓰려면 `/reload-plugins`는 그대로 쳐야 한다.
 
 **새 버전은 어떻게 만들어지나 (역할 B — 하네스 개발자)**: 어느 프로젝트에서든 하네스 개선점 발견 → 이 저장소에서 수정 → PR → 관리자가 main에 합침(merge). merge된 순간부터 위 1)~2) 절차로 누구나 새 버전을 받을 수 있다.
 

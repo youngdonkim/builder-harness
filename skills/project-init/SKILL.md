@@ -48,7 +48,24 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 - [templates/docs/git-workflow.md](templates/docs/git-workflow.md)를 프로젝트의 `docs/git-workflow.md`로 복사한다 — `no-main-push`·`auto-wip-commit` 훅과 `new-task`·`done-task`·`rewind-task` 스킬이 따르는 워크플로를 사람이 읽게 정리해둔 문서다.
 - [templates/.github/workflows/ci.yml](templates/.github/workflows/ci.yml)을 프로젝트의 `.github/workflows/ci.yml`로 복사한다 — lint + build를 도는 CI로, `done-task`가 머지 전에 이 통과를 기다린다.
 
-### 6. 마무리 안내
+### 6. 플러그인 자동 갱신 설정 (선택)
+
+사용자에게 묻는다 — "플러그인 자동 갱신을 켤까?" 켜면 Claude Code 세션을 새로 열 때마다 하네스 최신본을 자동 확인한다. 이 설정은 프로젝트의 `.claude/settings.json`에 저장되고 **repo에 커밋**되므로, 이 repo를 클론하는 팀원 전원에게도 똑같이 적용된다. 트레이드오프도 함께 안내한다 — 하네스 main에 깨진 커밋이 들어가면 팀 전체 다음 세션에 바로 전파된다.
+
+동의하면 프로젝트의 `.claude/settings.json`에 아래 `extraKnownMarketplaces` 항목을 병합한다 (파일이 없으면 새로 만들고, 있으면 기존 키 — 특히 `enabledPlugins` — 를 보존한 채 추가):
+
+```json
+"extraKnownMarketplaces": {
+  "builder-harness": {
+    "source": { "source": "github", "repo": "youngdonkim/builder-harness" },
+    "autoUpdate": true
+  }
+}
+```
+
+팀원 각자는 처음 한 번 Claude Code의 마켓플레이스 신뢰 확인을 통과해야 적용된다.
+
+### 7. 마무리 안내
 
 사용자에게 알린다:
 
@@ -80,7 +97,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 ### 3. mvp/·docs/·gitignore 보정
 
-`mvp/`·`docs/` 폴더와 `.gitignore`의 `/mvp/` 항목은 신규 모드와 동일하게, 없으면 채운다.
+`mvp/`·`docs/` 폴더와 `.gitignore`의 `/mvp/` 항목은 신규 모드와 동일하게, 없으면 채운다. `.claude/settings.json`에 `extraKnownMarketplaces.builder-harness`가 없으면, 신규 모드의 "플러그인 자동 갱신 설정" 단계와 동일하게 자동 갱신을 켤지 물어보고 반영한다.
 
 ### 4. 마무리 보고
 
