@@ -67,7 +67,6 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 사용자에게 알린다:
 
-- 하네스 스킬·에이전트·훅은 플러그인에서 자동 로드 — 이 repo에 복사 안 됨. 하네스 개선은 하네스 repo(`~/dev/builder-harness`)에서.
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
 
