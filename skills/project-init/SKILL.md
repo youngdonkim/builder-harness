@@ -41,8 +41,6 @@ mvp/                   # 단계 산출물 (market-research.md 등이 단계 진�
 docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 ```
 
-**`mvp/`는 git 추적 제외(로컬 전용)가 하네스 정책** — 프로젝트 `.gitignore`에 `/mvp/`를 추가한다.
-
 ### 5. 문서·CI 템플릿 복사
 
 - [templates/docs/git-workflow.md](templates/docs/git-workflow.md)를 프로젝트의 `docs/git-workflow.md`로 복사한다 — `no-main-push`·`auto-wip-commit` 훅과 `new-task`·`done-task`·`rewind-task` 스킬이 따르는 워크플로를 사람이 읽게 정리해둔 문서다.
@@ -95,9 +93,9 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 `CLAUDE.md`는 프로젝트 고유 내용({{placeholder}}가 채워진 산출물)이라 템플릿과 다른 게 정상이므로 비교 대상에서 제외한다. 다만 템플릿의 *구조*(섹션 골격)가 크게 바뀐 경우에만 "구조가 달라졌는데 맞출까?"라고 안내한다.
 
-### 3. mvp/·docs/·gitignore 보정
+### 3. mvp/·docs/ 보정
 
-`mvp/`·`docs/` 폴더와 `.gitignore`의 `/mvp/` 항목은 신규 모드와 동일하게, 없으면 채운다. `.claude/settings.json`에 `extraKnownMarketplaces.builder-harness`가 없으면, 신규 모드의 "플러그인 자동 갱신 설정" 단계와 동일하게 자동 갱신을 켤지 물어보고 반영한다.
+`mvp/`·`docs/` 폴더는 신규 모드와 동일하게, 없으면 채운다. `.claude/settings.json`에 `extraKnownMarketplaces.builder-harness`가 없으면, 신규 모드의 "플러그인 자동 갱신 설정" 단계와 동일하게 자동 갱신을 켤지 물어보고 반영한다.
 
 ### 4. 마무리 보고
 
