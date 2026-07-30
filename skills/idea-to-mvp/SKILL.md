@@ -105,7 +105,7 @@ disable-model-invocation: true
 
 | 단계 | 이 단계가 확정하는 산출물 (= 그 영역의 SoT) | 다음 단계와의 관계 | references |
 |---|---|---|---|
-| 1 UserStory | `user-story.md` — 필수 입력 5개(서비스 한 줄 정의·타겟·현재 대안과 불편함·해결책 핵심·아이디어를 떠올린 경로) + user-scenario-writer 에이전트가 쓴 영화 시나리오형 유저 스토리 | 2단계 MarketResearch가 조사 입력으로 쓰고, 3단계 Mockup이 Claude Design 입력 프롬프트의 재료로 씀 | `1-user-story.md` |
+| 1 UserStory | `user-story.md` — 필수 입력 4개(서비스 한 줄 정의·타겟·현재 대안과 불편함·해결책 핵심) + user-scenario-writer 에이전트가 쓴 영화 시나리오형 유저 스토리 | 2단계 MarketResearch가 조사 입력으로 쓰고, 3단계 Mockup이 Claude Design 입력 프롬프트의 재료로 씀 | `1-user-story.md` |
 | 2 **MarketResearch (참고용)** | `market-research.md` — 경쟁자 분석 · 경쟁 강도 참고 정리(등급만 표기, 판정 아님) · 차별화 축(axis)·카테고리 재정의 참고 · 조사 요약 | **3~4단계의 참고 맥락 (게이트 아님)** — 목업 방향·데모 인터뷰 질문을 벼리는 데 씀. 접을지는 유저 자율 판단 | `2-market-research.md` |
 | 3 **Mockup** | **프로젝트 루트**의 `[projectName]-proto.html` 하나 — `user-story.md`(+참고로 `market-research.md`)를 외부 Claude Design("Mobile app design" 또는 "UI mockups" 모드)에 입력해 받아 온 standalone.html(자급자족 단일 파일, 항상 최신 하나) | 4단계 데모 대상. 4단계에서 구조적 수정사항이 나오면 이 단계로 돌아와 재생성(3↔4 순환) | `3-mockup.md` |
 | 4 **DemoValidation** (구 IdeaValidation 개편) | `demo-validation.md` — 맘 테스트 인터뷰(데모 *전* 과거 행동) + 데모 반응·Pull 신호·UI 피드백 + go 시점 최종 확정 아이디어·비목표·검증 가설·북극성(구 MarketResearch의 "최종 서비스 기획 요약" 역할 흡수) | 순환 수렴 시 5단계의 출발점. 미수렴이면 3단계로 복귀. 아이디어·가설은 여기서부터 `이전 결론 → 이번 결론` 체인으로 이어진다 (§2.2) | `4-demo-validation.md` |
@@ -198,7 +198,7 @@ disable-model-invocation: true
 
 산출물 위치: 프로젝트 루트의 `mvp/` — vN 없음. 한 폴더에 산출물 (`user-story.md` · `market-research.md` · `demo-validation.md` · `mvp-build.md` · `launch-plan.md` · `launch-retro.md`). **Mockup 산출물만 예외** — 아래 참조.
 
-**앱 코드는 프로젝트 루트 폴더에** — **5단계 MvpBuild에서** `package.json`·`src/` 등이 프로젝트 루트 폴더(이 저장소의 최상위 폴더)에 생기고, 같은 단계 안에서 프로토타입 구현에 이어 백엔드·계측·배포까지 붙인다. 여기서 '앱'은 웹사이트·모바일 앱·데스크톱 프로그램 등 만들려는 소프트웨어 전부를 가리킨다 (문서 전체 동일). `mvp/`은 문서 산출물만 (`mvp/`은 git 추적 제외 — 로컬 전용. 앱 코드는 git 추적).
+**앱 코드는 프로젝트 루트 폴더에** — **5단계 MvpBuild에서** `package.json`·`src/` 등이 프로젝트 루트 폴더(이 저장소의 최상위 폴더)에 생기고, 같은 단계 안에서 프로토타입 구현에 이어 백엔드·계측·배포까지 붙인다. 여기서 '앱'은 웹사이트·모바일 앱·데스크톱 프로그램 등 만들려는 소프트웨어 전부를 가리킨다 (문서 전체 동일). `mvp/`은 문서 산출물만.
 
 **예외 — Mockup 산출물은 루트에**: Mockup(3단계) 산출물은 **프로젝트 루트**의 `[projectName]-proto.html` 파일 하나뿐이다. 사용자가 외부 Claude Design("Mobile app design" 또는 "UI mockups" 모드)에서 **standalone.html**(자급자족 단일 파일 — 폰트·이미지·컴포넌트 소스까지 전부 내장)을 받아 와 프로젝트 루트에 이 이름으로 저장하면 그게 SoT. **3↔4 순환 중에는 같은 파일명으로 교체하는 갱신이 기본** — 구조적 수정사항이 나올 때마다 Claude Design에서 재생성해 덮어쓴다(버전 폴더·zip 압축해제·README 없음, 항상 최신 하나만 유지). 순환이 수렴하면 이 시점의 파일이 동결되고, 5단계부터는 더 이상 고치지 않는 정답지로만 쓴다 (§2.2). 상세는 `references/3-mockup.md`.
 

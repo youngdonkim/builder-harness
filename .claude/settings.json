@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "builder-harness@builder-harness": true
+  }
+}
