@@ -195,7 +195,7 @@ else
 이 환경은 자동 갱신이 꺼져 있어서 직접 올려야 해. 터미널에서 아래 두 명령을 순서대로 실행해:
   claude plugin marketplace update builder-harness
   claude plugin update builder-harness@builder-harness --scope project
-그 뒤 이 폴더로 새 대화 세션을 열면 적용돼."
+그 뒤 Claude 앱을 완전히 종료했다가(Cmd+Q) 다시 켜야 적용돼 — 새 대화만 열면 안 바뀌어."
 
   AUTOUPDATE_NOTE="이 환경은 자동 갱신이 꺼져 있어서 사용자가 직접 올려야 한다."
 fi

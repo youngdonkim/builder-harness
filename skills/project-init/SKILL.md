@@ -82,7 +82,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 사용자에게 알린다:
 
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — 메인 폴더는 main이라 자동으로 건너뛰고, 워크트리에서만 돈다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
-- 하네스를 나중에 최신 버전으로 올리려면 터미널에서 `claude plugin marketplace update builder-harness`, `claude plugin update builder-harness@builder-harness --scope project` 두 명령을 순서대로 실행한다. Claude 데스크톱 앱은 같은 프로젝트 폴더로 새 대화 세션을 열어야 반영된다.
+- 하네스를 나중에 최신 버전으로 올리려면 터미널에서 `claude plugin marketplace update builder-harness`, `claude plugin update builder-harness@builder-harness --scope project` 두 명령을 순서대로 실행한다. Claude 데스크톱 앱은 새 대화를 열어도 반영되지 않으니 앱을 완전히 종료했다가(`Cmd+Q`) 다시 켜야 한다 — 플러그인은 프로그램이 처음 뜰 때 한 번 읽고 고정되기 때문이다.
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
 
 ## 동기화 모드 절차
