@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 앱 코드가 생기기 전(5단계 MvpBuild 이전)에는 검사할 것이 없어 통과 처리한다.
+      # 앱 코드가 생기기 전(6단계 MvpBuild 이전)에는 검사할 것이 없어 통과 처리한다.
       # package-lock.json이 생기는 순간부터 아래 Node 단계들이 자동으로 돌기 시작한다.
       - name: Node 프로젝트 여부 확인
         id: node

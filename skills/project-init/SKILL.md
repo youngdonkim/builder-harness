@@ -34,7 +34,7 @@ description: 새 프로젝트에 builder-harness 하네스 적용 — CLAUDE.md 
 
 ### 3. rules 복사
 
-[templates/rules/](templates/rules/)의 모든 파일을 프로젝트의 `.claude/rules/`로 복사한다 (폴더 없으면 생성). 현재 포함: `threat-model.md` (외부 도달 위협 모델 — 5단계 MvpBuild부터 실질 작동), `markdown-style.md` (마크다운 목차는 중첩 리스트로 — `**/*.md` 편집 시 트리거).
+[templates/rules/](templates/rules/)의 모든 파일을 프로젝트의 `.claude/rules/`로 복사한다 (폴더 없으면 생성). 현재 포함: `threat-model.md` (외부 도달 위협 모델 — 6단계 MvpBuild부터 실질 작동), `markdown-style.md` (마크다운 목차는 중첩 리스트로 — `**/*.md` 편집 시 트리거).
 
 ### 4. mvp 구조 생성
 
@@ -108,7 +108,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 ## 안 하는 것 (의도적)
 
-- ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 5단계 MvpBuild 영역
+- ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 6단계 MvpBuild 영역
 - ❌ GitHub repo 생성·push — 사용자가 원할 때 별도로
 - ❌ 기존 CLAUDE.md 무단 덮어쓰기
 - ❌ 동기화 모드에서 diff 없이 일괄 덮어쓰기 — 다른 파일은 반드시 사용자 확인 후 교체
