@@ -105,26 +105,42 @@ gh pr status 2>/dev/null || true
 
     재호출 예시: `/new-task <의도> — 그래도 진행`
     ```
-- main이면 skip.
+- 메인 폴더의 main이면 skip.
 
-### 2. main 싱크
+### 2. main 싱크 — 기준점은 `origin/main`
+
+새 작업 폴더는 `origin/main`을 기점으로 만든다. 그래서 **반드시 필요한 건 원격 추적 참조(origin/main) 갱신 하나**뿐이다. 이건 메인 폴더든 워크트리든 어디서 실행해도 된다.
 
 ```bash
-git switch main
-git pull origin main
+git fetch origin main          # origin/main을 최신으로
 ```
 
-- pull 충돌 발생 시 (드물지만 다른 컴퓨터에서 push했을 가능성) → 중단 후 사용자에게 안내: "main 최신 가져오기(pull)에 충돌이 났어. 이 스킬은 깨끗한 main 위에서 새 브랜치를 시작하는 도구라, 충돌을 먼저 해결해야 진행 가능해. 해결하고 다시 호출해줘."
+- 이게 실패하면 (네트워크 등) 중단하고 안내: "GitHub에서 최신 main을 못 받아왔어. 새 작업 폴더는 원격 main 최신 위에서 시작해야 해서 여기서 멈췄어. 연결 확인하고 다시 호출해줘."
 
-### 3. 옛 브랜치 정리
+로컬 `main` 브랜치까지 최신으로 맞추는 건 **선택**이다. 지금 위치에 따라 갈린다:
+
+| 지금 위치                        | 하는 일                                                              |
+| -------------------------------- | -------------------------------------------------------------------- |
+| 메인 폴더 + 브랜치가 `main`      | `git pull origin main`                                               |
+| 메인 폴더 + feature 브랜치       | `git switch main` 후 `git pull origin main` (메인 폴더에선 전환 가능) |
+| 워크트리 안                      | `git -C <메인폴더> pull origin main` 시도. 실패해도 그냥 진행         |
+
+- **워크트리 안에서 `git switch main`을 시도하지 마라** — 반드시 실패한다: `fatal: 'main' is already used by worktree at <메인 폴더>`. 한 브랜치는 폴더 하나에만 올릴 수 있어서다.
+- 같은 이유로 워크트리 안에서 `git fetch origin main:main` (로컬 main을 직접 갱신하는 형태)도 막힌다: `refusing to fetch into branch 'refs/heads/main' checked out at ...`. 로컬 main은 위 표의 `-C` 방식으로만 건드려라.
+- pull 충돌 발생 시 (드물지만 다른 컴퓨터에서 push했을 가능성):
+  - **메인 폴더에서 났으면** → 중단 후 안내: "메인 폴더의 main 최신 가져오기(pull)에 충돌이 났어. 메인 폴더가 합치는 중간 상태로 남아 있어서 먼저 풀어야 해. 해결하고 다시 호출해줘."
+  - **`-C`로 메인 폴더를 건드리다 났으면** → 그냥 진행한다 (새 작업은 `origin/main` 기준이라 영향 없음). 대신 §5 보고에 남겨라: `ℹ️ 메인 폴더의 로컬 main 갱신은 충돌로 건너뛰었어 — 새 작업엔 영향 없지만 메인 폴더는 한 번 정리해줘.`
+
+### 3. 옛 작업 폴더·브랜치 정리
 
 ```bash
-# remote에서 사라진 브랜치 prune
-git remote prune origin
-
-# local feature 브랜치 list
+git remote prune origin         # 원격에서 사라진 브랜치 참조 정리
+git worktree prune              # 폴더가 이미 사라진 워크트리 기록 정리
+git worktree list --porcelain   # 지금 살아있는 워크트리 (경로 + 브랜치)
 git branch --format='%(refname:short)' | grep -v '^main$'
 ```
+
+`git worktree list --porcelain`은 워크트리마다 `worktree <경로>` 줄과 `branch refs/heads/<브랜치>` 줄을 낸다. 이걸로 **브랜치 → 폴더** 짝을 먼저 만들어두고 아래를 진행해라.
 
 각 local feature 브랜치에 대해:
 
@@ -133,15 +149,33 @@ git branch --format='%(refname:short)' | grep -v '^main$'
 gh pr list --head <branch> --state merged --json number,state,url --limit 1
 ```
 
-- 응답에 머지된 PR 있으면 → **자동 삭제 대상**. 머지된 PR은 내용이 GitHub에 보존돼 되돌릴 수 있는 안전한 정리 작업이라 args 지시 없이도 바로 진행:
-  - `git branch -D <name>` (squash merge는 force delete 필수).
-  - remote에 같은 브랜치 남아있으면 `git push origin --delete <name>` 도 함께.
-  - 완료 보고(§5)에 "삭제됨" 목록으로 명시 (branch명 + PR 번호·URL).
+- 응답에 머지된 PR 있으면 → **자동 정리 대상**. 머지된 PR은 내용이 GitHub에 보존돼 되돌릴 수 있는 안전한 정리 작업이라 args 지시 없이도 바로 진행한다.
+
+**정리 순서는 폴더 먼저, 브랜치 나중.** 반대로 하면 실패한다 — 워크트리가 쓰고 있는 브랜치는 지울 수 없다 (`error: cannot delete branch 'X' used by worktree at ...`).
+
+1. **그 브랜치의 워크트리가 지금 내가 앉아 있는 폴더인가?** (§1-a의 `--show-toplevel`과 비교)
+   - **맞으면 아무것도 하지 마라.** 자기가 앉은 워크트리는 `git worktree remove`가 종료코드 0으로 **성공해버려서** 세션 폴더가 통째로 증발한다. 브랜치도 그 폴더가 쓰고 있어 못 지운다. 이 폴더는 **"정리 대기"** 목록에 넣고 §5 보고에 올린 뒤, 이 브랜치에 대한 아래 2~4번은 통째로 건너뛴다 — 메인 세션이 새 워크트리로 들어가면 점유가 풀리니 그때 정리하면 된다.
+   - 아니면 다음으로.
+2. `git worktree remove <경로>` — 딸린 워크트리가 있을 때만.
+   - 거부되면 (`fatal: '<경로>' contains modified or untracked files, use --force`) → **`--force`를 자동으로 쓰지 마라.** 커밋 안 된 변경이 그대로 날아간다. args에 그 폴더 처리 지시가 없으면 **[결정 필요] 반환**:
+     ```
+     [결정 필요] 다 끝난 옛 작업 폴더 <경로>에 커밋되지 않은 변경(수정·추가된 파일)이 남아 있어서
+     폴더를 지우지 못했어. 지우면 그 변경은 되살릴 방법이 사실상 없어서 밀어붙이지 않았어.
+
+     선택지:
+     - 남은 변경 버리고 폴더 정리 (`git worktree remove --force`)
+     - 그대로 두기 — 직접 열어보고 판단할게 (딸린 브랜치도 같이 남아)
+
+     재호출 예시: `/new-task <의도> — <경로> 변경 버리고 정리` / `/new-task <의도> — <경로> 그대로 둬`
+     ```
+3. `git branch -D <branch>` (squash merge는 force delete 필수)
+4. remote에 같은 브랜치 남아있으면 `git push origin --delete <branch>` 도 함께
+5. 완료 보고(§5)에 "정리됨" 목록으로 명시 (폴더 경로 + branch명 + PR 번호·URL)
 
 **미머지 PR 있는 브랜치**:
 
-- 보존 (사용자가 추후 머지 가능성). 팀 작업에선 팀원이 PR 올려두고 다음 작업으로 넘어간 흔적일 때가 많으니 흔한 상황으로 취급해라.
-- args에 "버려도 돼" 류 명시 지시가 있을 때만 force delete.
+- 보존 — 딸린 작업 폴더도 그대로 둔다 (사용자가 추후 머지 가능성). 팀 작업에선 팀원이 PR 올려두고 다음 작업으로 넘어간 흔적일 때가 많으니 흔한 상황으로 취급해라.
+- args에 "버려도 돼" 류 명시 지시가 있을 때만 정리 — 이때도 순서는 위와 같다 (폴더 먼저, 브랜치 나중).
 - 완료 보고(§5)에 "보존된 옛 브랜치" 목록으로 명시 (branch명 + PR 번호).
 
 **PR 없는 local 브랜치** (예: 로컬에서만 만든 실험 브랜치):
@@ -168,8 +202,10 @@ gh pr list --head <branch> --state merged --json number,state,url --limit 1
   ```
 - 실행: "삭제"면 `git branch -D branch-X` (+ remote에도 있으면 `git push origin --delete branch-X`).
   "태그로 표시해두고 삭제"면 먼저 `git tag archive/branch-X` 찍고 나서 위 삭제 명령 실행.
+- **작업 폴더가 딸려 있으면 여기서도 폴더가 먼저다** — `git worktree remove <경로>` 하고 나서 `git branch -D`.
+  그 폴더가 지금 앉아 있는 자리면 건드리지 말고 "정리 대기"로 넘긴다 (위 1번과 같은 이유).
 
-### 4. 새 브랜치 자동 생성
+### 4. 새 작업 폴더·브랜치 자동 생성
 
 #### 4-a. 사용자 의도 수집
 
@@ -178,7 +214,7 @@ gh pr list --head <branch> --state merged --json number,state,url --limit 1
   - `/new-task feat hero-redesign` → 명시적 type·topic 패턴이면 그대로 사용 (skip 4-b)
 - **args 없으면** **[결정 필요] 반환** (fork는 질문 불가):
   ```
-  [결정 필요] 다음 작업이 뭔지 알아야 브랜치를 만들 수 있어.
+  [결정 필요] 다음 작업이 뭔지 알아야 작업 폴더를 만들 수 있어.
 
   재호출 예시: `/new-task hero 영역 다시 디자인` / `/new-task feat hero-redesign`
   ```
@@ -205,59 +241,80 @@ gh pr list --head <branch> --state merged --json number,state,url --limit 1
 - 30자 이하 (긴 의도는 핵심 키워드만 압축)
 - 한글 의도 → 영문 키워드로 번역 (`헤더 색깔 변경` → `header-color-change`)
 - 모호한 표현 제거 (`다시`, `좀`, `더` 등)
+- 브랜치명이 곧 폴더명이라 글자 제한이 있다 — `/`로 나뉜 각 구간은 영문자·숫자·점·밑줄·붙임표만, `<type>/<topic>` 전체 64자 이하 (메인 세션이 쓸 `EnterWorktree` 도구의 제약이다)
 
 #### 4-c. 생성·보고
 
-생성 전에 이름 충돌부터 확인한다 — 로컬뿐 아니라 **원격도** 봐야 한다. 로컬에 없어도 팀원이 이미 같은 이름을 GitHub에 올려놨을 수 있고, 이 경우 지금은 생성이 성공해도 나중에 `done-task`에서 push할 때 거부된다 (원격에 이미 다른 내용이 있어서). 작업 다 끝낸 뒤 터지면 특히 아프니 미리 걸러라.
+생성 전에 이름 충돌부터 확인한다 — **로컬 브랜치·원격 브랜치·작업 폴더 세 군데**를 다 봐야 한다. 로컬에 없어도 팀원이 이미 같은 이름을 GitHub에 올려놨을 수 있고, 이 경우 지금은 생성이 성공해도 나중에 `done-task`에서 push할 때 거부된다 (원격에 이미 다른 내용이 있어서). 작업 다 끝낸 뒤 터지면 특히 아프니 미리 걸러라.
 
 ```bash
 git branch --list "${type}/${topic}"
 git ls-remote --heads origin "${type}/${topic}"
+git worktree list --porcelain          # 같은 경로가 이미 등록돼 있나
 ```
 
-두 명령 다 **결과가 있으면 존재, 출력이 비어 있으면 없음**으로 판정한다 (둘 다 이름이 없어도 exit code는 0이라, exit code가 아니라 출력 유무로 봐야 함).
+앞 두 명령은 **결과가 있으면 존재, 출력이 비어 있으면 없음**으로 판정한다 (둘 다 이름이 없어도 exit code는 0이라, exit code가 아니라 출력 유무로 봐야 함). 워크트리 목록에 `.claude/worktrees/${type}/${topic}` 경로가 이미 보여도 충돌이다.
 
-- 둘 다 비어있으면 그대로 생성:
+- 셋 다 비어있으면 그대로 생성:
   ```bash
-  git switch -c "${type}/${topic}"
+  git worktree add "<메인폴더>/.claude/worktrees/${type}/${topic}" -b "${type}/${topic}" origin/main
   ```
+  - 이 한 줄이 폴더 만들기 + 브랜치 만들기 + 그 폴더에 브랜치 올리기를 한꺼번에 한다. 기점이 `origin/main`이라 로컬 `main`이 낡아 있어도 새 작업은 최신에서 시작한다.
+  - **경로는 반드시 메인 폴더 기준 절대 경로로 써라** (§1-a에서 구해둔 그 경로). 워크트리 안에서 상대 경로로 실행하면 새 폴더가 지금 앉아 있는 옛 폴더 밑에 파묻힌다. `git -C <메인폴더> worktree add ".claude/worktrees/..."` 형태도 같은 효과다.
 - 하나라도 결과가 있으면 → §엣지 — 이름 충돌 참고.
+- `git worktree add`가 `fatal: '<경로>' already exists`로 실패하면, git에 등록은 안 됐지만 폴더만 남아 있는 경우다. 이것도 이름 충돌과 똑같이 suffix를 올려 재시도한다.
 
-생성 후 완료 보고(§5)에 포함: `✓ feat/hero-redesign 새 브랜치 생성 (main 최신 기반)`. 이름 바꾸려면 `git branch -m <새이름>` 또는 원하는 이름을 담아 재호출하라고 안내 문구 추가.
+생성 후 시작 지점을 확인해 §5 보고에 담아라:
+
+```bash
+git rev-parse --short origin/main
+```
+
+완료 보고(§5)에는 **새 폴더 경로와 브랜치명을 둘 다** 넣는다. 이름을 바꾸고 싶으면 `git branch -m <새이름>`은 브랜치 이름만 바꾸고 폴더 이름은 그대로 남으니, 둘을 맞추려면 원하는 이름을 담아 재호출하는 쪽이 낫다고 안내한다.
 
 #### 엣지 — 이름 충돌
 
-로컬이든 원격이든 같은 이름이 이미 있으면 suffix 숫자를 붙여 재시도한다 (`feat/hero-redesign-2`). 그 이름도 겹치면 `-3`, `-4`... 로 숫자를 올려가며 **로컬·원격 둘 다 비어있는 이름이 나올 때까지** 반복한다 — 한 번만 시도하고 끝내면, 팀 작업 특성상 `-2`까지 이미 누가 쓰고 있는 경우(예: 다른 팀원이 같은 기능을 먼저 손댔거나, 재시도가 여러 번 있었던 경우) 충돌이 그대로 재발한다.
+로컬·원격·폴더 셋 중 어디서든 같은 이름이 걸리면 suffix 숫자를 붙여 재시도한다 (`feat/hero-redesign-2`). 그 이름도 겹치면 `-3`, `-4`... 로 숫자를 올려가며 **세 군데 다 비어있는 이름이 나올 때까지** 반복한다 — 한 번만 시도하고 끝내면, 팀 작업 특성상 `-2`까지 이미 누가 쓰고 있는 경우(예: 다른 팀원이 같은 기능을 먼저 손댔거나, 재시도가 여러 번 있었던 경우) 충돌이 그대로 재발한다.
 
 ```bash
-# n=2부터 시작해서 둘 다 비어있는 번호를 찾을 때까지 올린다
+# n=2부터 시작해서 셋 다 비어있는 번호를 찾을 때까지 올린다
 git branch --list "${type}/${topic}-${n}"
 git ls-remote --heads origin "${type}/${topic}-${n}"
+git worktree list --porcelain          # .claude/worktrees/${type}/${topic}-${n} 이 있나
 ```
 
 - **10회 시도**(`-2`부터 `-11`까지)**해도 전부 겹치면** → 자동 재시도를 멈추고 **[결정 필요] 반환**. 그 지경이면 이름 자체가 너무 흔한 것이라 숫자를 더 올려도 의미가 없다:
   ```
-  [결정 필요] "${type}/${topic}"부터 "${type}/${topic}-11"까지 로컬·원격에 전부 이미 있어서
+  [결정 필요] "${type}/${topic}"부터 "${type}/${topic}-11"까지 로컬·원격·작업 폴더에 전부 이미 있어서
   자동으로 이름을 못 지었어. 이름이 너무 흔한 것 같아 — 더 구체적인 이름을 알려줘.
 
   재호출 예시: `/new-task <type> <더 구체적인 topic>`
   ```
-- 빈 이름을 찾으면 그 이름으로 생성. 어느 쪽에서 겹쳤는지 사용자에게 알려줘야 이해가 쉽다:
+- 빈 이름을 찾으면 그 이름으로 생성. 어디서 겹쳤는지 사용자에게 알려줘야 이해가 쉽다:
   - **로컬에만 있을 때**: "같은 이름 브랜치가 로컬에 이미 있어서 `feat/hero-redesign-2`로 만들었어. 다른 이름 원하면 알려줘."
   - **원격에 있을 때** (팀원이 같은 이름을 쓰고 있을 가능성): "GitHub에 같은 이름 브랜치가 이미 있어서 (팀원이 올려둔 걸 수도 있어) `feat/hero-redesign-2`로 만들었어. 다른 이름 원하면 알려줘."
+  - **폴더가 이미 있을 때**: "`.claude/worktrees/feat/hero-redesign` 폴더가 이미 있어서 `feat/hero-redesign-2`로 만들었어. 예전 작업 폴더가 정리 안 된 채 남아 있는 걸 수도 있어."
   - 재시도가 여러 번 있었으면 ("2번, 3번도 이미 있어서 4번으로 만들었어" 식으로) 몇 번째 시도에서 빈 이름을 찾았는지도 알려준다.
 
 ### 5. 준비 완료 보고
 
 ```
-✓ 새 브랜치: <type>/<topic>
-✓ 시작 시점: main 최신 (commit <short-sha>)
-✓ 작업 중 자동 임시 저장 활성 (auto-wip-commit 훅 — feature 브랜치에서 매 turn 변경이 wip 커밋으로 박혀)
-✓ 정리된 옛 브랜치 (머지 확인됨, 자동 삭제): <branch-A (#N)>, <branch-B (#M)> — 없으면 이 줄 생략
+✓ 새 작업 폴더: .claude/worktrees/<type>/<topic>
+✓ 새 브랜치   : <type>/<topic>
+✓ 시작 시점   : origin/main 최신 (commit <short-sha>)
+✓ 작업 중 자동 임시 저장 활성 (auto-wip-commit 훅 — feature 브랜치에서 매 turn 변경이 wip 커밋으로 박혀. 작업 폴더마다 따로 돌아서 다른 폴더 파일은 안 건드려)
+✓ 정리된 옛 작업 폴더·브랜치 (머지 확인됨, 자동 정리): <경로 (branch-A, #N)>, <경로 (branch-B, #M)> — 없으면 이 줄 생략
 ✓ 보존된 옛 브랜치 (PR 리뷰 대기 중): <branch-C (#P)>, <branch-D (#Q)> — 없으면 이 줄 생략
-ℹ️ 방금 떠난 브랜치의 PR #<N>도 아직 리뷰 대기 중이야 (<url>) — 머지되면 다음 /new-task 때 자동 정리돼. — 팀원이고 §1-c에서 그냥 진행한 경우만, 아니면 이 줄 생략
+⏳ 정리 대기: <경로> (지금 세션이 그 안에 있어서 못 지웠어) — 없으면 이 줄 생략
+ℹ️ 방금 떠난 브랜치의 PR #<N>도 아직 리뷰 대기 중이야 (<url>) — 머지되면 다음 /new-task 때 자동 정리돼. — 팀원이고 §1-d에서 그냥 진행한 경우만, 아니면 이 줄 생략
 
-이름 바꾸려면 `git branch -m <새이름>` 또는 원하는 이름을 담아 재호출해줘.
+▶ 메인 세션이 할 일:
+  1. `EnterWorktree(path: "<메인폴더 절대경로>/.claude/worktrees/<type>/<topic>")` 호출 — 세션을 새 작업 폴더로 옮긴다.
+     이걸 안 하면 세션이 옛 폴더에 그대로 남아서, 작업이 엉뚱한 브랜치에 쌓인다.
+  2. (정리 대기가 있으면) 새 폴더로 옮긴 다음에 `git worktree remove <경로>` → `git branch -D <브랜치>` 순서로 실행.
+     순서를 바꾸면 "브랜치를 워크트리가 쓰고 있다"며 실패한다.
+
+이름 바꾸려면 원하는 이름을 담아 재호출해줘 (`git branch -m`은 브랜치 이름만 바뀌고 폴더 이름은 그대로 남아).
 다음 작업 알려줘.
 ```
 
@@ -269,14 +326,18 @@ git ls-remote --heads origin "${type}/${topic}-${n}"
 
 | 상황                                                      | 처리                                              |
 | --------------------------------------------------------- | ------------------------------------------------- |
-| 현재 브랜치가 이미 main                                   | step 1·3 skip, step 2(pull)·4(생성)만             |
+| 메인 폴더에서 main인 채로 호출 (첫 사용의 기본 모습)      | §1-d(PR 확인) skip. §2는 fetch + pull, §3·§4는 그대로 |
+| 메인 폴더가 feature 브랜치에 있음                         | 메인 폴더에서는 `git switch main`이 되니 main으로 되돌리고 pull 후 진행 |
 | working tree 변경이 새 작업과 무관 (예: 환경 설정 잔여물) | stash 옵션 권장                                   |
+| 지금 워크트리에 앉아 있는데 그게 머지 끝난 옛 워크트리    | 제거하지 않고 "정리 대기"로 보고 — 메인 세션이 새 폴더로 옮긴 뒤 정리 |
+| 옛 워크트리에 커밋 안 된 변경이 있어 remove가 거부됨      | `--force` 자동 실행 금지. [결정 필요]로 반환해 사용자에게 물음 |
+| `.claude/worktrees/<type>/<topic>` 폴더가 이미 있음       | 브랜치 이름 충돌과 같은 규칙으로 suffix 재시도            |
 | PR이 머지 안 됐는데 새 작업 가야 함 — 나는 팀원(push만)   | 묻지 않고 진행. 완료 보고(§5)에 PR 대기 알림, 브랜치 보존         |
 | PR이 머지 안 됐는데 새 작업 가야 함 — 나는 팀장(admin·maintain) | args에 명시 지시 없으면 [결정 필요] 반환. 옛 브랜치 삭제 X (보존) |
 | 권한 조회(`gh api .../permissions`) 실패                  | 팀원 취급 (묻지 않고 진행 + 보고에 남김)          |
 | PR 없는 local 브랜치를 "태그 박고 삭제"로 결정            | `git tag archive/<name>`로 그 지점을 고정해두고 나서 삭제 — 태그는 브랜치 삭제 후에도 남음 |
 | 머지된 local 브랜치 0개                                   | step 3 skip                                       |
-| 새 브랜치 이름이 로컬에 이미 있음                         | suffix 숫자를 올려가며 로컬·원격 둘 다 비는 이름 나올 때까지 재시도 후 생성, 완료 보고에 "로컬에서 겹침" 알림 |
+| 새 브랜치 이름이 로컬에 이미 있음                         | suffix 숫자를 올려가며 로컬·원격·폴더 셋 다 비는 이름 나올 때까지 재시도 후 생성, 완료 보고에 "로컬에서 겹침" 알림 |
 | 새 브랜치 이름이 원격(GitHub)에 이미 있음                 | 위와 동일하게 재시도 후 생성, 완료 보고에 "팀원이 같은 이름을 쓰고 있을 수도" 알림 |
 | suffix 10회(`-2`~`-11`)까지 전부 겹침                     | 자동 재시도 중단, [결정 필요]로 더 구체적인 이름 요청           |
 
@@ -287,15 +348,20 @@ git ls-remote --heads origin "${type}/${topic}-${n}"
   - 예: `/new-task hero 영역 sticky note 색깔 바꾸기` → `content/hero-sticky-note-color`
 - `/new-task <type> <topic>` — 명시적 패턴이면 그대로 사용 (의도 파싱 skip)
   - 예: `/new-task feat hero-redesign` → `feat/hero-redesign` 그대로
-- `/new-task <의도> — 변경은 커밋하고 진행` — §1-b [결정 필요]에 대한 결정을 담아 재호출
+- `/new-task <의도> — 변경은 커밋하고 진행` — §1-c [결정 필요]에 대한 결정을 담아 재호출
   - 예: `/new-task feat hero-redesign — stash하고 진행`
+- `/new-task <의도> — <경로> 변경 버리고 정리` — §3 워크트리 제거 거부에 대한 결정을 담아 재호출
 
 명시적 패턴 감지: `$0`이 valid type 목록 중 하나 + `$1`이 kebab-case면 명시 패턴, 아니면 전체를 자연어로 처리.
 
 ## 안 하는 것 (의도적)
 
 - ❌ PR 자동 머지 — 사용자가 직접 또는 GitHub UI에서 결정
-- ❌ commit·push — 새 브랜치 만들기만, 작업 내용 commit은 별개
-- ❌ 다른 base 브랜치 지원 — main 전제. 다른 base 필요하면 별 스킬
+- ❌ commit·push — 새 작업 폴더·브랜치 만들기만, 작업 내용 commit은 별개
+- ❌ 다른 base 브랜치 지원 — `origin/main` 전제. 다른 base 필요하면 별 스킬
 - ❌ Claude 자동 invoke — `disable-model-invocation: true`로 차단
-- ❌ 브랜치 생성 전 type·topic 확인 받기 — 자동 생성 후 사후 수정 받음 (마찰 최소화)
+- ❌ 작업 폴더 생성 전 type·topic 확인 받기 — 자동 생성 후 사후 수정 받음 (마찰 최소화)
+- ❌ 지금 앉아 있는 워크트리 제거 — git이 종료코드 0으로 성공시켜버려서 세션 폴더가 증발한다. "정리 대기"로 넘긴다
+- ❌ 워크트리 안에서 `git switch main` — git이 막는다 (한 브랜치는 폴더 하나에만)
+- ❌ `git worktree remove --force` 자동 실행 — 커밋 안 된 변경이 날아간다. 거부되면 [결정 필요]로 반환
+- ❌ `EnterWorktree` 직접 호출 — fork가 호출해도 메인 세션은 안 따라온다. 경로만 보고하고 호출은 메인 세션 몫 (§5)

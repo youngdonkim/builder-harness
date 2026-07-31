@@ -47,10 +47,14 @@ agent: git-flow
 ```bash
 # 1-a. 현재 브랜치 확인
 git rev-parse --abbrev-ref HEAD
+
+# 메인 폴더인지 워크트리(worktree — 같은 저장소를 작업 폴더 여러 개로 펼치는 git 기능)인지 판별 (차단 조건 아님, 완료 보고 참고용)
+git rev-parse --git-common-dir
 ```
 
 - **main 브랜치** → 중단. "지금 main 브랜치 위에 있어. 이 스킬은 feature 브랜치를 main으로 ship하는 도구라, 먼저 작업한 feature 브랜치로 이동해야 해."
 - **브랜치에 안 묶인 상태 (detached HEAD)** → 중단. "지금 어느 브랜치에도 위치하지 않고 과거 커밋한 파일들을 보고 있어. 이 스킬은 feature 브랜치를 main으로 ship하는 도구라, 어느 feature 브랜치를 ship할지 알려줘."
+- **(판별용)** `git rev-parse --git-common-dir` 출력이 `.git`이면 메인 폴더, 그 외 경로면 워크트리 안이라는 뜻이다. 중단 조건이 아니라 §4 완료 보고에 참고하는 용도다.
 
 ```bash
 # 1-b. origin/main 최신화 후, 그 대비 새 commit 있는가
@@ -312,6 +316,10 @@ gh pr merge <N> --squash --delete-branch --subject "<PR title> (#<N>)"
 ✓ PR #<N> 생성 + squash merge 완료
 ✓ main에 1개 commit으로 합쳐짐 (제목: "<PR title> (#N)")
 ✓ remote의 <branch> 자동 삭제됨
+○ 로컬 작업 폴더 <경로>와 브랜치 <branch>는 남겨뒀어 — 지금 세션이 그 안에 있어서 지우면
+  작업 폴더가 사라져. 다음 /new-task 때 자동으로 정리돼. — §1-a 판별이 *워크트리*일 때만
+○ 로컬 브랜치 <branch>는 남겨뒀어 — 다음 /new-task 때 정리돼. — §1-a 판별이 *메인 폴더*일 때만
+  (위 줄과 이 줄 중 하나만 쓴다)
 ✓ wip 커밋 <count>개가 PR 페이지에 그대로 남아 있어 — 브랜치가 지워져도 되살릴 수 있어:
   `git fetch origin pull/<N>/head:recover-<N>`
   (그중 특정 시점으로 돌아가고 싶으면 /rewind-task 써도 돼)
@@ -329,6 +337,8 @@ gh pr merge <N> --squash --delete-branch --subject "<PR title> (#<N>)"
   PR 페이지에서 직접 지정해줘"]
 ○ 머지는 안 했어 — 이 저장소에서 main 머지는 팀장(오너) 몫이라, 여기서 멈춰.
   브랜치 <branch>는 아직 살아 있고, 오너가 리뷰 후 머지하면 자동으로 정리돼.
+○ 로컬 작업 폴더 <경로>도 그대로 남아 있어 — 계속 이 폴더에서 작업하면 돼. — §1-a 판별이
+  *워크트리*일 때만. 메인 폴더면 이 줄은 생략한다.
 
 머지되고 나면 로컬 정리는 /new-task로 하면 돼 (main 싱크 + 이 브랜치 정리 + 새 브랜치).
 ```
@@ -358,6 +368,9 @@ PR은 그대로 있어 — <PR URL>
 
 | 상황                                                    | 처리                                                                     |
 | ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 워크트리에서 실행됨                                     | 정상. push·PR·머지 모두 그대로 작동. 워크트리는 남겨둠                   |
+| 메인 폴더(main)에서 실행됨                              | 기존대로 §1-a에서 중단 — 작업은 워크트리에서 한다                        |
+| 메인 폴더 + feature 브랜치에서 실행됨 (워크트리 전환 전 옛 방식) | 정상 진행. 워크트리가 없으니 §4 보고의 작업 폴더 줄은 빼고 브랜치만 안내 |
 | 이미 그 브랜치에 PR이 있음                              | 새로 안 만들고 기존 PR 사용. 새 commit 있으면 push만 추가 후 (오너 경로면) merge |
 | push 후 PR 생성 실패                                    | push는 유지. GitHub UI에서 직접 만들라고 안내                            |
 | squash merge 시 conflict                                | GitHub UI에서 conflict 해결 후 머지하라고 안내                           |
@@ -390,6 +403,8 @@ PR은 그대로 있어 — <PR URL>
 ## 안 하는 것 (의도적)
 
 - ❌ main 싱크·옛 브랜치 정리·새 브랜치 생성 — 그건 `new-task` 스킬
+- ❌ 워크트리 제거 — 자기가 앉은 폴더를 지우면 세션이 깨진다. 정리는 `new-task` 몫
+- ❌ 머지 후 main으로 이동 — 워크트리에서는 `git switch main`이 불가능하다
 - ❌ Claude 자동 invoke — `disable-model-invocation: true`
 - ❌ stage·commit 자동화 — *현재 commit된 wip*만 ship. 추가 변경은 사용자가 commit 또는 §1-c (a) 옵션 선택.
 - ❌ simplify 스킬 직접 실행 — fork 안에서 안 함. §1.5에서 [결정 필요] 반환만 하고, 실제 `/simplify` 실행·검증·커밋(`chore: simplify 반영`)은 메인 세션 몫
