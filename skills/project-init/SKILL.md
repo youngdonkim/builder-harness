@@ -43,6 +43,8 @@ mvp/                   # 단계 산출물 (market-research.md 등이 단계 진�
 docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 ```
 
+**`.gitignore`에 `.claude/worktrees/` 추가** — 하네스는 작업을 워크트리(worktree, 같은 저장소를 작업 폴더 여러 개로 펼치는 git 기능) 단위로 하고, 워크트리 폴더가 저장소 안 `.claude/worktrees/`에 생긴다. 이걸 무시 목록에 넣지 않으면 `auto-wip-commit` 훅이 워크트리 폴더를 통째로 커밋해버린다. `.claude/settings.json`은 계속 추적해야 하므로 `.claude/` 전체가 아니라 반드시 `worktrees/`까지 포함한 경로로 적는다.
+
 ### 5. 문서·CI 템플릿 복사
 
 - [templates/docs/git-workflow.md](templates/docs/git-workflow.md)를 프로젝트의 `docs/git-workflow.md`로 복사한다 — `no-main-push`·`auto-wip-commit` 훅과 `new-task`·`done-task`·`rewind-task` 스킬이 따르는 워크플로를 사람이 읽게 정리해둔 문서다.
@@ -69,7 +71,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 사용자에게 알린다:
 
-- 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
+- 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — 메인 폴더는 main이라 자동으로 건너뛰고, 워크트리에서만 돈다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
 
 ## 동기화 모드 절차
@@ -96,7 +98,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 ### 3. mvp/·docs/ 보정
 
-`mvp/`·`docs/` 폴더는 신규 모드와 동일하게, 없으면 채운다. `.claude/settings.json`에 `extraKnownMarketplaces.builder-harness`가 없으면, 신규 모드의 "플러그인 자동 갱신 설정" 단계와 동일하게 자동 갱신을 켤지 물어보고 반영한다.
+`mvp/`·`docs/` 폴더는 신규 모드와 동일하게, 없으면 채운다. `.gitignore`에 `.claude/worktrees/` 항목이 없으면 채운다. `.claude/settings.json`에 `extraKnownMarketplaces.builder-harness`가 없으면, 신규 모드의 "플러그인 자동 갱신 설정" 단계와 동일하게 자동 갱신을 켤지 물어보고 반영한다.
 
 ### 4. 마무리 보고
 
