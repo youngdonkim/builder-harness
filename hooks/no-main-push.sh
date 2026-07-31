@@ -19,9 +19,12 @@
 #       git --work-tree=. push, git --no-pager push) — push 서브커맨드를
 #       찾기 전에 이런 전역 옵션(과 그 값)을 건너뛰고 판정
 #       - 이때 -C / --git-dir / --work-tree 가 지목한 폴더 경로를 기억해 두고,
-#         refspec 미지정 push의 폴백 검사에서 CLAUDE_PROJECT_DIR 대신 그 폴더의
+#         refspec 미지정 push의 폴백 검사에서 세션 cwd 대신 그 폴더의
 #         현재 브랜치를 본다 (워크트리 세션에서 git -C <main인 폴더> push 로
 #         우회하던 구멍 봉쇄)
+#       - 폴백 검사의 기준 폴더는 stdin JSON의 cwd (명령이 실제로 실행될,
+#         EnterWorktree 반영된 세션 폴더). CLAUDE_PROJECT_DIR은 세션 시작
+#         폴더에 고정된 값이라 cwd가 없을 때의 폴백으로만 쓴다
 #   - force push 전면 차단 (대상 브랜치 무관)
 #       -f, --force, --force-with-lease(=값 포함), --force-if-includes,
 #       또는 +로 시작하는 강제 refspec (예: git push origin +feature:main)
@@ -40,6 +43,13 @@ set -euo pipefail
 
 INPUT=$(cat)
 COMMAND=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty')
+HOOK_CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")
+
+# Bash 명령이 실제로 실행될 폴더 = stdin의 cwd (EnterWorktree로 옮겨 앉은 폴더까지
+# 따라옴). CLAUDE_PROJECT_DIR은 세션 시작 폴더에 고정된 값이라 폴백으로만 쓴다 —
+# 메인 폴더에서 시작해 워크트리로 옮긴 세션에서 그걸 쓰면 refspec 미지정 push
+# 폴백 검사가 항상 main인 메인 폴더를 봐서 feature 브랜치 push까지 오차단한다.
+BASE_DIR="${HOOK_CWD:-${CLAUDE_PROJECT_DIR:-.}}"
 
 [ -z "$COMMAND" ] && exit 0
 
@@ -155,13 +165,14 @@ while IFS= read -r sub; do
   # 현재 브랜치가 main인지 확인해서 차단 (gap 봉쇄). 다른 브랜치를
   # 명시한 refspec이 있으면 이 폴백은 건너뜀.
   # 검사 대상 폴더: -C / --git-dir / --work-tree 로 지목한 폴더가 있으면 그쪽,
-  # 없으면 CLAUDE_PROJECT_DIR. (워크트리 세션에서 메인 폴더를 겨냥한 push 차단)
+  # 없으면 명령이 실행될 폴더(BASE_DIR = stdin cwd). 상대 경로도 BASE_DIR 기준으로
+  # 푼다 — Bash 도구가 세션 cwd에서 명령을 돌리므로 상대 -C 경로는 거기서 풀린다.
   if [ "$refspec_count" -eq 0 ] || { [ "$refspec_count" -eq 1 ] && [ "$last_refspec" = "HEAD" ]; }; then
-    check_dir="${CLAUDE_PROJECT_DIR:-.}"
+    check_dir="$BASE_DIR"
     if [ -n "$target_dir" ]; then
       case "$target_dir" in
         /*) check_dir="$target_dir" ;;
-        *)  check_dir="${CLAUDE_PROJECT_DIR:-.}/$target_dir" ;;
+        *)  check_dir="$BASE_DIR/$target_dir" ;;
       esac
     fi
     current_branch=$(git -C "$check_dir" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
