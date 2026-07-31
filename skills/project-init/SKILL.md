@@ -52,7 +52,17 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 
 ### 6. 플러그인 자동 갱신 설정 (선택)
 
-사용자에게 묻는다 — "플러그인 자동 갱신을 켤까?" 켜면 Claude Code 세션을 새로 열 때마다 하네스 최신본을 자동 확인한다. 이 설정은 프로젝트의 `.claude/settings.json`에 저장되고 **repo에 커밋**되므로, 이 repo를 클론하는 팀원 전원에게도 똑같이 적용된다. 트레이드오프도 함께 안내한다 — 하네스 main에 깨진 커밋이 들어가면 팀 전체 다음 세션에 바로 전파된다.
+사용자에게 묻는다 — "플러그인 자동 갱신을 켤까?" 이때 환경마다 결과가 다르다는 것도 같이 안내한다:
+
+- **터미널에서 `claude`를 쓰는 경우**: 켜둔 대로 작동한다. 세션이 시작되고 최대 10분 뒤 배경에서 최신본을 확인해 갱신하고, 갱신되면 알림이 뜬다 — 뜨면 `/reload-plugins`로 지금 세션에 바로 반영하고, 넘어가면 다음 세션부터 적용된다.
+- **Claude 데스크톱 앱을 쓰는 경우**: 이 설정이 작동하지 않는다. 앱이 자기가 띄우는 Claude Code에 `DISABLE_AUTOUPDATER=1`을 넣어서 자동 갱신을 통째로 꺼두기 때문이다. 대신 아래 수동 갱신 두 명령을 안내한다.
+
+  ```bash
+  claude plugin marketplace update builder-harness
+  claude plugin update builder-harness@builder-harness --scope project
+  ```
+
+이 설정은 프로젝트의 `.claude/settings.json`에 저장되고 **repo에 커밋**되므로, 이 repo를 클론하는 팀원 전원에게도 똑같이 적용된다. 트레이드오프도 함께 안내한다 — 하네스 main에 깨진 커밋이 들어가면 팀 전체 다음 세션에 바로 전파된다.
 
 동의하면 프로젝트의 `.claude/settings.json`에 아래 `extraKnownMarketplaces` 항목을 병합한다 (파일이 없으면 새로 만들고, 있으면 기존 키 — 특히 `enabledPlugins` — 를 보존한 채 추가):
 
@@ -72,6 +82,7 @@ docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 사용자에게 알린다:
 
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — 메인 폴더는 main이라 자동으로 건너뛰고, 워크트리에서만 돈다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
+- 하네스를 나중에 최신 버전으로 올리려면 터미널에서 `claude plugin marketplace update builder-harness`, `claude plugin update builder-harness@builder-harness --scope project` 두 명령을 순서대로 실행한다. Claude 데스크톱 앱은 같은 프로젝트 폴더로 새 대화 세션을 열어야 반영된다.
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.) 스킬 이름은 입력창 자동완성에 뜨는 짧은 형태로 안내한다 — 긴 정식 이름(`/builder-harness:idea-to-mvp`)은 자동완성에 나타나지 않는다.
 
 ## 동기화 모드 절차
