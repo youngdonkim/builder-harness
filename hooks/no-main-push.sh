@@ -18,6 +18,10 @@
 #       (예: git -C . push, git -c a=b push, git --git-dir=.git push,
 #       git --work-tree=. push, git --no-pager push) — push 서브커맨드를
 #       찾기 전에 이런 전역 옵션(과 그 값)을 건너뛰고 판정
+#       - 이때 -C / --git-dir / --work-tree 가 지목한 폴더 경로를 기억해 두고,
+#         refspec 미지정 push의 폴백 검사에서 CLAUDE_PROJECT_DIR 대신 그 폴더의
+#         현재 브랜치를 본다 (워크트리 세션에서 git -C <main인 폴더> push 로
+#         우회하던 구멍 봉쇄)
 #   - force push 전면 차단 (대상 브랜치 무관)
 #       -f, --force, --force-with-lease(=값 포함), --force-if-includes,
 #       또는 +로 시작하는 강제 refspec (예: git push origin +feature:main)
