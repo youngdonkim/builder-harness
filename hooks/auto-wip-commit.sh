@@ -20,14 +20,32 @@
 #     없으면 바이트 컷 후 불완전한 멀티바이트 꼬리 제거로 방어.
 #   - 마지막 user 메시지가 task-notification 등 하네스 생성 블록이면 그걸 힌트로 쓰던 문제
 #     → 뒤에서부터 최대 10개까지 거슬러 올라가며 진짜 사람 입력을 찾음.
+#
+# 작업 폴더 판별 버그 수정 (2026-07-31):
+#   - CLAUDE_PROJECT_DIR만 보고 cd하던 문제. 이 변수는 세션이 시작된 폴더로 고정된
+#     값이라, 메인 폴더에서 시작한 세션이 EnterWorktree로 워크트리에 옮겨 앉아도
+#     안 따라온다. 메인 폴더는 항상 main 브랜치라서 훅이 매번 "main — skip"으로
+#     조용히 빠졌고, 워크트리 변경이 한 번도 커밋되지 않았다.
+#     → stdin JSON의 cwd(세션의 현재 작업 폴더)를 최우선으로 쓰고,
+#       없을 때만 CLAUDE_PROJECT_DIR → pwd 순으로 폴백.
 
 set -uo pipefail
 
 # Stop hook input
 INPUT=$(cat)
 TRANSCRIPT_PATH=$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null || echo "")
+HOOK_CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# 세션의 현재 작업 폴더 = stdin의 cwd (EnterWorktree로 옮겨 앉은 폴더까지 따라옴).
+# CLAUDE_PROJECT_DIR은 세션 시작 폴더에 고정된 값이라 폴백으로만 쓴다.
+PROJECT_DIR=""
+for d in "$HOOK_CWD" "${CLAUDE_PROJECT_DIR:-}" "$(pwd)"; do
+  if [ -n "$d" ] && [ -d "$d" ]; then
+    PROJECT_DIR="$d"
+    break
+  fi
+done
+[ -n "$PROJECT_DIR" ] || exit 0
 cd "$PROJECT_DIR" 2>/dev/null || exit 0
 
 # git repo 아니면 조용히 종료

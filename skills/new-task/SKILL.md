@@ -302,7 +302,7 @@ git worktree list --porcelain          # .claude/worktrees/${type}/${topic}-${n}
 ✓ 새 작업 폴더: .claude/worktrees/<type>/<topic>
 ✓ 새 브랜치   : <type>/<topic>
 ✓ 시작 시점   : origin/main 최신 (commit <short-sha>)
-✓ 작업 중 자동 임시 저장 활성 (auto-wip-commit 훅 — feature 브랜치에서 매 turn 변경이 wip 커밋으로 박혀. 작업 폴더마다 따로 돌아서 다른 폴더 파일은 안 건드려)
+✓ 작업 중 자동 임시 저장 활성 (auto-wip-commit 훅 — feature 브랜치에서 매 turn 변경이 wip 커밋으로 박혀. 세션이 지금 앉아 있는 폴더에서만 돌아서 다른 폴더 파일은 안 건드려)
 ✓ 정리된 옛 작업 폴더·브랜치 (머지 확인됨, 자동 정리): <경로 (branch-A, #N)>, <경로 (branch-B, #M)> — 없으면 이 줄 생략
 ✓ 보존된 옛 브랜치 (PR 리뷰 대기 중): <branch-C (#P)>, <branch-D (#Q)> — 없으면 이 줄 생략
 ⏳ 정리 대기: <경로> (지금 세션이 그 안에 있어서 못 지웠어) — 없으면 이 줄 생략
