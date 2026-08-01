@@ -5,11 +5,14 @@
 # 푸시는 안 함. main 브랜치에선 작동 안 함.
 #
 # Skip 조건 (안전 우선):
-#   1. 현재 브랜치 = main           → PR 워크플로 강제, 자동 커밋이 main 오염 금지
-#   2. merge/rebase 진행 중         → conflict marker가 wip 커밋에 섞이는 사고 방지
-#   3. 변경 없음                    → 빈 커밋 방지
-#   4. 시크릿 패턴 파일 staging 대상 → .gitignore 불완전 시 마지막 안전망
-#      (.env.example/.sample/.template 예시 템플릿은 예외 — 커밋 허용)
+#   1. 현재 브랜치 = main   → PR 워크플로 강제, 자동 커밋이 main 오염 금지
+#   2. merge/rebase 진행 중 → conflict marker가 wip 커밋에 섞이는 사고 방지
+#   3. 변경 없음            → 빈 커밋 방지
+#
+# 시크릿 파일 처리 (skip이 아니라 제외):
+#   커밋 전체를 포기하지 않는다 — .env 등 시크릿 패턴에 걸리는 파일만 staging에서
+#   빼고 나머지는 그대로 wip 커밋한다. .gitignore 불완전 시 마지막 안전망.
+#   (.env.example/.sample/.template처럼 값 없는 예시 템플릿은 예외 — 정상 커밋 대상)
 #
 # 커밋 메시지: wip: <last user msg 힌트> — <파일1>, <파일2> 외 N개 (+X -Y)
 # 푸시: 절대 안 함 (push는 사용자 명시 지시 시에만)
@@ -34,6 +37,15 @@
 #   세션이 끝날 때까지 wip 커밋이 하나도 안 쌓이는 사고가 실제로 났다.
 #   → staged 파일 가드를 없애고 stage 상태와 무관하게 변경 전부를 wip 커밋에 담는다.
 #     어차피 뒤에서 git add -A로 전부 staging하므로 잃는 게 없다.
+#
+# 시크릿 안전망 수정 (2026-08-02):
+#   (가) 예외 패턴이 정확히 .env.example/.sample/.template 세 이름만 봐서
+#     .env.local.example처럼 중간에 환경 이름이 끼는 흔한 형태가 의심 파일로 잡혔다.
+#   (나) 의심 파일이 하나라도 있으면 exit 0으로 wip 커밋 전체를 포기하던 문제.
+#     한 프로젝트에서 .env.local.example이 생긴 시점부터 매 턴 wip 커밋이 전부
+#     조용히 skip되어 며칠치 작업이 미커밋으로 쌓이는 사고가 실제로 났다.
+#   → 예외를 .example/.sample/.template로 "끝나는" 이름 전체로 넓히고,
+#     걸린 파일만 add 뒤 staging에서 빼고 나머지는 그대로 커밋하도록 바꿨다.
 
 set -uo pipefail
 
@@ -78,20 +90,16 @@ if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
   exit 0
 fi
 
-# 4. 시크릿 패턴 검사 — staging 대상 파일에 위험 패턴 있으면 abort.
-#    단 .env.example/.sample/.template(값 없는 예시 템플릿)은 커밋 허용 대상이라 예외로 뺀다
-#    — 안 빼면 .env.example 수정만으로 매 턴 전체 wip 커밋이 통째로 skip된다(CLAUDE.md: .env.example 제외).
+# 4. 시크릿 패턴 검사 — staging 대상 파일 중 위험 패턴에 걸리는 파일 목록만 구한다.
+#    여기서 커밋을 포기하지 않는다 — 의심 파일만 나중에(6번) staging에서 뺀다.
+#    단 .example/.sample/.template로 끝나는 이름(값 없는 예시 템플릿)은 예외로 뺀다.
+#    끝을 보는 이유: .env.local.example처럼 중간에 환경 이름이 끼는 형태가 흔해서
+#    정확히 .env.example 등 세 이름만 보면 놓친다.
 candidate_files=$(git status --porcelain | sed -E 's/^...//' | awk -F ' -> ' '{print $NF}')
 suspicious=$(printf '%s\n' "$candidate_files" \
   | grep -iE '(^\.env$|/\.env$|^\.env\.|/\.env\.|\.key$|\.pem$|secret|credentials\.json$|id_rsa|id_ed25519)' \
-  | grep -ivE '(^|/)\.env\.(example|sample|template)$' \
+  | grep -ivE '\.(example|sample|template)$' \
   || true)
-if [ -n "$suspicious" ]; then
-  echo "[auto-wip] 시크릿 패턴 파일 감지 — skip:" >&2
-  printf '  %s\n' $suspicious >&2
-  echo "[auto-wip] .gitignore 점검 후 수동 처리 필요" >&2
-  exit 0
-fi
 
 # 5. 사람이 실제로 친 마지막 메시지에서 힌트 추출 (transcript 있을 때만)
 #    - system-reminder 태그뿐 아니라 task-notification/local-command-stdout 같은
@@ -192,8 +200,26 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
   fi
 fi
 
-# 6. add + commit
+# 6. add + commit — 의심 파일만 빼고 나머지는 그대로 커밋
 git add -A 2>/dev/null
+
+# 4번에서 걸린 의심 파일만 staging에서 뺀다. 파일명에 공백이 있어도 깨지지 않게
+# 한 줄씩 처리한다. git restore --staged는 새로 추가된 파일이면 추적 안 함 상태로,
+# 수정된 파일이면 수정 상태로 되돌린다 — 어느 쪽이든 그 파일만 커밋에서 빠지고
+# 작업 내용(워킹 트리)은 그대로 남는다.
+if [ -n "$suspicious" ]; then
+  while IFS= read -r f; do
+    [ -n "$f" ] && git restore --staged -- "$f" 2>/dev/null
+  done <<< "$suspicious"
+fi
+
+# 뺀 뒤 staging이 비었으면(의심 파일뿐이었으면) 커밋할 게 없으니 안내만 남기고 종료
+if git diff --cached --quiet 2>/dev/null; then
+  echo "[auto-wip] 시크릿 패턴 파일뿐이라 커밋할 변경 없음 — skip:" >&2
+  printf '  %s\n' $suspicious >&2
+  echo "[auto-wip] .gitignore 점검 후 수동 처리 필요" >&2
+  exit 0
+fi
 
 # 변경 통계
 stat_line=$(git diff --cached --shortstat 2>/dev/null | sed -E 's/^ +//; s/ +$//')
@@ -216,6 +242,11 @@ fi
 # 커밋 (실패해도 Claude는 막지 않음 — exit 0)
 if git commit -m "$msg" >/dev/null 2>&1; then
   echo "[auto-wip] 커밋: $msg" >&2
+  if [ -n "$suspicious" ]; then
+    echo "[auto-wip] 시크릿 패턴 파일은 빼고 커밋함:" >&2
+    printf '  %s\n' $suspicious >&2
+    echo "[auto-wip] .gitignore 점검 후 수동 처리 필요" >&2
+  fi
 else
   echo "[auto-wip] 커밋 실패 (pre-commit hook 등) — 사용자 확인 필요" >&2
 fi
