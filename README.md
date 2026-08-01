@@ -89,9 +89,9 @@ claude
 
 ### 1.3 어떻게 전해지나 — 파일 복사
 
-이 저장소가 하네스의 **원본(SoT, Source of Truth — 정답이 되는 하나뿐인 출처)**이다. 하네스 본체는 전부 이 저장소의 `payload/.claude/` 아래에 있고, 그 안의 구조가 곧 **프로젝트의 `.claude/` 폴더에 그대로 복사될 모양**이다.
+이 저장소가 하네스의 **원본(SoT, Source of Truth — 정답이 되는 하나뿐인 출처)**이다. 하네스 본체는 전부 이 저장소의 `payload/` 아래에 있고, 그 안의 구조가 곧 **프로젝트 루트에 그대로 복사될 모양**이다 — 이런 걸 미러(mirror, 거울처럼 같은 모양)라고 한다.
 
-적용은 복사다. `/project-init` 스킬이 원본의 스킬·서브에이전트·훅을 프로젝트 `.claude/`로 복사하고, 훅 등록 설정을 프로젝트 설정 파일에 합쳐 넣는다. 그래서 하네스가 한 번 적용된 프로젝트는 **그 저장소 안에 하네스를 통째로 갖고 있다.**
+적용은 복사다. `/project-init` 스킬이 `payload/`를 프로젝트 루트에 같은 경로로 복사하고, 훅 등록 설정을 프로젝트 설정 파일에 합쳐 넣는다. 그래서 하네스가 한 번 적용된 프로젝트는 **그 저장소 안에 하네스를 통째로 갖고 있다.**
 
 이 방식의 좋은 점은 세 가지다.
 
@@ -109,7 +109,7 @@ claude
 | 종류 | 이름 | 역할 |
 |---|---|---|
 | 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · InformationArchitecture · Mockup · DemoValidation · MarketResearch · MvpBuild · MvpLaunch (통과 기준 2개) |
-| 횡단 스킬 | `project-init` | 프로젝트에 하네스 적용 — 스킬·서브에이전트·훅 복사 + 훅 등록 설정 병합 + CLAUDE.md 뼈대·rules 템플릿 복사. 이미 적용된 프로젝트에서 재실행하면 최신 원본과 비교해 동기화 |
+| 횡단 스킬 | `project-init` | 프로젝트에 하네스 적용 — `payload/`를 프로젝트 루트에 복사 + 훅 등록 설정 병합 + CLAUDE.md 뼈대 생성. 이미 적용된 프로젝트에서 재실행하면 최신 원본과 비교해 동기화 |
 | 횡단 스킬 | `new-task` | main 최신화 + 방금 끝낸 이 작업 폴더·브랜치만 정리(다른 창의 작업 폴더는 안 건드림) + 새 작업 폴더·브랜치 생성 |
 | 횡단 스킬 | `done-task` | 자동 저장 커밋 → 원격 올리기(push) → PR 생성 → (오너면) CI 통과 대기 → 합치기(merge) → 원격 브랜치 삭제 한 흐름. 팀원은 PR까지, 오너는 머지까지 |
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
@@ -159,15 +159,15 @@ git clone https://github.com/youngdonkim/builder-harness.git ~/dev/builder-harne
 
 ### 3.3 프로젝트에 무엇이 생기나
 
-`/project-init`이 프로젝트에 만드는 것들이다.
+`/project-init`이 프로젝트에 만드는 것들이다. 앞의 넷은 원본 `payload/`에서 같은 경로로 복사돼 오는 것이고, 뒤의 넷은 스킬이 따로 만든다.
 
-- **`.claude/skills/`·`.claude/agents/`·`.claude/hooks/`** — 원본 `payload/.claude/` 아래 내용이 그대로 복사된다. 세션을 열 때 이 파일들이 읽혀서 스킬·서브에이전트·훅이 작동한다.
-- **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
-- **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§4.4](#44-적용한-버전이-파일로-남는다)).
-- **`CLAUDE.md`** — 그 프로젝트에서 Claude가 항상 지켜야 할 규칙을 적어두는 파일. 세션을 열 때마다 자동으로 읽힌다.
+- **`.claude/skills/`·`.claude/agents/`·`.claude/hooks/`** — 세션을 열 때 읽혀서 스킬·서브에이전트·훅이 작동한다.
 - **`.claude/rules/`** — 특정 종류의 파일을 다룰 때만 적용되는 세부 규칙 모음.
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
+- **`CLAUDE.md`** — 그 프로젝트에서 Claude가 항상 지켜야 할 규칙을 적어두는 파일. 세션을 열 때마다 자동으로 읽힌다. 이것만은 그대로 복사되지 않고, 원본의 `CLAUDE.md.template`에 인터뷰 답을 채워 만든다.
+- **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
+- **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§4.4](#44-적용한-버전이-파일로-남는다)).
 - **`mvp/`·`docs/` 폴더** — 단계 산출물과 사람이 읽는 문서가 쌓이는 자리.
 
 이 파일들은 전부 그 프로젝트 저장소의 일부다. 프로젝트의 git 흐름(작업 브랜치 → PR)으로 커밋하면 된다.
@@ -210,9 +210,9 @@ git pull
 
 - 같으면 그냥 넘어간다.
 - 새로 생긴 파일은 복사한다.
-- 달라진 파일은 **합치는 게 기본이다** — 프로젝트가 일부러 손봐둔 내용은 그대로 두고 원본에서 새로 생기거나 바뀐 대목만 합친 안을 보여준 뒤, 확인을 받고 반영한다. 손본 걸 버리고 원본으로 교체하거나, 반대로 원본 변경을 무시하는 것도 그 자리에서 고를 수 있다.
+- 달라진 파일은 **최신 원본으로 바꾸는 게 기본이다.** 다만 프로젝트가 그 파일을 손댄 흔적이 있으면 그냥 덮지 않고, 어디가 다른지 짚어준 뒤 원본으로 교체할지 손본 걸 유지할지 물어본다.
 
-`CLAUDE.md`는 프로젝트마다 고유한 내용(서비스 정의·타겟, 직접 덧붙인 규칙)이 담긴 파일이라, 원본에서 온 공용 문구와 구조만 비교하고 나머지는 건드리지 않는다. 그래야 하네스가 바뀔 때 낡아버린 안내 문구를 잡아낼 수 있다.
+`CLAUDE.md` 하나만 예외다. 프로젝트마다 고유한 내용(서비스 정의·타겟, 직접 덧붙인 규칙)이 담긴 파일이라 덮어쓰지 않고 **합친다** — 원본에서 온 공용 문구와 구조만 비교해 최신으로 맞춘 안을 보여준 뒤, 확인을 받고 반영한다. 그래야 프로젝트 내용은 지키면서 하네스가 바뀔 때 낡아버린 안내 문구를 잡아낼 수 있다.
 
 갱신된 파일은 그 프로젝트의 git 흐름(작업 브랜치 → PR)으로 커밋한다. 팀 프로젝트라면 이렇게 main에 합쳐두는 것만으로 충분하다 — 다른 팀원은 프로젝트를 당겨오기만 하면 된다.
 
@@ -254,13 +254,17 @@ date=<YYYY-MM-DD>
 
 ```
 README.md
-payload/.claude/skills/     # 단계 스킬·횡단 스킬
-payload/.claude/agents/     # 서브에이전트
-payload/.claude/hooks/      # 훅 스크립트
-payload/.claude/settings-hooks.json                # 훅 등록 원본 — 프로젝트 설정 파일에 합쳐 넣는 내용
-payload/.claude/skills/project-init/templates/     # 프로젝트로 복사되는 CLAUDE.md·rules·docs·CI 템플릿
+payload/                              # 프로젝트 루트의 미러 — 이 구조 그대로 프로젝트에 복사된다
+payload/.claude/skills/               # 단계 스킬·횡단 스킬
+payload/.claude/agents/               # 서브에이전트
+payload/.claude/hooks/                # 훅 스크립트
+payload/.claude/rules/                # 특정 파일을 다룰 때만 적용되는 세부 규칙
+payload/docs/git-workflow.md          # 훅·done-task가 참조하는 작업 흐름 문서
+payload/.github/workflows/ci.yml      # done-task가 머지 전 통과를 기다리는 lint + build 검사
+payload/.claude/settings-hooks.json   # (예외) 복사 아님 — 훅 등록 원본, 프로젝트 설정 파일에 합쳐 넣는 내용
+payload/CLAUDE.md.template            # (예외) 복사 아님 — 인터뷰 답을 채워 프로젝트 CLAUDE.md를 만드는 틀
 ```
 
-`payload/.claude/` 아래 구조가 곧 프로젝트의 `.claude/`에 그대로 복사될 모양이다. 여기에 파일을 더하면 그게 그대로 프로젝트로 간다.
+`payload/` 아래 구조가 곧 프로젝트 루트에 놓일 모양이다. 여기에 파일을 더하면 그게 그대로 프로젝트로 간다. **예외는 끝의 두 파일뿐**이다 — 그대로 놓이는 파일이 아니라서 복사에서 빠지고, 하나는 병합 원본으로 하나는 가공할 틀로 쓰인다. 그래서 이 둘만 `payload/` 안에서 자리가 특별하다(템플릿은 payload 루트에).
 
-템플릿 폴더 안에는 `docs/git-workflow.md`(훅·`done-task`가 참조하는 작업 흐름 문서)와 `.github/workflows/ci.yml`(`done-task`가 머지 전 통과를 기다리는 lint + build 검사)이 들어 있다. `ci.yml`은 앱 코드(`package-lock.json`)가 아직 없는 프로젝트에서는 자동으로 통과 처리되고, 앱 코드가 생기는 순간부터 실제 lint + build 검사가 돌기 시작한다.
+`ci.yml`은 앱 코드(`package-lock.json`)가 아직 없는 프로젝트에서는 자동으로 통과 처리되고, 앱 코드가 생기는 순간부터 실제 lint + build 검사가 돌기 시작한다.
