@@ -119,7 +119,7 @@ description: MVP 빌드 단계 가이드. 동결된 목업 HTML을 정답지로 
 
 **스코프**: `demo-validation.md`에서 확인된 핵심 플로우(Pull 신호가 나온 화면·기능)를 우선 구현한다. `demo-validation.md` §비목표에 명시된 것은 만들지 않는다.
 
-**디자인 시스템 baseline**: 목업의 토큰·컴포넌트·화면을 실코드로 옮기는 작업은 같은 플러그인의 `design-system` 스킬을 호출해 그 방법론대로 한다. 빌드 시작 시 토큰 3층(foundation→semantic→component) 구축 + 컴포넌트 인벤토리 생성 + CLAUDE.md 연결 정보(adapter) 기록은 스킬의 bootstrap-project.md 절차대로 — 목업 HTML에 내장된 토큰·CSS가 이때 foundation·semantic을 채우는 원료다. 이후 모든 화면·컴포넌트 코드는 semantic 토큰만 참조한다 (hex·px 하드코딩 금지 — 스킬 철칙). 목업 화면이 스킬의 안티패턴에 걸리면(예: 목록 항목마다 카드 감싸기·상태색 장식 사용) 그대로 베끼지 않고 **스킬 쪽으로 고쳐서 이식한다** — 목업이 검증한 것은 플로우·구성·첫인상이지 최종 시각이 아니다. 무엇을 왜 고쳤는지는 `mvp-build.md` `# 빌드 중 발견`에 한 줄씩 기록.
+**디자인 시스템 baseline**: 목업의 토큰·컴포넌트·화면을 실코드로 옮기는 작업은 같은 하네스의 `design-system` 스킬을 호출해 그 방법론대로 한다. 빌드 시작 시 토큰 3층(foundation→semantic→component) 구축 + 컴포넌트 인벤토리 생성 + CLAUDE.md 연결 정보(adapter) 기록은 스킬의 bootstrap-project.md 절차대로 — 목업 HTML에 내장된 토큰·CSS가 이때 foundation·semantic을 채우는 원료다. 이후 모든 화면·컴포넌트 코드는 semantic 토큰만 참조한다 (hex·px 하드코딩 금지 — 스킬 철칙). 목업 화면이 스킬의 안티패턴에 걸리면(예: 목록 항목마다 카드 감싸기·상태색 장식 사용) 그대로 베끼지 않고 **스킬 쪽으로 고쳐서 이식한다** — 목업이 검증한 것은 플로우·구성·첫인상이지 최종 시각이 아니다. 무엇을 왜 고쳤는지는 `mvp-build.md` `# 빌드 중 발견`에 한 줄씩 기록.
 
 **보안 baseline**: auth·API·업로드 코드를 만지면 `.claude/rules/threat-model.md`가 자동 로드된다 — 그 baseline(http-only cookie·권한 검사·IDOR 회피·rate limit·에러에 stack 미노출 등) 준수. 광고로 모르는 사람들이 실제로 들어오는 코드다.
 
