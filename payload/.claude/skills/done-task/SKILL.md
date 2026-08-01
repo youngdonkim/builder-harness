@@ -294,26 +294,14 @@ gh pr checks <N> --watch --interval 10
 
 팀원 경로면 이 단계를 건너뛰고 바로 §4 팀원용 완료 보고로 간다.
 
-**`--delete-branch`는 워크트리에서 쓰면 안 된다.** 이 옵션은 머지 뒤에 *로컬* 브랜치까지 치우려고 `main`으로 옮겨 앉는데, 메인 폴더가 이미 `main`을 물고 있어서 워크트리에선 **반드시** 실패한다:
-
-```
-fatal: 'main' is already used by worktree at /Users/.../builder-harness
-```
-
-머지는 이미 GitHub에서 끝난 뒤에 나는 오류인데, 종료코드만 보면 "머지 실패"로 읽힌다. 실제로 이 오류를 만나 머지 성공을 실패로 보고할 뻔한 적이 있다. 그래서 **애초에 실패할 명령을 안 부르는 쪽**으로 간다 — §1-a에서 이미 판별해둔 실행 위치로 갈라 쓴다.
-
 ```bash
 # --subject 로 §2-b 확정 PR 제목을 명시 → 커밋이 1개뿐이어도 main에 wip 메시지 대신 PR 제목이 박힘
 # (미지정 시 gh는 단일 커밋 PR에서 그 커밋 메시지를 squash 제목으로 써버려 main이 지저분해짐)
-
-# 워크트리에서 실행 중이면 — 로컬 정리를 gh에 맡기지 않는다
-gh pr merge <N> --squash --subject "<PR title> (#<N>)"
-
-# 메인 폴더에서 실행 중이면 — 기존대로
+# --delete-branch 는 머지 뒤 원격 브랜치를 지우고, 로컬도 main으로 옮겨 앉은 뒤 그 브랜치를 치운다
 gh pr merge <N> --squash --delete-branch --subject "<PR title> (#<N>)"
 ```
 
-**머지 여부는 종료코드가 아니라 PR 상태로 판정한다.** 명령이 0이 아닌 코드로 끝나도 서버 쪽 머지는 성공했을 수 있어서다:
+**머지 여부는 종료코드가 아니라 PR 상태로 판정한다.** 명령이 0이 아닌 코드로 끝나도 서버 쪽 머지는 성공했을 수 있어서다 — 머지는 GitHub에서 이미 끝났는데 그 뒤 로컬 정리에서 걸려 넘어지면, 종료코드만 보고 "머지 실패"로 잘못 읽게 된다:
 
 ```bash
 gh pr view <N> --json state,mergedAt --jq '.state'
