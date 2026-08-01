@@ -133,7 +133,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 |---|---|---|
 | 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · InformationArchitecture · Prototype · DemoValidation · MarketResearch · MvpBuild · MvpLaunch (통과 기준 2개) |
 | 횡단 스킬 | `project-init` | 프로젝트에 하네스 적용 — `payload/`를 프로젝트 루트에 복사 + 훅 등록 설정 병합 + CLAUDE.md 뼈대 생성. 이미 적용된 프로젝트에서 재실행하면 최신 원본과 비교해 동기화 |
-| 횡단 스킬 | `new-task` | main 최신화 + 방금 끝낸 이 작업 폴더·브랜치만 정리(다른 창의 작업 폴더는 안 건드림) + 새 작업 폴더·브랜치 생성 |
+| 횡단 스킬 | `new-task` | main 최신화 + 머지가 끝난 옛 작업 브랜치 정리 + 새 작업 브랜치 생성 |
 | 횡단 스킬 | `done-task` | 자동 저장 커밋 → 원격 올리기(push) → PR 생성 → (오너면) CI 통과 대기 → 합치기(merge) → 원격 브랜치 삭제 한 흐름. 팀원은 PR까지, 오너는 머지까지 |
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
@@ -142,7 +142,6 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 서브에이전트 | `ux-writing-reviewer` | UI 문구를 UX writing 원칙과 대조해 직접 교정 |
 | 훅 | `no-main-push` | main 브랜치에 바로 올리는 것을 차단 (PR 검토 흐름 강제) |
 | 훅 | `auto-wip-commit` | 응답이 끝날 때마다 작업 브랜치에 진행 중 커밋(wip)을 자동 생성 |
-| 훅 | `pending-worktree-guard` | `new-task`가 만든 새 작업 폴더로 세션이 실제로 옮겨 갔는지 확인 — 안 옮겼으면 한 번 막고 알림 |
 
 용어 참고 — **PR(Pull Request)**은 "내가 고친 걸 본체에 반영해 달라"고 올리는 제안이다. **CI(Continuous Integration)**는 그 제안이 반영되기 전에 코드가 깨지지 않았는지 자동으로 검사하는 절차다. **wip(work in progress)**는 아직 끝나지 않은 진행 중 상태를 뜻한다.
 
