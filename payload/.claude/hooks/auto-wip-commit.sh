@@ -7,9 +7,8 @@
 # Skip 조건 (안전 우선):
 #   1. 현재 브랜치 = main           → PR 워크플로 강제, 자동 커밋이 main 오염 금지
 #   2. merge/rebase 진행 중         → conflict marker가 wip 커밋에 섞이는 사고 방지
-#   3. 이미 staged 파일 존재        → 사용자 수동 작업(부분 stage 등) 의도 보호
-#   4. 변경 없음                    → 빈 커밋 방지
-#   5. 시크릿 패턴 파일 staging 대상 → .gitignore 불완전 시 마지막 안전망
+#   3. 변경 없음                    → 빈 커밋 방지
+#   4. 시크릿 패턴 파일 staging 대상 → .gitignore 불완전 시 마지막 안전망
 #      (.env.example/.sample/.template 예시 템플릿은 예외 — 커밋 허용)
 #
 # 커밋 메시지: wip: <last user msg 힌트> — <파일1>, <파일2> 외 N개 (+X -Y)
@@ -28,6 +27,14 @@
 #     조용히 빠졌고, 워크트리 변경이 한 번도 커밋되지 않았다.
 #     → stdin JSON의 cwd(세션의 현재 작업 폴더)를 최우선으로 쓰고,
 #       없을 때만 CLAUDE_PROJECT_DIR → pwd 순으로 폴백.
+#
+# staged 파일 가드 제거 (2026-08-01):
+#   "staged 파일이 있으면 사용자가 수동으로 부분 stage 해둔 것"이라는 가정이 틀렸다.
+#   Claude가 도구로 실행한 git mv·git add도 똑같이 stage를 만들어서 사용자 의도와
+#   구분이 안 된다. 세션 중 git mv 한 번만 써도 그 뒤로 매 턴 조용히 skip되어
+#   세션이 끝날 때까지 wip 커밋이 하나도 안 쌓이는 사고가 실제로 났다.
+#   → staged 파일 가드를 없애고 stage 상태와 무관하게 변경 전부를 wip 커밋에 담는다.
+#     어차피 뒤에서 git add -A로 전부 staging하므로 잃는 게 없다.
 
 set -uo pipefail
 
@@ -67,18 +74,12 @@ if [ -f "$GIT_DIR/MERGE_HEAD" ] || [ -f "$GIT_DIR/REBASE_HEAD" ] \
   exit 0
 fi
 
-# 3. staged 파일 가드 (사용자 수동 stage 의도 보호)
-if [ -n "$(git diff --cached --name-only 2>/dev/null)" ]; then
-  echo "[auto-wip] staged 파일 감지 — skip (사용자 수동 커밋 의도 보호)" >&2
-  exit 0
-fi
-
-# 4. 변경 없으면 skip
+# 3. 변경 없으면 skip
 if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
   exit 0
 fi
 
-# 5. 시크릿 패턴 검사 — staging 대상 파일에 위험 패턴 있으면 abort.
+# 4. 시크릿 패턴 검사 — staging 대상 파일에 위험 패턴 있으면 abort.
 #    단 .env.example/.sample/.template(값 없는 예시 템플릿)은 커밋 허용 대상이라 예외로 뺀다
 #    — 안 빼면 .env.example 수정만으로 매 턴 전체 wip 커밋이 통째로 skip된다(CLAUDE.md: .env.example 제외).
 candidate_files=$(git status --porcelain | sed -E 's/^...//' | awk -F ' -> ' '{print $NF}')
@@ -93,7 +94,7 @@ if [ -n "$suspicious" ]; then
   exit 0
 fi
 
-# 6. 사람이 실제로 친 마지막 메시지에서 힌트 추출 (transcript 있을 때만)
+# 5. 사람이 실제로 친 마지막 메시지에서 힌트 추출 (transcript 있을 때만)
 #    - system-reminder 태그뿐 아니라 task-notification/local-command-stdout 같은
 #      하네스가 만들어 낸 블록도 "type: user" 문자열 메시지로 섞여 들어온다.
 #      그런 걸 힌트로 쓰면 </task-notification> 같은 쓰레기가 커밋 메시지에 박히므로
@@ -192,7 +193,7 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
   fi
 fi
 
-# 7. add + commit
+# 6. add + commit
 git add -A 2>/dev/null
 
 # 변경 통계
