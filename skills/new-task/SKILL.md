@@ -397,4 +397,5 @@ git worktree list --porcelain          # .claude/worktrees/${type}/${topic}-${n}
 - ❌ 워크트리 안에서 `git switch main` — git이 막는다 (한 브랜치는 폴더 하나에만)
 - ❌ `git worktree remove --force` 자동 실행 — 커밋 안 된 변경이 날아간다. 거부되면 [결정 필요]로 반환
 - ❌ `EnterWorktree` 직접 호출 — fork가 호출해도 메인 세션은 안 따라온다. 경로만 보고하고 호출은 메인 세션 몫 (§5). 대신 인계 표식을 남겨 `pending-worktree-guard` 훅이 확인하게 한다 (§4-c)
+- ❌ `cd`로 세션 옮기기 — 하네스가 Bash 호출이 끝날 때마다 셸 폴더를 세션 폴더로 되돌린다 (`Shell cwd was reset to ...`). 세션의 작업 폴더를 바꾸는 수단은 `EnterWorktree`뿐이라 이 인계 2단은 없앨 수 없다. 참고로 워크트리 **생성**은 이 스킬이 순수 `git worktree add`로 하고, `EnterWorktree`는 `path:` 모드(이미 있는 폴더로 이동)로만 쓴다 — 이 모드는 폴더·브랜치를 만들지 않는다
 - ❌ 인계 표식 직접 지우기 — 훅이 인계 확인 후 알아서 지운다. 스킬이 미리 지우면 안전망이 사라진다
