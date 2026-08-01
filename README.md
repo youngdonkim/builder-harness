@@ -150,6 +150,7 @@ claude plugin install another-plugin@builder-harness --scope project
 | 훅 | `no-main-push` | main 브랜치에 바로 올리는 것을 차단 (PR 검토 흐름 강제) |
 | 훅 | `auto-wip-commit` | 응답이 끝날 때마다 작업 브랜치에 진행 중 커밋(wip)을 자동 생성 |
 | 훅 | `stale-plugin-notice` | 설치된 플러그인이 최신보다 뒤처지면 세션이 열릴 때마다 알림 — 같은 버전 조합은 6시간에 한 번만 |
+| 훅 | `pending-worktree-guard` | `new-task`가 만든 새 작업 폴더로 세션이 실제로 옮겨 갔는지 확인 — 안 옮겼으면 한 번 막고 알림 |
 
 용어 참고 — **PR(Pull Request)**은 "내가 고친 걸 본체에 반영해 달라"고 올리는 제안이다. **CI(Continuous Integration)**는 그 제안이 반영되기 전에 코드가 깨지지 않았는지 자동으로 검사하는 절차다. **wip(work in progress)**는 아직 끝나지 않은 진행 중 상태를 뜻한다.
 
