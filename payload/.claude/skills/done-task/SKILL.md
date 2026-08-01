@@ -47,14 +47,10 @@ agent: git-flow
 ```bash
 # 1-a. 현재 브랜치 확인
 git rev-parse --abbrev-ref HEAD
-
-# 메인 폴더인지 워크트리(worktree — 같은 저장소를 작업 폴더 여러 개로 펼치는 git 기능)인지 판별 (차단 조건 아님, 완료 보고 참고용)
-git rev-parse --git-common-dir
 ```
 
 - **main 브랜치** → 중단. "지금 main 브랜치 위에 있어. 이 스킬은 feature 브랜치를 main으로 ship하는 도구라, 먼저 작업한 feature 브랜치로 이동해야 해."
 - **브랜치에 안 묶인 상태 (detached HEAD)** → 중단. "지금 어느 브랜치에도 위치하지 않고 과거 커밋한 파일들을 보고 있어. 이 스킬은 feature 브랜치를 main으로 ship하는 도구라, 어느 feature 브랜치를 ship할지 알려줘."
-- **(판별용)** `git rev-parse --git-common-dir` 출력이 `.git`이면 메인 폴더, 그 외 경로면 워크트리 안이라는 뜻이다. 중단 조건은 아니지만 **§3-d에서 머지 명령을 가르는 기준**이라 꼭 구해둬야 한다 (워크트리에선 `--delete-branch`가 반드시 실패한다). §4 완료 보고에서도 쓴다.
 
 ```bash
 # 1-b. origin/main 최신화 후, 그 대비 새 commit 있는가
