@@ -1,6 +1,6 @@
 ---
 name: done-task
-description: 현재 feature 브랜치의 WIP 커밋들을 GitHub에 push → PR 생성 → squash merge → remote 브랜치 자동 삭제.
+description: 현재 feature 브랜치의 WIP 커밋들을 GitHub에 push → PR 생성 → squash merge → remote·로컬 브랜치 삭제(로컬은 main으로 이동)까지 자동 처리.
 disable-model-invocation: true
 allowed-tools: Bash(git *) Bash(gh *)
 context: fork
@@ -310,16 +310,22 @@ gh pr view <N> --json state,mergedAt --jq '.state'
 - `MERGED` → **성공이다.** 명령이 실패했더라도 그대로 다음 단계로 간다. 명령 쪽 오류 메시지는 §4 보고에 참고로만 한 줄 남긴다.
 - `OPEN`·`CLOSED` → 진짜 실패다. 중단하고 사용자에게 stdout + PR URL 보고: "GitHub에서 직접 해결한 다음 다시 호출해줘." (conflict·branch protection·CI 미통과·**권한 부족** 등. 권한 부족으로 실패한 거면 애초에 팀원 경로였어야 하는 상황이니, PR은 그대로 두고 팀원용 보고에 준해 안내)
 
-머지가 확인되면 **원격 브랜치와 로컬 브랜치가 치워졌는지 확인한다.** `--delete-branch`가 이미 지웠거나 저장소 설정이 "머지된 브랜치 자동 삭제"면 그냥 넘어간다 (없는 브랜치를 지우려 하면 오류가 난다):
+머지가 확인되면 **원격 브랜치와 로컬 브랜치가 치워졌는지 확인하고, `--delete-branch`가 못 치운 건 여기서 직접 마무리한다.** `--delete-branch`가 대개 여기까지 이미 해놨다 — 아래 확인 명령들의 출력이 비어 있으면 그냥 넘어간다 (없는 걸 지우려 하면 오류가 난다):
 
 ```bash
 git ls-remote --heads origin <branch>        # 출력이 있으면 원격에 아직 살아있다
 git push origin --delete <branch>            # 살아있을 때만
 
-git rev-parse --abbrev-ref HEAD              # main이면 로컬 브랜치까지 정리된 것
+git rev-parse --abbrev-ref HEAD              # main이 아니면 아래를 실행
+git switch main
+git pull origin main --ff-only               # squash 커밋을 로컬 main에도 반영
+git branch --list <branch>                   # 출력이 있으면 로컬 브랜치가 아직 남아있다
+git branch -D <branch>                       # 남아있을 때만 (squash merge라 -D 필요)
 ```
 
-로컬 브랜치가 남아 있으면 여기서 억지로 지우지 않는다 — 세션이 아직 그 브랜치 위에 있으면 지울 수 없다. 남은 건 다음 `/new-task`가 정리한다 (§안 하는 것). 어느 쪽인지는 §4 보고에 적는다.
+- **`git pull origin main --ff-only`를 하는 이유**: 머지는 GitHub 쪽에서 일어나서 squash 커밋이 로컬 main엔 아직 없다. 이걸 안 하면 방금 합친 작업이 로컬 main에 없는 상태로 남아 혼란스럽다. `--ff-only`라 로컬 main에 딴 게 섞여 있으면 조용히 합치지 않고 실패한다 — 그러면 억지로 진행하지 않고 실패 사유를 §4 보고에 남긴다.
+- **`git branch -D`를 쓰는 이유**: squash merge는 원래 커밋들을 그대로 옮기지 않아서 git이 이 브랜치를 "머지 안 됨"으로 본다. 그래서 안전한 `-d`로는 안 지워지고 `-D`가 필요하다.
+- **어느 단계가 실패해도 머지 자체는 이미 끝난 것**이라 여기서 중단하지 않는다. 실패한 단계만 사유와 함께 §4 보고에 남기고 마무리한다.
 
 ### 4. 완료 보고
 
@@ -331,8 +337,10 @@ git rev-parse --abbrev-ref HEAD              # main이면 로컬 브랜치까지
 ✓ main에 1개 commit으로 합쳐짐 (제목: "<PR title> (#N)")
 ✓ remote의 <branch> 삭제됨 [§3-d에서 gh 명령이 오류를 냈지만 PR 상태가 MERGED였으면 한 줄 덧붙임:
   "○ gh 명령은 <오류 요약>로 끝났는데, 머지 자체는 성공이라 그대로 진행했어"]
-✓ 로컬도 정리됨 — 지금 main 위에 있어 [로컬 브랜치가 남았으면 대신: "○ 로컬 브랜치 <branch>는
-  남아 있어(세션이 아직 그 위에 있어서 못 지워) — 다음 /new-task 때 정리돼"]
+✓ 로컬도 정리됨 — main 최신으로 이동, <branch> 삭제 완료 [§3-d 로컬 정리 단계가 실패했으면 대신:
+  "○ 로컬 정리가 <실패한 단계>에서 막혔어 — <사유>. <사용자가 할 일 한 줄>"
+  (예: "origin/main과 로컬 main이 갈라져 있어 --ff-only pull이 실패했어 — `git pull origin main`으로
+  직접 맞춰줘" / "로컬 브랜치 <branch> 삭제가 실패했어 — `git branch -D <branch>`로 직접 지워줘")]
 ✓ wip 커밋 <count>개가 PR 페이지에 그대로 남아 있어 — 브랜치가 지워져도 되살릴 수 있어:
   `git fetch origin pull/<N>/head:recover-<N>`
   (그중 특정 시점으로 돌아가고 싶으면 /rewind-task 써도 돼)
@@ -380,7 +388,9 @@ PR은 그대로 있어 — <PR URL>
 | 상황                                                    | 처리                                                                     |
 | ------------------------------------------------------- | ------------------------------------------------------------------------ |
 | `gh pr merge`가 0이 아닌 코드로 끝남                    | 종료코드로 판정하지 않는다. `gh pr view --json state`가 `MERGED`면 성공으로 보고 그대로 진행 (§3-d) |
-| 머지는 됐는데 로컬 브랜치가 안 지워짐                   | 정상. 세션이 그 브랜치 위에 있으면 gh가 못 지운다. 억지로 안 지우고 §4 보고에 남김 — 다음 `/new-task`가 정리 |
+| 머지는 됐는데 원격·로컬 브랜치가 안 지워짐              | §3-d에서 직접 확인 후 원격 삭제 → main 이동 → 로컬 삭제까지 마무리. 그래도 실패하면 사유를 §4 보고에 남김 |
+| 로컬 main이 origin/main과 갈라져 `--ff-only` pull 실패  | 억지로 진행하지 않는다. 실패 사유를 §4 보고에 남기고, 사용자가 직접 `git pull origin main`으로 맞추게 안내 |
+| `git branch -D` 실패                                    | §4 보고에 실패 사유를 남기고, 사용자가 직접 `git branch -D <branch>`로 지우게 안내 |
 | 이미 그 브랜치에 PR이 있음                              | 새로 안 만들고 기존 PR 사용. 새 commit 있으면 push만 추가 후 (오너 경로면) merge |
 | push 후 PR 생성 실패                                    | push는 유지. GitHub UI에서 직접 만들라고 안내                            |
 | squash merge 시 conflict                                | GitHub UI에서 conflict 해결 후 머지하라고 안내                           |
@@ -412,7 +422,7 @@ PR은 그대로 있어 — <PR URL>
 
 ## 안 하는 것 (의도적)
 
-- ❌ main 싱크·옛 브랜치 정리·새 브랜치 생성 — 그건 `new-task` 스킬 (§3-d에서 `--delete-branch`가 치우지 못하고 남은 로컬 브랜치도 마찬가지)
+- ❌ 다른(옛) 브랜치 정리·새 브랜치 생성 — 그건 `new-task` 스킬 몫. 이번에 머지한 브랜치의 뒷정리(원격·로컬 삭제 + main 최신화)는 §3-d에서 직접 끝낸다
 - ❌ Claude 자동 invoke — `disable-model-invocation: true`
 - ❌ stage·commit 자동화 — *현재 commit된 wip*만 ship. 추가 변경은 사용자가 commit 또는 §1-c (a) 옵션 선택.
 - ❌ simplify 스킬 직접 실행 — fork 안에서 안 함. §1.5에서 [결정 필요] 반환만 하고, 실제 `/simplify` 실행·검증·커밋(`chore: simplify 반영`)은 메인 세션 몫
