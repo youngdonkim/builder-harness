@@ -22,7 +22,7 @@ description: 유저 스토리 단계 가이드. 필수 입력 4개를 걷어 use
 
 이 단계의 목표는 **아이디어의 초기 맥락(필수 입력 4개)을 사용자에게서 걷고, `user-scenario-writer` 서브 에이전트에 위임해 영화 시나리오 형식의 유저 스토리를 만드는 것**이다. 산출물은 `mvp/user-story.md` 한 파일 — 위임 프롬프트 그대로 입력 4개 원문(§4.1)과 에이전트가 생성한 시나리오 본문을 담는다.
 
-이 산출물은 **2단계(InformationArchitecture)의 도출 원천이자 3단계(Mockup)의 입력, 4단계(DemoValidation)의 자동 도출 원천**이다 — 2단계는 이 문서에서 화면 인벤토리·객체 지도를 뽑아내고(`2-information-architecture.md`), 3단계는 그 인벤토리와 이 문서를 함께 Claude Design에 입력해 목업의 톤·문구를 잡고(`3-mockup.md`), 4단계는 여기서 아이디어 한두 문장을 도출해 사용자에게 다시 묻지 않는다 (`4-demo-validation.md` §2.2). 뒤쪽의 5단계(MarketResearch)도 이 문서의 대안·타겟 정보를 조사의 출발점 중 하나로 삼는다 (`5-market-research.md`). 목표를 이뤘는지는 §3 완료 체크리스트로 판정한다.
+이 산출물은 **2단계(InformationArchitecture)의 도출 원천이자 3단계(Prototype)의 입력, 4단계(DemoValidation)의 자동 도출 원천**이다 — 2단계는 이 문서에서 화면 인벤토리·객체 지도를 뽑아내고(`2-information-architecture.md`), 3단계는 그 인벤토리와 이 문서를 함께 Claude Design에 입력해 목업의 톤·문구를 잡고(`3-prototype.md`), 4단계는 여기서 아이디어 한두 문장을 도출해 사용자에게 다시 묻지 않는다 (`4-demo-validation.md` §2.2). 뒤쪽의 5단계(MarketResearch)도 이 문서의 대안·타겟 정보를 조사의 출발점 중 하나로 삼는다 (`5-market-research.md`). 목표를 이뤘는지는 §3 완료 체크리스트로 판정한다.
 
 ## 2. 진행 절차
 
@@ -82,7 +82,7 @@ description: 유저 스토리 단계 가이드. 필수 입력 4개를 걷어 use
 
 ### 3.1 다음 단계 핸드오프
 
-산출물 저장 직후, 매 단계 공통대로 **`/clear` 후 `/idea-to-mvp` 재호출**을 권장한다 (SKILL.md §3.2). 다음 단계인 2단계(InformationArchitecture)는 이 문서를 읽어 화면 인벤토리·객체 지도·상태 매트릭스를 뽑아낸다 (`2-information-architecture.md`) — 유저 스토리는 주인공 한 명의 성공 경로 하나라, 거기서 안 그려진 화면(빈 상태·실패 분기·설정 등)까지 2단계가 채워 서비스 전체 지도를 만든다. 이어지는 3단계(Mockup)는 그 인벤토리와 `user-story.md`를 함께 외부 Claude Design에 입력해 목업을 만든다 (`3-mockup.md`). 아이디어 한두 문장은 4단계(DemoValidation)가 이 문서에서 **직접 도출**한다 (`4-demo-validation.md` §2.2).
+산출물 저장 직후, 매 단계 공통대로 **`/clear` 후 `/idea-to-mvp` 재호출**을 권장한다 (SKILL.md §3.2). 다음 단계인 2단계(InformationArchitecture)는 이 문서를 읽어 화면 인벤토리·객체 지도·상태 매트릭스를 뽑아낸다 (`2-information-architecture.md`) — 유저 스토리는 주인공 한 명의 성공 경로 하나라, 거기서 안 그려진 화면(빈 상태·실패 분기·설정 등)까지 2단계가 채워 서비스 전체 지도를 만든다. 이어지는 3단계(Prototype)는 그 인벤토리와 `user-story.md`를 함께 외부 Claude Design에 입력해 목업을 만들고, 이를 리액트로 옮겨 워킹 프로토타입으로 배포한다 (`3-prototype.md`). 아이디어 한두 문장은 4단계(DemoValidation)가 이 문서에서 **직접 도출**한다 (`4-demo-validation.md` §2.2).
 
 ## 4. 산출물 스펙
 
