@@ -140,7 +140,7 @@ claude plugin install another-plugin@builder-harness --scope project
 |---|---|---|
 | 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · InformationArchitecture · Mockup · DemoValidation · MarketResearch · MvpBuild · MvpLaunch (통과 기준 2개) |
 | 횡단 스킬 | `project-init` | 새 프로젝트에 하네스 적용 — CLAUDE.md 뼈대 + rules 템플릿 복사. 이미 적용된 프로젝트에서 재실행하면 복사본을 최신 템플릿과 비교해 동기화 |
-| 횡단 스킬 | `new-task` | main 최신화 + 옛 브랜치 정리 + 새 작업 브랜치 생성 |
+| 횡단 스킬 | `new-task` | main 최신화 + 방금 끝낸 이 작업 폴더·브랜치만 정리(다른 창의 작업 폴더는 안 건드림) + 새 작업 폴더·브랜치 생성 |
 | 횡단 스킬 | `done-task` | 자동 저장 커밋 → 원격 올리기(push) → PR 생성 → (오너면) CI 통과 대기 → 합치기(merge) → 원격 브랜치 삭제 한 흐름. 팀원은 PR까지, 오너는 머지까지 |
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
