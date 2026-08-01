@@ -24,17 +24,6 @@
           }
         ]
       }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stale-harness-notice.sh",
-            "timeout": 10
-          }
-        ]
-      }
     ]
   }
 }
