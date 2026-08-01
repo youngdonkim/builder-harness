@@ -22,11 +22,10 @@
 #
 # 작업 폴더 판별 버그 수정 (2026-07-31):
 #   - CLAUDE_PROJECT_DIR만 보고 cd하던 문제. 이 변수는 세션이 시작된 폴더로 고정된
-#     값이라, 메인 폴더에서 시작한 세션이 EnterWorktree로 워크트리에 옮겨 앉아도
-#     안 따라온다. 메인 폴더는 항상 main 브랜치라서 훅이 매번 "main — skip"으로
-#     조용히 빠졌고, 워크트리 변경이 한 번도 커밋되지 않았다.
-#     → stdin JSON의 cwd(세션의 현재 작업 폴더)를 최우선으로 쓰고,
-#       없을 때만 CLAUDE_PROJECT_DIR → pwd 순으로 폴백.
+#     값이라, 세션이 그 뒤 다른 폴더로 옮겨 앉아도 안 따라온다.
+#     → 세션이 실제로 앉은 폴더 기준으로 판별해야 하므로, stdin JSON의
+#       cwd(세션의 현재 작업 폴더)를 최우선으로 쓰고, 없을 때만
+#       CLAUDE_PROJECT_DIR → pwd 순으로 폴백.
 #
 # staged 파일 가드 제거 (2026-08-01):
 #   "staged 파일이 있으면 사용자가 수동으로 부분 stage 해둔 것"이라는 가정이 틀렸다.
@@ -43,7 +42,7 @@ INPUT=$(cat)
 TRANSCRIPT_PATH=$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null || echo "")
 HOOK_CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")
 
-# 세션의 현재 작업 폴더 = stdin의 cwd (EnterWorktree로 옮겨 앉은 폴더까지 따라옴).
+# 세션의 현재 작업 폴더 = stdin의 cwd (세션이 실제로 앉은 폴더까지 따라옴).
 # CLAUDE_PROJECT_DIR은 세션 시작 폴더에 고정된 값이라 폴백으로만 쓴다.
 PROJECT_DIR=""
 for d in "$HOOK_CWD" "${CLAUDE_PROJECT_DIR:-}" "$(pwd)"; do

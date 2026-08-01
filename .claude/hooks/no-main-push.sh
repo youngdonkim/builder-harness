@@ -20,11 +20,10 @@
 #       찾기 전에 이런 전역 옵션(과 그 값)을 건너뛰고 판정
 #       - 이때 -C / --git-dir / --work-tree 가 지목한 폴더 경로를 기억해 두고,
 #         refspec 미지정 push의 폴백 검사에서 세션 cwd 대신 그 폴더의
-#         현재 브랜치를 본다 (워크트리 세션에서 git -C <main인 폴더> push 로
-#         우회하던 구멍 봉쇄)
-#       - 폴백 검사의 기준 폴더는 stdin JSON의 cwd (명령이 실제로 실행될,
-#         EnterWorktree 반영된 세션 폴더). CLAUDE_PROJECT_DIR은 세션 시작
-#         폴더에 고정된 값이라 cwd가 없을 때의 폴백으로만 쓴다
+#         현재 브랜치를 본다 (다른 폴더를 겨냥한 push로 우회하던 구멍 봉쇄)
+#       - 폴백 검사의 기준 폴더는 stdin JSON의 cwd (명령이 실제로 실행될
+#         세션 폴더). CLAUDE_PROJECT_DIR은 세션 시작 폴더에 고정된 값이라
+#         cwd가 없을 때의 폴백으로만 쓴다
 #   - force push 전면 차단 (대상 브랜치 무관)
 #       -f, --force, --force-with-lease(=값 포함), --force-if-includes,
 #       또는 +로 시작하는 강제 refspec (예: git push origin +feature:main)
@@ -45,10 +44,10 @@ INPUT=$(cat)
 COMMAND=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty')
 HOOK_CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")
 
-# Bash 명령이 실제로 실행될 폴더 = stdin의 cwd (EnterWorktree로 옮겨 앉은 폴더까지
-# 따라옴). CLAUDE_PROJECT_DIR은 세션 시작 폴더에 고정된 값이라 폴백으로만 쓴다 —
-# 메인 폴더에서 시작해 워크트리로 옮긴 세션에서 그걸 쓰면 refspec 미지정 push
-# 폴백 검사가 항상 main인 메인 폴더를 봐서 feature 브랜치 push까지 오차단한다.
+# Bash 명령이 실제로 실행될 폴더 = stdin의 cwd (세션이 실제로 앉은 폴더).
+# CLAUDE_PROJECT_DIR은 세션 시작 폴더에 고정된 값이라 폴백으로만 쓴다 —
+# 세션이 다른 폴더로 옮겨 앉은 뒤에도 CLAUDE_PROJECT_DIR을 쓰면 refspec
+# 미지정 push 폴백 검사가 세션 시작 폴더만 봐서 오판할 수 있다.
 BASE_DIR="${HOOK_CWD:-${CLAUDE_PROJECT_DIR:-.}}"
 
 [ -z "$COMMAND" ] && exit 0

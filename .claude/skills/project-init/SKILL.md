@@ -85,14 +85,12 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 `.claude/settings.json`은 저장소에 커밋되는 파일이라, 이 상태로 main에 합쳐두면 팀원 전원에게 똑같이 적용된다.
 
-### 5. 폴더·gitignore 정리
+### 5. 폴더 정리
 
 ```
 mvp/                   # 단계 산출물 (market-research.md 등이 단계 진행하며 생김)
 docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 ```
-
-**`.gitignore`에 `.claude/worktrees/` 추가** — 하네스는 작업을 워크트리(worktree, 같은 저장소를 작업 폴더 여러 개로 펼치는 git 기능) 단위로 하고, 워크트리 폴더가 저장소 안 `.claude/worktrees/`에 생긴다. 이걸 무시 목록에 넣지 않으면 `auto-wip-commit` 훅이 워크트리 폴더를 통째로 커밋해버린다. `.claude/`의 나머지(스킬·에이전트·훅·rules·settings.json)는 계속 추적해야 하므로 `.claude/` 전체가 아니라 반드시 `worktrees/`까지 포함한 경로로 적는다.
 
 ### 6. 버전 스탬프 기록
 
@@ -111,7 +109,7 @@ date=<오늘 날짜 YYYY-MM-DD>
 사용자에게 알린다:
 
 - 방금 프로젝트에 들어온 것: `CLAUDE.md`, `.claude/`(skills·agents·hooks·rules·settings.json·harness-version), `docs/git-workflow.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
-- 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — 메인 폴더는 main이라 자동으로 건너뛰고, 워크트리에서만 돈다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
+- 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — main에서는 자동으로 건너뛴다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
 - **지금 열린 세션에는 새 스킬·훅이 아직 안 잡힌다** — 새 세션을 열거나 `/clear`를 하면 잡힌다.
 - 하네스를 나중에 최신으로 올리려면: 하네스 원본 저장소에서 `git pull` → 이 프로젝트 세션에서 "하네스 동기화해줘". **앱 재시작은 필요 없다.**
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.)
@@ -169,9 +167,9 @@ date=<오늘 날짜 YYYY-MM-DD>
 
 병합안을 본 사용자가 다른 걸 원하면 (a) 템플릿 공용 문구로 교체 (b) 지금 내용 그대로 유지 중에 고를 수 있다 (기본이 아닌 예외 경로다).
 
-### 4. 폴더·설정 보정
+### 4. 폴더 보정
 
-`mvp/`·`docs/` 폴더는 신규 모드와 동일하게, 없으면 채운다. `.gitignore`에 `.claude/worktrees/` 항목이 없으면 채운다.
+`mvp/`·`docs/` 폴더는 신규 모드와 동일하게, 없으면 채운다.
 
 ### 5. 스탬프 갱신
 
