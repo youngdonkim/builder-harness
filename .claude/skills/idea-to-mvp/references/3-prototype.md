@@ -324,7 +324,7 @@ grep -rhoE '^[[:space:]]*--[A-Za-z0-9-]+' <1층 foundation 경로> \
 grep -rnFf /tmp/foundation-vars.txt <3층 CSS 경로> <제품 코드 경로>
 ```
 
-3. **미디어 쿼리 0건** — 3층 반응형은 flex 줄바꿈·`auto-fill`·`clamp()`로 푼다. 화면 폭마다 규칙을 따로 쓰기 시작하면 화면이 늘 때마다 규칙도 같이 늘어난다. (프레임 차원의 반응형 계약은 `design-system` 스킬 layout-frames.md 몫이고, 여기서 보는 건 3층 제품 코드다.)
+3. **미디어 쿼리 0건** — 분기가 필요 없으면 flex 줄바꿈·`auto-fill`·`clamp()`로 푼다. 폭 분기가 진짜 필요할 때는 뷰포트 기준 미디어 쿼리가 아니라 컨테이너 쿼리(container query — 화면 전체 폭이 아니라 그 요소가 실제로 차지한 폭을 보고 규칙을 거는 CSS 기능)가 기본 수단이다. 이 방침의 근거는 `design-system` 스킬 layout-frames.md §5(반응형 계약)에 있다 — 감사 기준은 스킬이 갖고, 여기서 보는 건 그 기준을 3층 제품 코드에 실제로 적용한 결과다. 화면 폭마다 규칙을 따로 쓰기 시작하면 화면이 늘 때마다 규칙도 같이 늘어난다.
 
 ```bash
 grep -rn '@media' <3층 CSS 경로> <제품 코드 경로>
