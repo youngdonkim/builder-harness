@@ -70,6 +70,7 @@ description: 3단 토큰 계층(foundation→semantic→component) + 조립 계�
 | 개념이 같은데 새 블록 생성 (예: dialog 있는데 `.popup` 신설) | 인벤토리 정본 재사용 + 변형 |
 | 목록 항목마다 카드로 감싸기 / 카드 중첩 | 밀집 데이터는 행(row)으로 |
 | 상태색(danger/success)을 장식용으로 사용 | 상태색은 의미 전달에만 |
+| 통짜 폰트 파일 로딩 / CDN `<link>`로 웹폰트 불러오기 | 조각화(unicode-range) + 자체 호스팅 ([references/font-loading.md](references/font-loading.md)) |
 
 ## 동심원 radius 규칙
 
@@ -83,3 +84,4 @@ description: 3단 토큰 계층(foundation→semantic→component) + 조립 계�
 - 프레임·레이아웃 방법론: [references/layout-frames.md](references/layout-frames.md)
 - 새 토큰 추가 절차: [references/add-a-token.md](references/add-a-token.md)
 - 새 프로젝트 도입: [references/bootstrap-project.md](references/bootstrap-project.md)
+- 한글 웹폰트 로딩: [references/font-loading.md](references/font-loading.md)
