@@ -46,6 +46,18 @@
 #     조용히 skip되어 며칠치 작업이 미커밋으로 쌓이는 사고가 실제로 났다.
 #   → 예외를 .example/.sample/.template로 "끝나는" 이름 전체로 넓히고,
 #     걸린 파일만 add 뒤 staging에서 빼고 나머지는 그대로 커밋하도록 바꿨다.
+#
+# 슬래시 명령 힌트 살리기 (2026-08-05):
+#   슬래시 명령 턴의 사용자 메시지는 <command-name>·<command-message>·<command-args>
+#   태그 뭉치인데, strip_harness_tags()가 이걸 전부 하네스 산물로 보고 지워버려서
+#   빈 문자열이 됐다. 그러면 호출부 루프가 "하네스 산물이네" 하고 더 뒤로 거슬러
+#   올라가 그 전 턴(직전 주제)의 진짜 사람 메시지를 힌트로 집어 갔다. 그 결과
+#   /simplify를 돌린 턴의 커밋 제목에 "simplify"라는 단어가 안 들어가서,
+#   done-task의 simplify 게이트(직전 커밋 제목에 "simplify"가 있는지로 판정)가
+#   이미 실행된 걸 못 알아보고 계속 막아 왕복이 반복되는 사고가 났다.
+#   → 슬래시 명령은 쓰레기가 아니라 사용자가 실제로 친 진짜 의도이므로,
+#     명령 이름(+인자)을 뽑는 extract_slash_command()를 추가하고 후보를 훑는
+#     루프에서 strip_harness_tags보다 먼저 시도하도록 했다.
 
 set -uo pipefail
 
@@ -125,6 +137,30 @@ strip_harness_tags() {
     | sed -E 's/  +/ /g; s/^ +//; s/ +$//'
 }
 
+# 슬래시 명령 턴이면 명령 이름(+인자)을 힌트로 뽑는다. <command-message>는
+# "simplify is running…" 같은 안내문일 뿐 사용자 의도가 아니므로 쓰지 않는다.
+# 이름이 없으면(슬래시 명령 턴이 아니면) 빈 출력에 실패(1)를 반환한다.
+extract_slash_command() {
+  local flat name args
+  # 메시지에 줄바꿈이 섞여 있으면 sed가 줄 단위로만 봐서 태그를 놓치므로 먼저 눕힌다.
+  flat=$(printf '%s' "$1" | tr '\n' ' ')
+  name=$(printf '%s' "$flat" | sed -nE 's/.*<command-name>([^<]*)<\/command-name>.*/\1/p')
+  name=$(printf '%s' "$name" | sed -E 's/^ +//; s/ +$//')
+  [ -z "$name" ] && return 1
+  case "$name" in
+    /*) ;;
+    *) name="/$name" ;;
+  esac
+  args=$(printf '%s' "$flat" | sed -nE 's/.*<command-args>([^<]*)<\/command-args>.*/\1/p')
+  args=$(printf '%s' "$args" | sed -E 's/^ +//; s/ +$//')
+  if [ -n "$args" ]; then
+    printf '%s %s' "$name" "$args"
+  else
+    printf '%s' "$name"
+  fi
+  return 0
+}
+
 # 최소 환경(로케일 미설정)에서도 문자 단위 컷이 되도록 시스템에 설치된 UTF-8 로케일을 하나 찾는다.
 pick_utf8_locale() {
   local avail cand
@@ -179,8 +215,14 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
     # read는 IFS 설정과 무관하게 개행에서 한 줄을 끊어버리므로 -d ''로 그 동작을 끄고
     # \x1e만 구분자로 쓴다 — 메시지 내부의 진짜 줄바꿈이 잘리는 걸 막기 위함.
     IFS=$'\x1e' read -r -d '' -a _candidates <<< "$joined"
-    # 뒤(최신)에서부터 앞으로 훑으며 하네스 산물이 아닌 첫 메시지를 찾는다
+    # 뒤(최신)에서부터 앞으로 훑으며 하네스 산물이 아닌 첫 메시지를 찾는다.
+    # 슬래시 명령 턴이면 명령 이름을 우선 힌트로 쓰고, 아니면 기존대로
+    # strip_harness_tags 결과가 비어있지 않고 '<'로 시작하지 않을 때 그걸 쓴다.
     for (( idx = ${#_candidates[@]} - 1; idx >= 0; idx-- )); do
+      if slash=$(extract_slash_command "${_candidates[idx]}"); then
+        raw="$slash"
+        break
+      fi
       cleaned=$(strip_harness_tags "${_candidates[idx]}")
       if [ -n "$cleaned" ] && [[ "$cleaned" != "<"* ]]; then
         raw="$cleaned"
