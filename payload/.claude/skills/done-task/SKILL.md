@@ -92,7 +92,10 @@ ship 전에 코드 품질 정리(`simplify` 스킬 — 재사용·단순화·효
 git diff origin/main...HEAD --name-only | grep '^src/' | head -1
 
 # 브랜치 안에서 가장 최근 simplify 표식 커밋 찾기 (없으면 출력 비어 있음)
-git log origin/main..HEAD --format='%H %s' | grep -i simplify | head -1
+# 제목에 simplify라는 단어만 들어 있으면 안 됨 — simplify 게이트 자체를 고치는 작업처럼
+# simplify와 무관한 커밋도 제목에 그 단어가 섞일 수 있어서, 표식은 정확히 이 두 형태만 인정한다:
+# `chore: simplify 반영`(사람이 직접 남기는 빈 표식) 또는 `/simplify`(auto-wip-commit 훅이 슬래시 명령 턴에 붙이는 제목)
+git log origin/main..HEAD --format='%H %s' | grep -E 'chore: simplify 반영|/simplify' | head -1
 
 # 표식이 있으면, 그 커밋 이후로 src 코드가 또 바뀌었는지
 # (표식 이후에 새로 짠 코드는 아직 simplify를 안 거친 것)
@@ -109,10 +112,10 @@ git diff --name-only <표식 커밋의 SHA>..HEAD -- 'src/**'
 
   선택지:
   ① 메인 세션에서 /simplify 돌린 뒤 재호출
-     — /simplify가 코드를 고쳤으면 그 변경이 커밋될 때 제목에 simplify가 자동으로 들어가 —
+     — /simplify가 코드를 고쳤으면 그 변경이 커밋될 때 제목에 `/simplify`(슬래시 포함)가 자동으로 들어가 —
        그게 곧 게이트가 찾는 표식이라 따로 챙길 필요 없어.
      — simplify가 검토했는데 고칠 게 없었으면 커밋 자체가 안 생겨서 표식도 없어. 그럴 땐
-       빈 표식 커밋을 직접 남겨줘: `git commit --allow-empty -m "chore: simplify 반영"`
+       빈 표식 커밋을 직접 남겨줘: `git commit --allow-empty -m "chore: simplify 반영"` (오타 없이 정확히 이 문구여야 게이트가 표식으로 알아본다)
   ② 스킵하고 바로 ship
 
   재호출 예시: `/done-task 스킵`
@@ -421,8 +424,9 @@ PR은 그대로 있어 — <PR URL>
 | CI 검사가 하나도 없음 (§3-c)                            | 검사 등록이 늦었을 수 있으니 20초 기다렸다가 한 번 더 확인. 그래도 없으면 CI가 아직 없거나 적용 전인 상황으로 확정 — 바로 머지 진행, 완료 보고에 "이 PR엔 CI 검사가 안 붙어 있었어" 한 줄 남김 |
 | 사용자 working tree 변경이 _이번 작업 일부_             | (a) 옵션으로 추가 commit하고 진행 권장 ([결정 필요] 반환에 명시)         |
 | 사용자 working tree 변경이 _별개_                       | (b) stash 권장 ([결정 필요] 반환에 명시)                                 |
-| simplify 재호출 감지                                    | 브랜치 안 simplify 표식 커밋 이후 `src/**` 변경 없으면 게이트 skip → 바로 ship (§1.5) |
+| simplify 재호출 감지                                    | 브랜치 안 simplify 표식 커밋(`chore: simplify 반영` 또는 `/simplify`) 이후 `src/**` 변경 없으면 게이트 skip → 바로 ship (§1.5) |
 | simplify 표식은 있는데 그 이후 `src/**`가 또 바뀜         | 게이트 재발동 — 표식 이후 새 코드는 아직 simplify를 안 거쳤음, [결정 필요] 반환 (§1.5) |
+| 커밋 제목에 simplify가 들어갔지만 표식 패턴이 아님 (예: `wip: simplify 게이트 고치기 — done-task/SKILL.md`) | 표식 아님 — `chore: simplify 반영`도 `/simplify`도 아니므로 무시하고 표식 없는 것으로 판정 (§1.5) |
 | 권한 조회(`gh api repos/.../permissions`) 실패          | 안전한 쪽 = 팀원 경로로 처리, 조회 실패 사실을 완료 보고에 남김 (§2.5)   |
 | 팀원 계정 (`push`만 `true`)                             | push + PR 생성까지만, 오너를 리뷰어로 지정, 머지는 안 함 (§2.5)          |
 | 리뷰어 자동 지정 실패 (팀원 경로)                       | PR 생성 자체는 유지, 리뷰어 지정 실패만 완료 보고에 남김                 |
