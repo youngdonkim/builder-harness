@@ -56,6 +56,7 @@ semantic 층에 토큰을 추가할 때 따르는 규범. **기존 토큰의 이
 | layout/frame-budget | 프레임 계약 값 | 영역 치수: `--app-max-width` · `--nav-height` / 거터·안전영역: `--space-screen-x` · `--space-bottom-safe` | `--{영역}-{치수}` — 거터·안전영역은 레거시로 `--space-` 접두 유지 |
 | shadow | 용도별 | `--shadow-fab/cta/sheet/card` | `--shadow-{용도}` |
 | motion | 이징·시간 | `--ease-standard` · `--duration-fast/base/slow` | `--ease-{느낌}` / `--duration-{속도}` |
+| typography/family | 글꼴 자체 | `--font-family-base`(본문 기본) · 필요시 `--font-family-brand`·`--font-family-mono` | `--font-family-{역할}` — 값은 foundation의 폰트 변수를 가리키는 별칭. 로딩 방법은 [font-loading.md](font-loading.md) |
 | typography/scale | 글(prose) 전용 — 제목·본문·캡션 | `t1~t4`(제목) `h1~h2` `b1~b2` `c1~c2`·`label` | 스케일 이름은 시스템 규약으로 고정, 크기 값만 프로젝트별 교체. 11단계에 안 맞는 크기는 typography/component으로 |
 | typography/component | UI 부품 전용 — 칩·뱃지·필드라벨·헬퍼텍스트 등 prose 스케일에 안 맞는 크기 | `--font-size-chip` · `--font-size-field-label` | `--font-size-{부품/역할}` — [add-a-token.md](add-a-token.md) 절차로 신규 추가 |
 
