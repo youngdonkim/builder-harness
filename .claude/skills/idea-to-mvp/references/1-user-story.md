@@ -83,7 +83,7 @@ description: 유저 스토리 단계 가이드. 필수 입력 4개를 걷어 use
 
 ### 3.1 다음 단계 핸드오프
 
-산출물 저장 직후, 매 단계 공통대로 **`/clear` 후 `/idea-to-mvp` 재호출**을 권장한다 (SKILL.md §3.2). 다음 단계인 2단계(InformationArchitecture)는 이 문서를 읽어 화면 인벤토리·객체 지도·상태 매트릭스를 뽑아낸다 (`2-information-architecture.md`) — 유저 스토리는 주인공 한 명의 성공 경로 하나라, 거기서 안 그려진 화면(빈 상태·실패 분기·설정 등)까지 2단계가 채워 서비스 전체 지도를 만든다. 이어지는 3단계(Prototype)는 그 인벤토리와 `user-story.md`를 함께 외부 Claude Design에 입력해 목업을 만들고, 이를 리액트로 옮겨 워킹 프로토타입으로 배포한다 (`3-prototype.md`). 아이디어 한두 문장은 4단계(DemoValidation)가 이 문서에서 **직접 도출**한다 (`4-demo-validation.md` §2.2).
+산출물 저장 직후, 매 단계 공통대로 **`/clear` 후 `/idea-to-mvp` 재호출**을 권장한다 (SKILL.md §3.2). 다음 단계인 2단계(InformationArchitecture)는 이 문서를 읽어 화면 인벤토리·객체 지도·상태 매트릭스를 뽑아낸다 (`2-information-architecture.md`) — 유저 스토리는 주인공 한 명의 성공 경로 하나라, 거기서 안 그려진 화면(빈 상태·실패 분기·설정 등)까지 2단계가 채워 서비스 전체 지도를 만든다. 그 뒤 3·4단계가 이 문서를 어떻게 쓰는지는 §1에 정리돼 있다.
 
 ## 4. 산출물 스펙
 
