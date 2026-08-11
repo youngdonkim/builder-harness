@@ -26,18 +26,14 @@
 | 크기 예산(size budget) | 영역마다 미리 배정해 둔 크기 한도 | 고정 높이(상단 크롬 52px)든 최대 폭(`--app-max-width` 560px)이든. "예산"=돈이 아니라 "쓸 몫을 미리 정해 둔다"는 은유 |
 | gutter | 화면 가장자리와 콘텐츠 사이의 좌우 여백 (예: `--space-screen-x`) | 조판 용어(책 제본 쪽 안쪽 여백 → 칼럼 사이 간격)에서 온 모바일 UI 관행어 |
 | 크롬(chrome) | 콘텐츠를 둘러싸고 탐색·조작을 돕는 **틀 UI** (상하단 바·스텝바·닫기 버튼) | 브라우저 이름 아님 — 자동차 크롬 트림 유래(겉을 두르는 마감) |
-| canvas | 뷰포트의 배경색 (웹에선 body background) | 프레임이 못 덮은 부분에서 드러남 — 아래 참조 |
+| canvas | 뷰포트의 배경색 (웹에선 body background) | 프레임이 못 덮은 부분에서 드러남 — 표면(surface) 위계는 [naming-taxonomy.md](naming-taxonomy.md) 참조 |
 | pattern | 프레임+컴포넌트를 화면 유형별로 묶은 검증된 템플릿 | 한 프레임 위에 여러 개 가능 |
 
 **레이아웃 ≠ 화면 디자인.** 레이아웃은 여러 화면이 공유하는 재사용 뼈대이고,
 화면은 그 뼈대에 콘텐츠를 채운 인스턴스다. (예: 위저드 10단계 = 화면 10개, 레이아웃 1개)
 
-region ≠ section: **region**은 프레임의 구역 — 위치·크기 예산으로 정의(콘텐츠 무관).
-**section**은 콘텐츠 쪽의 의미 묶음 컨테이너(컴포넌트) — region 안에서 콘텐츠를 주제별로 묶으며,
-컨테이너 정책(§3)의 적용 대상이다. 위계: frame → region → content(section → 카드/행 → 컴포넌트).
-
-관련 면(surface) 개념 — canvas는 **뷰포트의 배경색**(웹에선 body background)으로,
-프레임이 덮지 못한 부분에서 드러난다. 상세는 [naming-taxonomy.md](naming-taxonomy.md)의 표면 위계 참조.
+region ≠ section: 층위가 다르다 — 위계는 frame → region → content(section → 카드/행 → 컴포넌트).
+section은 region 안에서 콘텐츠를 주제별로 묶으며, 컨테이너 정책(§3)의 적용 대상이다.
 
 ## 2. frame-first 절차 — 콘텐츠부터 쓰지 말 것
 
