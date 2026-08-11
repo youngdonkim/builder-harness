@@ -3,6 +3,7 @@
 AI 빌더를 위한 Claude Code 하네스의 원본 저장소. 각 프로젝트는 이 저장소의 payload를 파일로 복사해 쓴다.
 
 - 이 저장소의 작업 흐름(브랜치·PR)은 README를 따른다.
+- **payload가 원본** — 스킬·에이전트·rules 수정은 `payload/.claude/`에 하고, 루트 `.claude/`(이 저장소 자신에게 적용된 미러)에 같은 파일을 복사해 동기화한다.
 
 ## 작업 원칙 (MUST FOLLOW)
 
