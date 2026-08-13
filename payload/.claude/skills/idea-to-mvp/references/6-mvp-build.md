@@ -143,7 +143,7 @@ Supabase 공식 문서가 원격(클라우드) DB에 대해 못 박는다:
 docker info      # 정보가 나오면 준비된 것
 ```
 
-> Docker Desktop은 직원 250명 미만 **그리고** 연 매출 1000만 달러 미만이면 무료다. 넘는 조직에서 업무용으로 쓰면 유료 라이선스가 필요하다 (https://docs.docker.com/subscription/desktop-license/).
+> Docker Desktop은 직원 250명 미만 **그리고** 연 매출 1000만 달러 미만이면 무료다. 넘는 조직에서 업무용으로 쓰면 유료 라이선스가 필요하다 (https://docs.docker.com/subscription/desktop-license/). 여기 걸리는 조직이면 공식 문서가 같이 적어둔 Rancher Desktop·Podman·OrbStack 중 하나를 쓴다.
 
 **④ CLI는 전역이 아니라 프로젝트 개발 의존성으로 깐다**
 
