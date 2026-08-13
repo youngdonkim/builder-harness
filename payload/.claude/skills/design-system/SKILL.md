@@ -50,7 +50,7 @@ description: 3단 토큰 계층(foundation→semantic→component) + 조립 계�
 1. 컴포넌트 인벤토리 검색 — 동의어로도 (예: "모달?" → dialog 항목)
 2. 있다 → 재사용. 살짝 다르면 `--modifier` 변형 추가 (신규 블록 금지)
 3. 없다 → 역할 분류 + 범용/전용 판정 후 신규 생성 → [references/component-taxonomy.md](references/component-taxonomy.md)
-4. 인벤토리에 등록
+4. 인벤토리에 등록 — 적기 전에 한 줄 색인 형식([references/component-taxonomy.md](references/component-taxonomy.md) §6)인지 확인. 값·사용법·변경 이력은 인벤토리가 아니라 부품 파일 머리 주석·git log 몫이다
 
 **값(색·간격·모서리…)이 필요하다** (semantic-first)
 1. semantic에 의미가 맞는 토큰이 있나? → [references/naming-taxonomy.md](references/naming-taxonomy.md) 유형표로 탐색
