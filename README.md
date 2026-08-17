@@ -198,7 +198,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
 - **`CLAUDE.md`** — 그 프로젝트에서 Claude가 항상 지켜야 할 규칙을 적어두는 파일. 세션을 열 때마다 자동으로 읽힌다. 이것만은 그대로 복사되지 않고, 원본의 `CLAUDE.md.template`에 인터뷰 답을 채워 만든다.
-- **`AGENTS.md`** — Claude뿐 아니라 Grok·Codex 같은 다른 AI 도구도 읽는 규칙 파일. `<!-- BEGIN:project-rules -->` 마커 구역이 있는 뼈대로 만들어지고, 그 안을 프로젝트가 채운다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
+- **`AGENTS.md`** — Claude뿐 아니라 Grok·Codex 같은 다른 AI 도구도 읽는 규칙 파일. 이것도 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 인터뷰 답을 채워 만든다. 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
 - **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
 - **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§6.4](#64-적용한-버전이-파일로-남는다)).
 - **`mvp/`·`docs/` 폴더** — 단계 산출물과 사람이 읽는 문서가 쌓이는 자리.
@@ -319,8 +319,9 @@ payload/docs/git-workflow.md          # 훅·done-task가 참조하는 작업 �
 payload/.github/workflows/ci.yml      # done-task가 머지 전 통과를 기다리는 lint + build 검사
 payload/.claude/settings-hooks.json   # (예외) 복사 아님 — 훅 등록 원본, 프로젝트 설정 파일에 합쳐 넣는 내용
 payload/CLAUDE.md.template            # (예외) 복사 아님 — 인터뷰 답을 채워 프로젝트 CLAUDE.md를 만드는 틀
+payload/AGENTS.md.template            # (예외) 복사 아님 — 인터뷰 답을 채워 프로젝트 AGENTS.md를 만드는 틀
 ```
 
-`payload/` 아래 구조가 곧 프로젝트 루트에 놓일 모양이다. 여기에 파일을 더하면 그게 그대로 프로젝트로 간다. **예외는 끝의 두 파일뿐**이다 — 그대로 놓이는 파일이 아니라서 복사에서 빠지고, 하나는 병합 원본으로 하나는 가공할 틀로 쓰인다. 그래서 이 둘만 `payload/` 안에서 자리가 특별하다(템플릿은 payload 루트에).
+`payload/` 아래 구조가 곧 프로젝트 루트에 놓일 모양이다. 여기에 파일을 더하면 그게 그대로 프로젝트로 간다. **예외는 끝의 세 파일뿐**이다 — 그대로 놓이는 파일이 아니라서 복사에서 빠지고, 하나는 병합 원본으로 나머지 둘은 가공할 틀로 쓰인다. 그래서 이 셋만 `payload/` 안에서 자리가 특별하다(템플릿 둘은 payload 루트에).
 
 `ci.yml`은 앱 코드(`package-lock.json`)가 아직 없는 프로젝트에서는 자동으로 통과 처리되고, 앱 코드가 생기는 순간부터 실제 lint + build 검사가 돌기 시작한다.

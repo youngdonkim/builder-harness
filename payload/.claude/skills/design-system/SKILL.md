@@ -24,7 +24,7 @@ description: 3단 토큰 계층(foundation→semantic→component) + 조립 계�
 
 ## 시작하기 전에 (필수)
 
-프로젝트의 CLAUDE.md에서 **프로젝트 연결 정보(adapter)**를 확인한다:
+프로젝트의 AGENTS.md에서 **프로젝트 연결 정보(adapter)**를 확인한다:
 층별 실제 파일 경로 · import 순서 · 프로젝트 고유 예외(함정 토큰 등) · 컴포넌트 인벤토리 위치.
 없으면 [references/bootstrap-project.md](references/bootstrap-project.md)로 도입부터.
 
