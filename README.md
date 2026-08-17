@@ -191,13 +191,14 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 ### 5.3 프로젝트에 무엇이 생기나
 
-`/project-init`이 프로젝트에 만드는 것들이다. 앞의 넷은 원본 `payload/`에서 같은 경로로 복사돼 오는 것이고, 뒤의 넷은 스킬이 따로 만든다.
+`/project-init`이 프로젝트에 만드는 것들이다. 앞의 넷은 원본 `payload/`에서 같은 경로로 복사돼 오는 것이고, 뒤의 다섯은 스킬이 따로 만든다.
 
 - **`.claude/skills/`·`.claude/agents/`·`.claude/hooks/`** — 세션을 열 때 읽혀서 스킬·서브에이전트·훅이 작동한다.
 - **`.claude/rules/`** — 특정 종류의 파일을 다룰 때만 적용되는 세부 규칙 모음.
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
 - **`CLAUDE.md`** — 그 프로젝트에서 Claude가 항상 지켜야 할 규칙을 적어두는 파일. 세션을 열 때마다 자동으로 읽힌다. 이것만은 그대로 복사되지 않고, 원본의 `CLAUDE.md.template`에 인터뷰 답을 채워 만든다.
+- **`AGENTS.md`** — Claude뿐 아니라 Grok·Codex 같은 다른 AI 도구도 읽는 규칙 파일. `<!-- BEGIN:project-rules -->` 마커 구역이 있는 뼈대로 만들어지고, 그 안을 프로젝트가 채운다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
 - **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
 - **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§6.4](#64-적용한-버전이-파일로-남는다)).
 - **`mvp/`·`docs/` 폴더** — 단계 산출물과 사람이 읽는 문서가 쌓이는 자리.
