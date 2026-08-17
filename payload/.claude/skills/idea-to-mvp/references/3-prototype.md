@@ -285,7 +285,7 @@ Claude Design이 만들어 주는 건 프런트엔드와 가짜 데이터로 도
 - **graceful degradation**: 조사가 불확실하면 마지막 known-good 조합으로 진행하고 `추후 결정: [무엇을 재확인]` 마킹.
 - **에스컬레이션**: 고정 스택 자체를 못 쓰는 근본 비호환(예: 목업이 React가 아님)일 때만 멈추고 사용자에게. 그 외엔 조사·적용 완주.
 
-**⚠️ Next.js 16 — CLAUDE.md를 멋대로 바꿔치기한다.** Next.js 16은 `next dev`나 빌드를 돌릴 때 `generate-agent-files.js`가 AGENTS.md를 자동 생성하는데, 이 과정에서 **프로젝트의 CLAUDE.md를 "@AGENTS.md" 한 줄짜리 파일로 통째로 바꿔치기해 버린다.** 실제 사고 사례가 있다 — 하네스 지침 전체(작업 원칙·검증 규칙·디자인 시스템 연결 정보(adapter))가 그렇게 날아갔고, 거기다 auto-wip-commit 훅이 그 바뀐 상태를 그대로 커밋해 버려서 git 히스토리를 뒤져 복구해야 했다.
+**⚠️ Next.js 16 — CLAUDE.md를 멋대로 바꿔치기한다.** Next.js 16은 `next dev`나 빌드를 돌릴 때 `generate-agent-files.js`가 AGENTS.md를 자동 생성하는데, 이 과정에서 **프로젝트의 CLAUDE.md를 "@AGENTS.md" 한 줄짜리 파일로 통째로 바꿔치기해 버린다.** 실제 사고 사례가 있다 — 그때는 검증 규칙·디자인 시스템 연결 정보(adapter)까지 전부 CLAUDE.md에 있어서 하네스 지침 전체가 그렇게 날아갔고, 거기다 auto-wip-commit 훅이 그 바뀐 상태를 그대로 커밋해 버려서 git 히스토리를 뒤져 복구해야 했다. 지금은 검증 규칙과 adapter가 AGENTS.md로 옮겨가 있어서 이 사고에서 살아남는다 — CLAUDE.md에 남은 건 위임 원칙뿐이라 날아가도 그것만 날아간다. **그래서 여러 AI 도구가 같이 읽어야 하는 공용 규칙은 CLAUDE.md가 아니라 AGENTS.md에 둔다.**
 
 - **스캐폴딩·첫 빌드 직후엔 CLAUDE.md 내용을 반드시 눈으로 확인한다** — "@AGENTS.md" 한 줄만 남아 있으면 바꿔치기당한 것이다.
 - **예방책**: CLAUDE.md **맨 끝에 `@AGENTS.md` 참조 줄**이 있으면 next dev가 다시 덮어쓰지 않는다. 이 줄은 project-init이 이미 넣어 뒀으니 **있는지 확인만 하고, 없으면 그때 맨 끝에 넣는다.**
@@ -379,7 +379,7 @@ json.loads(re.search(r'<script type="__bundler/template">(.*?)</script>', html, 
 
 #### 2.5.4 디자인 시스템 baseline
 
-목업의 토큰·컴포넌트·화면을 실코드로 옮기는 작업은 같은 하네스의 `design-system` 스킬을 호출해 그 방법론대로 한다. 시작할 때 토큰 3층(foundation→semantic→component) 구축 + 컴포넌트 인벤토리 생성 + CLAUDE.md 연결 정보(adapter) 기록은 스킬의 bootstrap-project.md 절차대로 — 목업 HTML에 내장된 토큰·CSS와 `design-tokens.css`가 이때 foundation·semantic을 채우는 원료다. 이후 모든 화면·컴포넌트 코드는 semantic 토큰만 참조한다 (hex·px 하드코딩 금지 — 스킬 철칙).
+목업의 토큰·컴포넌트·화면을 실코드로 옮기는 작업은 같은 하네스의 `design-system` 스킬을 호출해 그 방법론대로 한다. 시작할 때 토큰 3층(foundation→semantic→component) 구축 + 컴포넌트 인벤토리 생성 + AGENTS.md 연결 정보(adapter) 기록은 스킬의 bootstrap-project.md 절차대로 — 목업 HTML에 내장된 토큰·CSS와 `design-tokens.css`가 이때 foundation·semantic을 채우는 원료다. 이후 모든 화면·컴포넌트 코드는 semantic 토큰만 참조한다 (hex·px 하드코딩 금지 — 스킬 철칙).
 
 목업 화면이 스킬의 안티패턴에 걸리면(예: 목록 항목마다 카드 감싸기·상태색 장식 사용) 그대로 베끼지 않고 **스킬 쪽으로 고쳐서 이식한다** — 목업이 검증할 것은 플로우·구성·첫인상이지 최종 시각이 아니다.
 
@@ -428,7 +428,7 @@ grep -rnE '#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgba?\
 grep -rnE '[0-9]+px' <3층 CSS 경로> <제품 코드 경로>
 ```
 
-걸린 줄은 전부 semantic 토큰으로 바꾼다. `1px` 테두리처럼 남길 값이 있으면 그 줄을 프로젝트 `CLAUDE.md`의 디자인 시스템 연결 정보(adapter)에 예외로 적어 둔다 — 적어두지 않으면 다음 라운드에 같은 걸 또 따진다.
+걸린 줄은 전부 semantic 토큰으로 바꾼다. `1px` 테두리처럼 남길 값이 있으면 그 줄을 프로젝트 `AGENTS.md`의 디자인 시스템 연결 정보(adapter)에 예외로 적어 둔다 — 적어두지 않으면 다음 라운드에 같은 걸 또 따진다.
 
 2. **3층이 foundation 램프 변수를 직접 참조하는 곳 0건** — semantic 층을 건너뛰면 나중에 브랜드를 갈아끼울 때 3층까지 다 손대야 한다.
 
@@ -444,7 +444,7 @@ grep -rnFf /tmp/foundation-vars.txt <3층 CSS 경로> <제품 코드 경로>
 grep -rn '@media' <3층 CSS 경로> <제품 코드 경로>
 ```
 
-4. **새로 만든 부품·클래스가 컴포넌트 인벤토리에 전부 등록됐는지 대조** — 인벤토리 위치는 프로젝트마다 다르고, 그 프로젝트 `CLAUDE.md`의 디자인 시스템 연결 정보(adapter)에 적혀 있다. 흔한 자리는 `docs/components.md`.
+4. **새로 만든 부품·클래스가 컴포넌트 인벤토리에 전부 등록됐는지 대조** — 인벤토리 위치는 프로젝트마다 다르고, 그 프로젝트 `AGENTS.md`의 디자인 시스템 연결 정보(adapter)에 적혀 있다. 흔한 자리는 `docs/components.md`.
 
 ```bash
 grep -rhoE '^\.[a-z][a-z0-9-]*' <3층 CSS 경로> | sed 's/^\.//' | sort -u > /tmp/classes.txt
@@ -527,7 +527,7 @@ while read -r c; do grep -q -- "$c" <컴포넌트 인벤토리 문서 경로> ||
 - [ ] **Supabase 프로젝트 생성 + 환경변수 연결** (§2.4.2) — 테이블·RLS·로그인은 만들지 않음(6단계). 키가 커밋되지 않았는지 확인.
 - [ ] **리액트 마이그레이션 완료** (§2.5) — 인벤토리 `MVP 포함 = O` 화면이 코드에 전부 있고, 문구는 `screens.md`의 표현을 우선 따르고 부족한 곳만 같은 톤으로 최소 보완 (AI가 임의로 새로 짓지 않음).
 - [ ] **로컬스토리지로 데이터가 실제로 돈다** (§2.5) — 저장·조회·수정·삭제 + 새로고침 후에도 남음. 화면만 전환되는 껍데기 아님.
-- [ ] **design-system 스킬 방법론으로 지었다** (§2.5 — *짓는 공정*) — 토큰 3층 구축 + 컴포넌트 인벤토리 생성 + `CLAUDE.md` 연결 정보(adapter) 기록. 화면·컴포넌트는 semantic 토큰만 참조해서 만들었다.
+- [ ] **design-system 스킬 방법론으로 지었다** (§2.5 — *짓는 공정*) — 토큰 3층 구축 + 컴포넌트 인벤토리 생성 + `AGENTS.md` 연결 정보(adapter) 기록. 화면·컴포넌트는 semantic 토큰만 참조해서 만들었다.
 - [ ] **디자인 시스템 감사 통과** (§2.5.8 관문 ① — *검사 공정*) — grep으로 확인: 3층 hex·rgb 0건, px 매직넘버 0건, foundation 램프 직접 참조 0건, 미디어 쿼리 0건, 새로 만든 부품이 컴포넌트 인벤토리에 전부 등록됨. 위반이 있었으면 수정 후 재검사까지 0건.
 - [ ] **코드 품질 리뷰 반영** (§2.5.8 관문 ②) — `react-best-practices`로 리뷰하고 나온 위반을 수정 적용.
 - [ ] (해당 시) **ui/ux/bx 변경 라운드마다 관문 재실행함** (§2.5·§2.7) — 마이그레이션 직후 1차만 돌리고 끝내지 않았다.

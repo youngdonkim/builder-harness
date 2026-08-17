@@ -235,7 +235,7 @@ git log origin/main..HEAD --pretty=format:'%s' | head -30
 
 - Summary는 _결정·이유_ 위주. 파일 list 나열 X.
 - Test plan은 _사용자가 브라우저로 직접 확인할 항목_ — Claude는 브라우저 검증 안 함 (화면 검증은 사람 몫이라는 원칙).
-- 카피 룰: CLAUDE.md `## 대화 스타일`·`ux-writing-reviewer` 에이전트 (있으면) 따름.
+- 카피 룰: AGENTS.md `## 응답·문서 작성`·`ux-writing-reviewer` 에이전트 (있으면) 따름.
 
 초안이 곧 확정본이다 (호출 = ship 승인 — 별도 확인 없이 바로 §2.5로 진행).
 
@@ -406,7 +406,7 @@ PR은 그대로 있어 — <PR URL>
 
 ## 사용자 응대 톤
 
-톤은 `CLAUDE.md 대화 스타일`을 따름. 이 스킬 고유: 결정이 필요하면 진행을 멈추고 [결정 필요] 보고로 반환한다 (fork 실행이라 실행 중 질문 불가). 안전 검사 결과는 반환 보고에 모아서. PR title·body는 _호출 = ship 승인_ 모델이라 별도 확인 없이 초안 그대로 사용 — destructive 액션(push·merge)의 승인은 스킬 호출 그 자체다.
+톤은 `AGENTS.md 응답·문서 작성`을 따름. 이 스킬 고유: 결정이 필요하면 진행을 멈추고 [결정 필요] 보고로 반환한다 (fork 실행이라 실행 중 질문 불가). 안전 검사 결과는 반환 보고에 모아서. PR title·body는 _호출 = ship 승인_ 모델이라 별도 확인 없이 초안 그대로 사용 — destructive 액션(push·merge)의 승인은 스킬 호출 그 자체다.
 
 ## 엣지 케이스
 

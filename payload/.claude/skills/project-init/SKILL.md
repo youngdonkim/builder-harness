@@ -73,23 +73,14 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 ### 2. CLAUDE.md 생성
 
-원본의 `payload/CLAUDE.md.template`을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(작업 원칙 + 디자인 시스템 adapter 자리 + 앱 개발 컨벤션 자리)는 **수정하지 않고 그대로** — 하네스 표준이다. **idea-to-mvp 방법론 설명은 CLAUDE.md에 넣지 않는다** — 방법론은 스킬 발동 중에만 필요하고 스킬이 전부 관리한다. CLAUDE.md는 만드는 제품(앱)과 사용자 취향의 자리다.
+원본의 `payload/CLAUDE.md.template`을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(머리말 + 작업 원칙 + 맨 끝 `@AGENTS.md` 줄)는 **수정하지 않고 그대로** — 하네스 표준이다. **idea-to-mvp 방법론 설명은 CLAUDE.md에 넣지 않는다** — 방법론은 스킬 발동 중에만 필요하고 스킬이 전부 관리한다. CLAUDE.md는 만드는 제품(앱)과 사용자 취향의 자리다.
 
 ### 3. AGENTS.md 생성
 
 `AGENTS.md`는 클로드뿐 아니라 그록·Codex 같은 다른 AI 도구도 읽는 규칙 파일이다.
 
-- 프로젝트 루트에 `AGENTS.md`가 **없으면** 아래 뼈대로 새로 만든다.
-
-  ```markdown
-  # {{프로젝트명}}
-
-  <!-- BEGIN:project-rules -->
-  (어느 AI 도구가 읽어도 지켜야 하는 규칙을 여기에 — 프로젝트 소개 한 줄, 문서·응답 스타일, 검증 원칙, 디자인 시스템 연결 정보 등)
-  <!-- END:project-rules -->
-  ```
-
-- **이미 있으면** 파일을 지우거나 덮어쓰지 않는다. `<!-- BEGIN:project-rules -->` 마커 구역이 없을 때만 그 구역을 파일 맨 끝에 덧붙인다.
+- 프로젝트 루트에 `AGENTS.md`가 **없으면** 원본의 `payload/AGENTS.md.template`을 프로젝트 루트에 `AGENTS.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다 (2단계 CLAUDE.md와 같은 방식). 템플릿 구조는 **수정하지 않고 그대로** — 하네스 표준이다.
+- **이미 있으면** 파일을 지우거나 덮어쓰지 않는다. `<!-- BEGIN:project-rules -->` 마커 구역이 없을 때만, 템플릿의 마커 구역(placeholder를 채운 상태)을 파일 맨 끝에 덧붙인다.
 - **다른 도구가 자동으로 만든 구역은 절대 건드리지 않고 그대로 둔다** — 예를 들어 `next dev`가 넣는 `<!-- BEGIN:nextjs-agent-rules -->` 구역. 우리 마커 구역만 우리가 관리하고 나머지는 그 도구 몫이다.
 - 2단계에서 만든 `CLAUDE.md` **맨 끝**에 `@AGENTS.md` 줄이 있는지 확인하고, 없으면 맨 끝에 붙인다. 맨 끝이어야 하는 이유는 Next.js가 이 줄을 자기가 덧붙이는데, 이미 있으면 다시 안 건드려서다.
 
@@ -103,9 +94,10 @@ git -C <원본경로> rev-parse --short=12 HEAD
 <원본>/payload/.github/  →  <프로젝트>/.github/   (workflows/ci.yml)
 ```
 
-**복사에서 빼는 파일 둘** — 미러 규칙의 유일한 예외다. 그대로 놓이는 파일이 아니라서 빠진다.
+**복사에서 빼는 파일 셋** — 미러 규칙의 예외는 이 셋뿐이다. 그대로 놓이는 파일이 아니라서 빠진다.
 
 - `payload/CLAUDE.md.template` — 복사 대상이 아니라 가공 대상. [2단계](#2-claudemd-생성)에서 이미 썼다.
+- `payload/AGENTS.md.template` — 같은 이유로 가공 대상. [3단계](#3-agentsmd-생성)에서 이미 썼다.
 - `payload/.claude/settings-hooks.json` — 복사 대상이 아니라 병합 원본. 다음 단계에서 내용만 합친다.
 
 훅 스크립트에 실행 권한을 준다: `chmod +x <프로젝트>/.claude/hooks/*.sh`
@@ -225,11 +217,13 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 
 병합안을 본 사용자가 다른 걸 원하면 (a) 템플릿 공용 문구로 교체 (b) 지금 내용 그대로 유지 중에 고를 수 있다 (기본이 아닌 예외 경로다).
 
-**`AGENTS.md`도 병합이 기본이다** — 프로젝트가 채워 넣은 내용을 지우지 않는다.
+**`AGENTS.md`도 병합이 기본이다** — 대조는 파일 전체가 아니라 **템플릿(`payload/AGENTS.md.template`)에서 온 부분만** 한다.
 
-- 파일이 없으면 [3. AGENTS.md 생성](#3-agentsmd-생성)의 뼈대만 만든다.
-- 있으면 `<!-- BEGIN:project-rules -->` 마커 구역이 없을 때만 맨 끝에 덧붙인다. 이미 있으면 그 안 내용은 프로젝트 것이니 손대지 않는다.
-- `<!-- BEGIN:nextjs-agent-rules -->`처럼 다른 도구가 만든 구역은 건드리지 않는다.
+- **보존 대상 (대조 안 함)** — 프로젝트가 채운 내용. 디자인 시스템 adapter에 적힌 실제 경로, 앱 개발 컨벤션에 쌓인 규칙, 프로젝트가 스스로 추가한 섹션.
+- **대조 대상** — 템플릿에서 그대로 오는 공용 문구와 섹션 골격.
+- **대조·병합 범위는 `<!-- BEGIN:project-rules -->` 구역 안으로만 한정한다.** 마커 밖과 `<!-- BEGIN:nextjs-agent-rules -->`처럼 다른 도구가 만든 구역은 절대 건드리지 않는다.
+- 마커 구역이 아예 없으면 템플릿의 마커 구역을 파일 맨 끝에 덧붙인다. 파일 자체가 없으면 [3. AGENTS.md 생성](#3-agentsmd-생성)대로 템플릿에서 새로 만든다.
+- 위 CLAUDE.md 병합 안전 규칙 둘(진짜 충돌은 임의로 정하지 않는다 / 확인 없이 파일에 쓰지 않는다)이 `AGENTS.md`에도 똑같이 적용된다.
 
 `CLAUDE.md` 맨 끝에 `@AGENTS.md` 줄이 있는지도 확인하고, 없으면 맨 끝에 붙인다.
 
@@ -249,6 +243,7 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 
 - **하네스 소유물** (스킬·에이전트·훅·rules·git-workflow.md·ci.yml·훅 등록) — 교체됨 / 새로 복사됨 / 삭제됨 / 로컬 수정 유지됨(사용자가 고름) / 전부 최신
 - **CLAUDE.md** — 병합됨 / 템플릿으로 교체됨(사용자가 고름) / 그대로 유지됨(사용자가 고름) / 최신
+- **AGENTS.md** — 병합됨 / 템플릿으로 교체됨(사용자가 고름) / 그대로 유지됨(사용자가 고름) / 최신 / 새로 만듦
 
 끝에 스탬프를 어느 커밋으로 갱신했는지 적는다. 그다음 커밋 안내는 지금 어느 브랜치에 있었는지에 따라 다르게 준다:
 
