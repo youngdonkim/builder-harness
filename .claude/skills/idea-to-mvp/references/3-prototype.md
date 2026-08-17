@@ -288,8 +288,8 @@ Claude Design이 만들어 주는 건 프런트엔드와 가짜 데이터로 도
 **⚠️ Next.js 16 — CLAUDE.md를 멋대로 바꿔치기한다.** Next.js 16은 `next dev`나 빌드를 돌릴 때 `generate-agent-files.js`가 AGENTS.md를 자동 생성하는데, 이 과정에서 **프로젝트의 CLAUDE.md를 "@AGENTS.md" 한 줄짜리 파일로 통째로 바꿔치기해 버린다.** 실제 사고 사례가 있다 — 하네스 지침 전체(작업 원칙·검증 규칙·디자인 시스템 연결 정보(adapter))가 그렇게 날아갔고, 거기다 auto-wip-commit 훅이 그 바뀐 상태를 그대로 커밋해 버려서 git 히스토리를 뒤져 복구해야 했다.
 
 - **스캐폴딩·첫 빌드 직후엔 CLAUDE.md 내용을 반드시 눈으로 확인한다** — "@AGENTS.md" 한 줄만 남아 있으면 바꿔치기당한 것이다.
-- **예방책**: CLAUDE.md **맨 끝에 `@AGENTS.md` 참조 줄을 미리 추가**해 둔다. 이 줄이 이미 있으면 next dev가 다시 덮어쓰지 않는다.
-- **AGENTS.md 자체는 지우지 않는다** — Next가 관리하는 정상 파일이라 그대로 둔다.
+- **예방책**: CLAUDE.md **맨 끝에 `@AGENTS.md` 참조 줄**이 있으면 next dev가 다시 덮어쓰지 않는다. 이 줄은 project-init이 이미 넣어 뒀으니 **있는지 확인만 하고, 없으면 그때 맨 끝에 넣는다.**
+- **AGENTS.md 자체는 지우지 않는다** — Next가 자기 구역(`<!-- BEGIN:nextjs-agent-rules -->`)을 관리하는 정상 파일이라 그대로 둔다. 게다가 이제 이 파일은 Next만의 것이 아니다 — 우리도 `<!-- BEGIN:project-rules -->` 구역을 써서 모든 AI 도구가 읽을 규칙을 담아 두니, 서로의 구역을 건드리지 않고 같이 쓴다.
 
 #### 2.4.2 Supabase·Vercel — 붙일 자리만 잡아둔다
 

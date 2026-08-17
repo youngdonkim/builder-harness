@@ -75,7 +75,25 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 원본의 `payload/CLAUDE.md.template`을 프로젝트 루트에 `CLAUDE.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다. 템플릿 구조(작업 원칙 + 디자인 시스템 adapter 자리 + 앱 개발 컨벤션 자리)는 **수정하지 않고 그대로** — 하네스 표준이다. **idea-to-mvp 방법론 설명은 CLAUDE.md에 넣지 않는다** — 방법론은 스킬 발동 중에만 필요하고 스킬이 전부 관리한다. CLAUDE.md는 만드는 제품(앱)과 사용자 취향의 자리다.
 
-### 3. payload 미러 복사
+### 3. AGENTS.md 생성
+
+`AGENTS.md`는 클로드뿐 아니라 그록·Codex 같은 다른 AI 도구도 읽는 규칙 파일이다.
+
+- 프로젝트 루트에 `AGENTS.md`가 **없으면** 아래 뼈대로 새로 만든다.
+
+  ```markdown
+  # {{프로젝트명}}
+
+  <!-- BEGIN:project-rules -->
+  (어느 AI 도구가 읽어도 지켜야 하는 규칙을 여기에 — 프로젝트 소개 한 줄, 문서·응답 스타일, 검증 원칙, 디자인 시스템 연결 정보 등)
+  <!-- END:project-rules -->
+  ```
+
+- **이미 있으면** 파일을 지우거나 덮어쓰지 않는다. `<!-- BEGIN:project-rules -->` 마커 구역이 없을 때만 그 구역을 파일 맨 끝에 덧붙인다.
+- **다른 도구가 자동으로 만든 구역은 절대 건드리지 않고 그대로 둔다** — 예를 들어 `next dev`가 넣는 `<!-- BEGIN:nextjs-agent-rules -->` 구역. 우리 마커 구역만 우리가 관리하고 나머지는 그 도구 몫이다.
+- 2단계에서 만든 `CLAUDE.md` **맨 끝**에 `@AGENTS.md` 줄이 있는지 확인하고, 없으면 맨 끝에 붙인다. 맨 끝이어야 하는 이유는 Next.js가 이 줄을 자기가 덧붙이는데, 이미 있으면 다시 안 건드려서다.
+
+### 4. payload 미러 복사
 
 원본의 `payload/` 아래 파일을 프로젝트 루트에 **같은 경로로 통째로 복사**한다 (폴더 없으면 생성). 원본의 구조가 곧 프로젝트에 놓일 모양이라, 무엇을 어디로 옮길지 따로 셀 필요가 없다.
 
@@ -94,7 +112,7 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 이번에 들어오는 것 중 설명이 필요한 둘 — `docs/git-workflow.md`는 `no-main-push`·`auto-wip-commit` 훅과 `new-task`·`done-task`·`rewind-task` 스킬이 따르는 워크플로를 사람이 읽게 정리해둔 문서고, `.github/workflows/ci.yml`은 lint + build를 도는 CI로 `done-task`가 머지 전에 이 통과를 기다린다.
 
-### 4. 훅 등록 — settings.json 병합
+### 5. 훅 등록 — settings.json 병합
 
 원본의 `payload/.claude/settings-hooks.json`은 **훅 등록 원본**이다. 이 파일의 `hooks` 블록을 프로젝트의 `.claude/settings.json`에 병합한다.
 
@@ -105,14 +123,14 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 `.claude/settings.json`은 저장소에 커밋되는 파일이라, 이 상태로 main에 합쳐두면 팀원 전원에게 똑같이 적용된다.
 
-### 5. 폴더 정리
+### 6. 폴더 정리
 
 ```
 mvp/                   # 단계 산출물 (market-research.md 등이 단계 진행하며 생김)
 docs/                  # 사람이 읽는 문서 (Claude 자동 로드 X)
 ```
 
-### 6. 버전 스탬프 기록
+### 7. 버전 스탬프 기록
 
 프로젝트에 `.claude/harness-version` 파일을 만든다. 다음 동기화 때 이 값을 기준으로 프로젝트 쪽 하네스 파일이 그냥 낡은 것인지 로컬에서 손본 것인지 가른다([로컬 수정 흔적 판별](#3-로컬-수정-흔적-판별)).
 
@@ -124,11 +142,11 @@ date=<오늘 날짜 YYYY-MM-DD>
 
 `repo=`는 원본 저장소 주소다. 포크해서 쓴다면 그 주소로 적는다 — 나중에 이 프로젝트의 하네스가 어디서 왔는지 알아보는 값이다.
 
-### 7. 마무리 안내
+### 8. 마무리 안내
 
 사용자에게 알린다:
 
-- 방금 프로젝트에 들어온 것: `CLAUDE.md`, `.claude/`(skills·agents·hooks·rules·settings.json·harness-version), `docs/git-workflow.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
+- 방금 프로젝트에 들어온 것: `CLAUDE.md`, `AGENTS.md`, `.claude/`(skills·agents·hooks·rules·settings.json·harness-version), `docs/git-workflow.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — main에서는 자동으로 건너뛴다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
 - **지금 열린 세션에는 새 스킬·훅이 아직 안 잡힌다** — 새 파일이라서가 아니라 `.claude/` 폴더가 방금 처음 생겨 지금 세션의 감시 대상이 아니라서다. 처음 적용할 때는 **앱을 껐다 켜야** 잡힌다 — 껐다 켜도 대화는 안 날아간다(대화를 버리는 `/clear`와는 다르다). 나중에 하네스를 최신으로 올리는 동기화 때는 `.claude/`가 이미 있어 껐다 켜지 않아도 이 세션에서 바로 잡힌다 — 하네스 원본 저장소에서 `git pull` → 이 프로젝트 세션에서 "하네스 동기화해줘". (스킬이 플러그인이면 그 안 hooks·`.mcp.json`·agents 변경은 `/reload-plugins`가 따로 필요하다 — 하네스 자체는 플러그인이 아니다.)
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.)
@@ -137,7 +155,7 @@ date=<오늘 날짜 YYYY-MM-DD>
 
 이미 하네스가 적용된 프로젝트에서는 신규 복사 대신, 프로젝트에 있는 파일을 원본과 비교해 갱신한다. 먼저 [하네스 원본 찾기](#하네스-원본-찾기)로 원본 위치를 확인하고 원본 검증을 마친다.
 
-**payload 미러로 온 파일은 전부 하네스 소유물**이고, **`CLAUDE.md` 하나만 예외**다.
+**payload 미러로 온 파일은 전부 하네스 소유물**이고, **`CLAUDE.md`와 `AGENTS.md` 둘만 예외**다.
 
 ### 1. 프로젝트 쪽 미커밋 검사
 
@@ -189,7 +207,7 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 - **원본의 옛 버전과도 다르다** → 프로젝트가 로컬에서 고친 흔적이다. **충돌로 보고 사용자에게 묻는다** — 어디가 어떻게 다른지 짚어주고 (a) 원본으로 교체 (b) 로컬 수정 유지 중 고르게 한다. 임의로 정하지 않는다.
 - 스탬프가 없거나 그 커밋에서 파일을 못 찾으면(옛 원본이거나 그때는 payload 안 경로가 달랐으면) 판별할 수 없다 → 안전하게 **충돌로 보고 물어본다**.
 
-### 4. CLAUDE.md — 유일한 예외, 병합이 기본
+### 4. CLAUDE.md·AGENTS.md — 예외 둘, 병합이 기본
 
 `CLAUDE.md`는 프로젝트가 자기 사정에 맞게 채우고 덧붙이는 파일이라 덮어쓰지 않는다. 비교도 파일 전체가 아니라 **템플릿(`payload/CLAUDE.md.template`)에서 온 부분만** 한다.
 
@@ -207,13 +225,21 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 
 병합안을 본 사용자가 다른 걸 원하면 (a) 템플릿 공용 문구로 교체 (b) 지금 내용 그대로 유지 중에 고를 수 있다 (기본이 아닌 예외 경로다).
 
+**`AGENTS.md`도 병합이 기본이다** — 프로젝트가 채워 넣은 내용을 지우지 않는다.
+
+- 파일이 없으면 [3. AGENTS.md 생성](#3-agentsmd-생성)의 뼈대만 만든다.
+- 있으면 `<!-- BEGIN:project-rules -->` 마커 구역이 없을 때만 맨 끝에 덧붙인다. 이미 있으면 그 안 내용은 프로젝트 것이니 손대지 않는다.
+- `<!-- BEGIN:nextjs-agent-rules -->`처럼 다른 도구가 만든 구역은 건드리지 않는다.
+
+`CLAUDE.md` 맨 끝에 `@AGENTS.md` 줄이 있는지도 확인하고, 없으면 맨 끝에 붙인다.
+
 ### 5. 폴더 보정
 
 `mvp/`·`docs/` 폴더는 신규 모드와 동일하게, 없으면 채운다.
 
 ### 6. 스탬프 갱신
 
-반영이 끝나면 `.claude/harness-version`의 `commit=`을 이번에 적용한 원본 커밋으로, `date=`를 오늘 날짜로 갱신한다. 파일이 없으면 [6. 버전 스탬프 기록](#6-버전-스탬프-기록) 형식으로 새로 만든다.
+반영이 끝나면 `.claude/harness-version`의 `commit=`을 이번에 적용한 원본 커밋으로, `date=`를 오늘 날짜로 갱신한다. 파일이 없으면 [7. 버전 스탬프 기록](#7-버전-스탬프-기록) 형식으로 새로 만든다.
 
 **사용자가 로컬 수정을 유지하기로 골라서 원본과 다른 파일이 남았어도 스탬프는 갱신한다** — 스탬프는 "언제 기준 원본과 맞춰봤나"를 가리키는 값이지 "모든 파일이 원본과 똑같다"는 보증이 아니다. 다만 남은 차이는 마무리 보고에 반드시 적는다.
 
@@ -235,6 +261,6 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 
 - ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 6단계 MvpBuild 영역
 - ❌ GitHub repo 생성·push — 사용자가 원할 때 별도로
-- ❌ 기존 CLAUDE.md 무단 덮어쓰기 — 동기화 모드에서도 프로젝트 고유 내용은 병합으로 보존하고, 반영은 사용자 확인 뒤에만
+- ❌ 기존 CLAUDE.md·AGENTS.md 무단 덮어쓰기 — 동기화 모드에서도 프로젝트 고유 내용은 병합으로 보존하고, 반영은 사용자 확인 뒤에만. AGENTS.md 안에서 다른 도구가 만든 구역도 손대지 않는다
 - ❌ 하네스 원본 저장소를 프로젝트에서 고치기 — 하네스 개선은 builder-harness 저장소에서 PR로. 프로젝트 `.claude/` 안의 복사본을 고쳐봐야 다음 동기화에서 충돌로 잡힌다
 - ❌ 프로젝트 `.claude/settings.json`의 hooks 이외 키 건드리기
