@@ -281,7 +281,21 @@ npx supabase db dump --linked --data-only -f supabase/seed-from-cloud.sql
 
 **⑥ 마이그레이션은 자동으로 안 올라간다**
 
-**마이그레이션 파일이 든 PR을 머지해도 클라우드 DB는 그대로다.** 코드는 배포가 알아서 되지만 DB는 아니다 — `npx supabase db push --linked`를 **따로 돌려야** 반영된다. (하네스가 넣어주는 `.github/workflows/ci.yml`이 main에 올라온 뒤 밀린 게 있으면 CI를 실패시켜 알려준다. 알려주기만 하고 자동으로 밀지는 않는다 — 지워진 데이터는 되돌릴 수 없어서, 미는 건 사람 눈을 거친다.)
+**마이그레이션 파일이 든 PR을 머지해도 클라우드 DB는 그대로다.** 코드는 배포가 알아서 되지만 DB는 아니다 — `npx supabase db push --linked`를 **따로 돌려야** 반영된다.
+
+하네스가 넣어주는 `.github/workflows/ci.yml`이 main에 올라온 뒤 밀린 게 있으면 CI를 실패시켜 알려준다. 알려주기만 하고 자동으로 밀지는 않는다 — 지워진 데이터는 되돌릴 수 없어서, 미는 건 사람 눈을 거친다.
+
+이 확인이 돌게 하려면 깃허브 저장소에 **Secret(비밀값 — 저장소 설정에 숨겨 두는 값) 세 개**를 넣는다. Settings → Secrets and variables → Actions에서 넣는다.
+
+| Secret 이름 | 무엇 |
+|---|---|
+| `SUPABASE_ACCESS_TOKEN` | Supabase 계정 접근 토큰 |
+| `SUPABASE_PROJECT_REF` | 클라우드 프로젝트 참조 아이디 |
+| `SUPABASE_DB_PASSWORD` | 그 프로젝트의 DB 비밀번호 |
+
+**DB 비밀번호까지 필요한 이유** — `migration list --linked`는 관리 API를 부르는 게 아니라 **원격 DB에 직접 붙어 마이그레이션 이력 테이블을 읽기** 때문이다. 비밀번호가 없거나 틀리면 `password authentication failed for user "postgres"`로 실패한다.
+
+셋 중 하나라도 없으면 이 확인은 조용히 건너뛴다 — 아직 Supabase를 안 붙인 프로젝트에서 CI가 깨지지 않게 하려는 것이다. 바꿔 말하면 **Secret을 안 넣으면 밀린 마이그레이션을 아무도 안 잡아준다.** 클라우드를 붙이는 이 시점에 같이 넣어 둔다.
 
 **⑦ 실사용자를 받기 전에 백업 상태를 확인한다**
 
@@ -385,7 +399,7 @@ npx supabase backups list --linked
 
 - [ ] **백엔드·DB·auth 연동 완료** (§2.2) — 테이블·auth 생성, Supabase RLS 활성화·정책 확인 포함.
 - [ ] **스키마가 마이그레이션 파일로 남아 있음** (§2.2.2) — 대시보드로 직접 만든 것도, 따로 만든 DB 설계 문서도 없음. 로컬 `supabase db reset` 통과 + **함수·트리거를 실제로 불러 확인**한 뒤 `db push`로 클라우드에 반영. 새로 만든 함수마다 실행 권한도 회수됨. **올린 뒤 클라우드에서 권한·storage·auth 관련이 실제로 걸렸는지 확인** (§2.2.2 ④).
-- [ ] **마이그레이션을 클라우드에 실제로 밀었음** (§2.2.2 ⑥) — 마이그레이션이 든 PR을 머지했다고 자동으로 올라가지 않는다. `npx supabase db push --linked`를 따로 돌렸고, `npx supabase migration list --linked`에 안 올라간 게 없음.
+- [ ] **마이그레이션을 클라우드에 실제로 밀었음** (§2.2.2 ⑥) — 마이그레이션이 든 PR을 머지했다고 자동으로 올라가지 않는다. `npx supabase db push --linked`를 따로 돌렸고, `npx supabase migration list --linked`에 안 올라간 게 없음. CI가 이걸 잡아주도록 깃허브 Secret 셋(`SUPABASE_ACCESS_TOKEN`·`SUPABASE_PROJECT_REF`·`SUPABASE_DB_PASSWORD`)도 넣어뒀음.
 - [ ] **백업 상태 확인** (§2.2.2 ⑦) — `npx supabase backups list --linked`로 확인. 자동 백업·시점 복구(PITR)가 꺼져 있으면 켜거나, `db dump`로 파일 백업을 정기적으로 남기는 방법을 정해뒀음.
 - [ ] **로그인·동의 처리 완료** ([6-mvp-build-auth-consent.md](6-mvp-build-auth-consent.md)) — 받는 정보를 필수/선택으로 갈랐음. 선택 정보를 받으면 인증 뒤 신규 가입자만 온보딩으로 보내 동의를 받고(필수·선택 체크박스 분리, 거부해도 가입 가능, 선택 칸 nullable), 필수만 받으면 고지문 한 줄. 약관·개인정보처리방침 페이지가 실제로 있고 로그인 화면 밖에서도 접근됨.
 - [ ] **로컬스토리지 저장 경로 제거 확인** (§2.2) — 폴백으로도 남아 있지 않음.
