@@ -89,7 +89,7 @@ git -C <원본경로> rev-parse --short=12 HEAD
 원본의 `payload/` 아래 파일을 프로젝트 루트에 **같은 경로로 통째로 복사**한다 (폴더 없으면 생성). 원본의 구조가 곧 프로젝트에 놓일 모양이라, 무엇을 어디로 옮길지 따로 셀 필요가 없다.
 
 ```
-<원본>/payload/.claude/  →  <프로젝트>/.claude/   (skills·agents·hooks·rules)
+<원본>/payload/.claude/  →  <프로젝트>/.claude/   (skills·agents·hooks·rules·templates)
 <원본>/payload/docs/     →  <프로젝트>/docs/      (git-workflow.md)
 <원본>/payload/.github/  →  <프로젝트>/.github/   (workflows/ci.yml)
 ```
@@ -138,7 +138,7 @@ date=<오늘 날짜 YYYY-MM-DD>
 
 사용자에게 알린다:
 
-- 방금 프로젝트에 들어온 것: `CLAUDE.md`, `AGENTS.md`, `.claude/`(skills·agents·hooks·rules·settings.json·harness-version), `docs/git-workflow.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
+- 방금 프로젝트에 들어온 것: `CLAUDE.md`, `AGENTS.md`, `.claude/`(skills·agents·hooks·rules·templates·settings.json·harness-version), `docs/git-workflow.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — main에서는 자동으로 건너뛴다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
 - **지금 열린 세션에는 새 스킬·훅이 아직 안 잡힌다** — 새 파일이라서가 아니라 `.claude/` 폴더가 방금 처음 생겨 지금 세션의 감시 대상이 아니라서다. 처음 적용할 때는 **앱을 껐다 켜야** 잡힌다 — 껐다 켜도 대화는 안 날아간다(대화를 버리는 `/clear`와는 다르다). 나중에 하네스를 최신으로 올리는 동기화 때는 `.claude/`가 이미 있어 껐다 켜지 않아도 이 세션에서 바로 잡힌다 — 하네스 원본 저장소에서 `git pull` → 이 프로젝트 세션에서 "하네스 동기화해줘". (스킬이 플러그인이면 그 안 hooks·`.mcp.json`·agents 변경은 `/reload-plugins`가 따로 필요하다 — 하네스 자체는 플러그인이 아니다.)
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (이미 검증 일부 진행한 프로젝트면 해당 단계부터.)
@@ -174,7 +174,7 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 
 프로젝트에서 고치지 않는 전제의 파일들이다. 하네스가 관리하니 **원본 내용으로 교체**하는 게 기본이다.
 
-- `payload/.claude/*` ↔ `.claude/*` (skills·agents·hooks·rules)
+- `payload/.claude/*` ↔ `.claude/*` (skills·agents·hooks·rules·templates)
 - `payload/docs/git-workflow.md` ↔ `docs/git-workflow.md`
 - `payload/.github/workflows/ci.yml` ↔ `.github/workflows/ci.yml`
 - `payload/.claude/settings-hooks.json`의 hooks 블록 ↔ `.claude/settings.json`의 hooks 블록
