@@ -141,9 +141,11 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 횡단 스킬 | `done-task` | 자동 저장 커밋 → 원격 올리기(push) → PR 생성 → (오너면) CI 통과 대기 → 합치기(merge) → 원격·로컬 브랜치 정리(로컬은 main으로 이동) 한 흐름. 팀원은 PR까지, 오너는 로컬 정리까지 |
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
+| 횡단 스킬 | `grok-delegation` | 그록(Grok) CLI에 작업을 위임하는 방법 — 부르는 법·읽기/쓰기 모드 고르기·결과 검증 |
 | 서브에이전트 | `git-flow` | `new-task`·`done-task`·`rewind-task`의 실제 실행자 |
 | 서브에이전트 | `user-scenario-writer` | 영화 시나리오형 유저 스토리 작성 |
 | 서브에이전트 | `ux-writing-reviewer` | UI 문구를 UX writing 원칙과 대조해 직접 교정 |
+| 서브에이전트 | `delegation-integrator` | 타 코딩 에이전트 연동 조사·설치·테스트·위임 스킬 생성/갱신 |
 | 훅 | `no-main-push` | main 브랜치에 바로 올리는 것을 차단 (PR 검토 흐름 강제) |
 | 훅 | `auto-wip-commit` | 응답이 끝날 때마다 작업 브랜치에 진행 중 커밋(wip)을 자동 생성 |
 
@@ -191,10 +193,11 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 ### 5.3 프로젝트에 무엇이 생기나
 
-`/project-init`이 프로젝트에 만드는 것들이다. 앞의 넷은 원본 `payload/`에서 같은 경로로 복사돼 오는 것이고, 뒤의 다섯은 스킬이 따로 만든다.
+`/project-init`이 프로젝트에 만드는 것들이다. 앞의 다섯은 원본 `payload/`에서 같은 경로로 복사돼 오는 것이고, 뒤의 다섯은 스킬이 따로 만든다.
 
 - **`.claude/skills/`·`.claude/agents/`·`.claude/hooks/`** — 세션을 열 때 읽혀서 스킬·서브에이전트·훅이 작동한다.
 - **`.claude/rules/`** — 특정 종류의 파일을 다룰 때만 적용되는 세부 규칙 모음.
+- **`.claude/templates/`** — `delegation-integrator` 에이전트가 다른 AI 도구 연동을 세팅할 때 쓰는 문서 틀(sources·status).
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
 - **`CLAUDE.md`** — 그 프로젝트에서 Claude가 항상 지켜야 할 규칙을 적어두는 파일. 세션을 열 때마다 자동으로 읽힌다. 이것만은 그대로 복사되지 않고, 원본의 `CLAUDE.md.template`에 인터뷰 답을 채워 만든다.
@@ -315,6 +318,7 @@ payload/.claude/skills/               # 단계 스킬·횡단 스킬
 payload/.claude/agents/               # 서브에이전트
 payload/.claude/hooks/                # 훅 스크립트
 payload/.claude/rules/                # 특정 파일을 다룰 때만 적용되는 세부 규칙
+payload/.claude/templates/            # delegation-integrator가 쓰는 sources·status 문서 틀
 payload/docs/git-workflow.md          # 훅·done-task가 참조하는 작업 흐름 문서
 payload/.github/workflows/ci.yml      # done-task가 머지 전 통과를 기다리는 lint + build 검사
 payload/.claude/settings-hooks.json   # (예외) 복사 아님 — 훅 등록 원본, 프로젝트 설정 파일에 합쳐 넣는 내용
