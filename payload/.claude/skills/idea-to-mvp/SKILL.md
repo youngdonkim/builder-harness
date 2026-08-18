@@ -6,6 +6,14 @@ disable-model-invocation: true
 
 이 스킬은 한 번 호출되면 7단계 중 **현재 단계**를 판별하고 해당 단계의 안내 문서(`references/` 폴더의 단계별 문서 — 이하 references)를 읽어 진행한다. 가령 처음이라면 1단계(UserStory)부터 순서대로 실행하고, 만약 4단계(DemoValidation)까지 했다면 5단계(MarketResearch)부터 순서대로 실행한다.
 
+**시작 전 브랜치 확인** — 파일을 바꾸기 전에 지금 어느 브랜치인지 먼저 본다.
+
+```bash
+git rev-parse --abbrev-ref HEAD
+```
+
+**main이면 멈추고** `/new-task`로 작업 브랜치를 먼저 열라고 안내한다. main에서 파일을 바꾸면 `auto-wip-commit` 훅이 안 돌아 자동 저장이 안 되고(되돌릴 지점이 안 남는다), 나중에 `no-main-push` 훅에 막혀 올리지도 못한다.
+
 ## 목차
 
 1. [작동 방식 — 단계 진입과 공통 규칙](#1-작동-방식--단계-진입과-공통-규칙)

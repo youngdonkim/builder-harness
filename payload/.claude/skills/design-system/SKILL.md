@@ -24,6 +24,14 @@ description: 3단 토큰 계층(foundation→semantic→component) + 조립 계�
 
 ## 시작하기 전에 (필수)
 
+**시작 전 브랜치 확인** — 파일을 바꾸기 전에 지금 어느 브랜치인지 먼저 본다.
+
+```bash
+git rev-parse --abbrev-ref HEAD
+```
+
+**main이면 멈추고** `/new-task`로 작업 브랜치를 먼저 열라고 안내한다. main에서 파일을 바꾸면 `auto-wip-commit` 훅이 안 돌아 자동 저장이 안 되고(되돌릴 지점이 안 남는다), 나중에 `no-main-push` 훅에 막혀 올리지도 못한다.
+
 프로젝트의 AGENTS.md에서 **프로젝트 연결 정보(adapter)**를 확인한다:
 층별 실제 파일 경로 · import 순서 · 프로젝트 고유 예외(함정 토큰 등) · 컴포넌트 인벤토리 위치.
 없으면 [references/bootstrap-project.md](references/bootstrap-project.md)로 도입부터.
