@@ -10,7 +10,7 @@
 | 따옴표 씌운 heredoc(`<<'GROKEOF'`) 입력 | 지시서를 파이프로 흘려 넣는다. 짧고 한 번만 돌릴 것에 적합 | [검증됨] | `grok-bridge.mjs` 439줄이 piped stdin을 받음. 실사용 검증: 역따옴표·`$HOME`·따옴표가 한 글자도 안 깨지고 그대로 전달됨 |
 | `--write` | 붙이면 쓰기 허용, 안 붙이면 읽기 전용 샌드박스 | [검증됨] | `grok-bridge.mjs` 455줄 `sandbox: write ? undefined : "read-only"`. 실사용 검증: 안 붙이고 한 줄 고치기 → `Operation not permitted`로 실패 / 붙이면 메인 폴더에 바로 씀 / 안 붙이고 큰 작업 → 서브 에이전트 워크트리에 씀 |
 | `--background` | 뒤에서 돌린다 | [검증됨] | `grok-bridge.mjs` 739줄 booleanOptions |
-| `--resume` | `--resume-last`의 별칭이고 인자를 안 받는다 | [검증됨] (한계도 실사용 확인) | `grok-bridge.mjs` 751줄 `const resumeLast = Boolean(options["resume-last"] \|\| options.resume)`. 한계 실사용 검증: 세션이 끊기면 `No previous Grok Build delegate session was found`로 죽는다 |
+| `--resume` | `--resume-last`의 별칭이고 인자를 안 받는다 | [자주 실패함] | `grok-bridge.mjs` 751줄 `const resumeLast = Boolean(options["resume-last"] \|\| options.resume)`. 실사용 검증: 노트북을 덮었을 때만이 아니라 **같은 세션에서 연달아 붙여도** `No previous Grok Build delegate session was found`로 죽는다. **그때 종료 코드가 0으로 나올 수 있어** 알림은 「완료」인데 파일은 안 바뀐다 |
 | `--cwd <경로>` | 작업 디렉토리 지정 | [미검증] | `grok-bridge.mjs` 738줄 valueOptions |
 | `--fresh` | 새 세션으로 시작 | [미검증] | `grok-bridge.mjs` 739줄 booleanOptions |
 | `--model <이름>` | 모델 지정 | [미검증] | `grok-bridge.mjs` 738줄 valueOptions |

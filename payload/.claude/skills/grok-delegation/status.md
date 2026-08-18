@@ -16,10 +16,11 @@
 |---|---|---|---|
 | T1 읽기 전용 위임 | 미실행(정식 테스트) | | |
 | T2 쓰기 위임 | 미실행(정식 테스트) | | `--write` 유무에 따른 동작은 실사용으로 확인됨 — 없으면 `Operation not permitted` 또는 서브 에이전트 워크트리에 씀 |
-| T3 고급 기능 | 미실행(정식 테스트) | | `--resume`의 한계가 실사용으로 확인됨 — 세션이 끊기면 `No previous Grok Build delegate session was found` |
+| T3 고급 기능 | 미실행(정식 테스트) | | `--resume`이 실사용에서 자주 실패함 — 같은 세션에서 연달아 붙여도 `No previous Grok Build delegate session was found`로 죽고, **종료 코드가 0으로 나올 수 있어** 성공으로 오인된다 |
 
 ## 미해결 이슈
 - 정식 T1~T3 테스트가 스크래치 디렉토리에서 실행되지 않았다. delegation-integrator로 한 번 돌려야 한다.
+- **`--resume`이 실패해도 종료 코드가 0으로 나온다.** 브리지 쪽 문제인지 그록 CLI 쪽인지 아직 안 밝혔다. 지금은 `git status`로 파일 변경 여부를 직접 확인하는 것으로 우회하고 있다. delegation-integrator가 원인을 확인하고, 고칠 수 있는 자리인지(하네스인지 플러그인인지) 판단해야 한다.
 
 ## 이력
 - 2026-08-18: CLAUDE.md에 쌓여 있던 그록 규칙을 스킬로 옮겨 초기화
