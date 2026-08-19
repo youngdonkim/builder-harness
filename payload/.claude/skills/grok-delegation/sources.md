@@ -5,15 +5,15 @@ update_cadence: 2w
 
 ## 공식 소스 (1순위)
 <!-- 갱신 시 반드시 fetch. 코드/커맨드 정의는 raw URL 권장. -->
-- 저장소: <URL>
-- 커맨드/브릿지 정의(플래그 진실 소스): 로컬 경로 `~/.claude/plugins/cache/xai-grok-build/grok-build/<버전>/scripts/grok-bridge.mjs` (현재 확인된 버전 0.2.1) — 원격 raw URL <URL>
-- 공식 문서: <URL>
+- 저장소: 미확인 — delegation-integrator가 조사해서 채울 것
+- 커맨드/브릿지 정의(플래그 진실 소스): 로컬 경로 `~/.claude/plugins/cache/xai-grok-build/grok-build/<버전>/scripts/grok-bridge.mjs` (현재 확인된 버전 0.2.1) — 원격 raw URL 미확인 (delegation-integrator가 조사해서 채울 것)
+- 공식 문서: 미확인 — delegation-integrator가 조사해서 채울 것
 
 ## 준공식 소스 (2순위)
-- 릴리즈/커밋 로그: <URL>
+- 릴리즈/커밋 로그: 미확인 — delegation-integrator가 조사해서 채울 것
 
 ## 커뮤니티 소스 (3순위, 게시일 필수 확인)
-- <URL>
+- 미확인 — delegation-integrator가 조사해서 채울 것
 
 ## 소프트 인증 체크 (인증 여부 확인용 경량 명령)
 ```

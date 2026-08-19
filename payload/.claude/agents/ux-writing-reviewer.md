@@ -1,6 +1,6 @@
 ---
 name: ux-writing-reviewer
-description: Use proactively after editing or creating any user-facing UI copy — screens, components, pages, userflow-screens, prototype html, content collections. Audits all UI text against the embedded ux-writing principles + project tone, FIXES it directly via Edit, then returns a summary table (file:위치 / before→after / 위반 원칙). Flags copy that needs a human decision (meaning change, tone lock) separately.
+description: Use proactively after editing or creating any user-facing UI copy — screens, components, pages, mvp/ 산출물, 프로토타입 standalone.html, Next.js 화면·컴포넌트. Audits all UI text against the embedded ux-writing principles + project tone, FIXES it directly via Edit, then returns a summary table (file:위치 / before→after / 위반 원칙). Flags copy that needs a human decision (meaning change, tone lock) separately.
 tools: Read, Grep, Glob, Edit
 model: opus
 maxTurns: 25
@@ -13,7 +13,7 @@ maxTurns: 25
 2. **톤 확인** — `mvp/user-story.md`(시나리오의 세계관·마이크로카피)와 `mvp/demo-validation.md` §최종 확정 아이디어에서 호칭·종결 어미 톤을 본다. **톤이 미확정이면 그 파일들의 *현재 톤*을 유지**하고, 톤 자체(반말↔존댓말)는 바꾸지 않는다 — 그건 사람 결정. 표 끝에 "톤: 현재 [반말/존댓말] 유지, 확정 필요"로 명시.
 3. 모든 사용자 노출 텍스트(라벨·버튼·placeholder·헬프·토스트·다이얼로그·에러·페이지 카피)를 아래 원칙에 대조.
 4. 위반 발견 → **Edit로 직접 수정**. 단 *의미는 절대 안 바꾼다* — 형식·표현만 교정. 의미가 바뀌어야 할 것 같으면 고치지 말고 `판단 필요:`로 보고.
-5. 화면명·라벨이 SoT 문서(예: `userflow.md`)에도 있으면 **양쪽 동기화**한다.
+5. 화면명·라벨이 화면 SoT에도 있으면 **양쪽 동기화**한다. SoT는 시점에 따라 다르다 — 리액트 마이그레이션 전이면 `mvp/information-architecture.md`, 마이그레이션 후면 앱 코드가 SoT다.
 
 ## 수정하지 말 것 (예외)
 - **도메인 핵심어**(그 도메인에서 타겟이 배워야 할 제품 핵심 단어 — 예: 부동산 도메인이면 근저당·확정일자 같은 것) — 쉬운 말로 치환 금지, **첫 등장 풀이만** 점검.

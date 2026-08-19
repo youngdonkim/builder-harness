@@ -2,10 +2,8 @@
 name: threat-model
 description: 외부 도달 위협 모델 — preview URL·공유 링크·봇 prefetch·검색엔진은 모든 deploy 환경에서 외부 노출. 인증·민감정보·업로드·API 영역 baseline.
 paths:
-  - 'src/api/**/*'
-  - 'src/auth/**/*'
-  - 'app/api/**/*'
-  - 'app/auth/**/*'
+  - '**/api/**/*'
+  - '**/auth/**/*'
   - '**/middleware*'
   - '**/upload*'
 ---
