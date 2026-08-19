@@ -284,7 +284,7 @@ git ls-remote --heads origin "${type}/${topic}-${n}"
 ## 안 하는 것 (의도적)
 
 - ❌ PR 자동 머지 — 사용자가 직접 또는 GitHub UI에서 결정
-- ❌ commit·push — 새 브랜치 만들기만, 작업 내용 commit은 별개
+- ❌ commit·push 자동화 — 새 브랜치 만들기만 한다. 커밋은 사용자가 §1-b (a) 옵션으로 지시했을 때만 그 지시대로 실행한다
 - ❌ 다른 base 브랜치 지원 — main 전제. 다른 base 필요하면 별 스킬
 - ❌ Claude 자동 invoke — `disable-model-invocation: true`로 차단
 - ❌ 브랜치 생성 전 type·topic 확인 받기 — 자동 생성 후 사후 수정 받음 (마찰 최소화)

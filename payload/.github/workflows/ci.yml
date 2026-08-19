@@ -42,3 +42,58 @@ jobs:
       # 그래서 자리표시자 env 없이도 npm run build가 그대로 통과한다.
       - if: steps.node.outputs.present == 'true'
         run: npm run build
+
+      # 마이그레이션이 든 PR을 머지해도 클라우드 DB는 자동으로 안 바뀐다 —
+      # `npx supabase db push --linked`를 사람이 따로 돌려야 반영된다.
+      # 그래서 여기서는 밀린 게 있는지 확인만 하고, 있으면 CI를 실패시켜 알려준다.
+      # 자동으로 밀지 않는 이유: 되돌릴 수 있는 위험만 자동화하기 때문이다. 코드 배포는
+      # 잘못돼도 이전 버전을 다시 올리면 되지만, 지워진 데이터는 안 돌아온다.
+      # drop이 든 마이그레이션이 사람 눈을 안 거치고 나가면 안 된다.
+      #
+      # PR에서는 돌리지 않는다 — 머지되기 전이라 "아직 안 밀렸다"가 당연한 상태다.
+      # Secrets 셋이 다 있어야 돈다. 하나라도 없으면 조용히 건너뛴다 — 아직 Supabase를
+      # 안 쓰는 프로젝트도 있어서다. DB 비밀번호까지 필요한 이유는 `migration list --linked`가
+      # 관리 API가 아니라 원격 DB에 직접 붙어 마이그레이션 이력 테이블을 읽기 때문이다.
+      #
+      # timeout을 두는 이유: `supabase link`가 입력을 기다리며 멈추는 경우가 있는데
+      # CI에는 답할 사람이 없다. 5분이면 끊고 실패로 알린다.
+      - name: 밀린 마이그레이션 확인 (감지만, 자동으로 밀지 않음)
+        timeout-minutes: 5
+        if: github.event_name == 'push'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_DB_PASSWORD" ] \
+             || [ -z "$PROJECT_REF" ]; then
+            echo "Supabase Secrets 없음 — 밀린 마이그레이션 확인을 건너뜀 (통과)"
+            exit 0
+          fi
+          npx supabase link --project-ref "$PROJECT_REF"
+          # --output-format json을 반드시 명시한다. 안 붙이면 CLI가 터미널 여부를 보고
+          # 형식을 정하는데, CI는 터미널이 아니라 표가 아닌 JSON이 나온다. 표를 파싱하는
+          # 코드를 두면 매칭되는 줄이 하나도 없어 "밀린 것 0개"로 조용히 통과해 버린다.
+          npx supabase migration list --linked --output-format json > migrations.json
+          cat migrations.json
+          # 안 올라간 마이그레이션은 remote가 빈 문자열이다.
+          # 출력 모양이 바뀌어 jq가 못 읽으면 통과시키지 않고 실패시킨다 — 조용한 통과가
+          # 제일 위험하다. (.migrations? // .)는 최상위가 배열이든 객체든 받기 위한 것.
+          if ! PENDING=$(jq -r '[(.migrations? // .)[] | select((.remote // "") == "")] | length' migrations.json); then
+            echo "::error::migration list 출력을 해석하지 못했다. 위 원본 출력을 보고 이 판정 코드를 고쳐라."
+            exit 1
+          fi
+          case "$PENDING" in
+            ''|*[!0-9]*)
+              echo "::error::밀린 마이그레이션 개수를 세지 못했다(값: '$PENDING'). 위 원본 출력을 보고 이 판정 코드를 고쳐라."
+              exit 1
+              ;;
+          esac
+          if [ "$PENDING" -gt 0 ]; then
+            echo "클라우드에 안 올라간 마이그레이션이 ${PENDING}개 있다:"
+            jq -r '(.migrations? // .)[] | select((.remote // "") == "") | "  - " + .local' migrations.json
+            echo ""
+            echo "::error::다음을 직접 돌려라 — npx supabase db push --linked (CI는 자동으로 밀지 않는다)"
+            exit 1
+          fi
+          echo "마이그레이션 동기화 확인됨"

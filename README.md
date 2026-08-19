@@ -142,7 +142,9 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
 | 횡단 스킬 | `grok-delegation` | 그록(Grok) CLI에 작업을 위임하는 방법 — 부르는 법·읽기/쓰기 모드 고르기·결과 검증 |
+| 횡단 스킬 | `harness-diet` | 지시 문서(CLAUDE.md·AGENTS.md·스킬·에이전트·rules)의 군살·중복·모순 검토 → 보고서 + 사람 결정 목록 (수정은 결정 후 별도) |
 | 서브에이전트 | `git-flow` | `new-task`·`done-task`·`rewind-task`의 실제 실행자 |
+| 서브에이전트 | `harness-auditor` | `harness-diet`의 회차별 감사관 — 지시 문서를 읽기 전용으로 정독해 판정만 반환 |
 | 서브에이전트 | `user-scenario-writer` | 영화 시나리오형 유저 스토리 작성 |
 | 서브에이전트 | `ux-writing-reviewer` | UI 문구를 UX writing 원칙과 대조해 직접 교정 |
 | 서브에이전트 | `delegation-integrator` | 타 코딩 에이전트 연동 조사·설치·테스트·위임 스킬 생성/갱신 |
@@ -299,6 +301,8 @@ date=<YYYY-MM-DD>
 ### 7.1 새 버전이 만들어지는 흐름
 
 어느 프로젝트에서든 하네스의 개선점 발견 → 이 저장소에서 수정 → PR → 관리자가 main에 합침(merge). merge된 순간부터 [§6](#6-업데이트--새-버전-받기)의 절차로 각 프로젝트에 옮길 수 있다.
+
+**서브 에이전트도 프로젝트 규칙을 자동으로 받는다.** 일반형이든 `.claude/agents/`의 커스텀이든, 서브 에이전트는 프로젝트 `CLAUDE.md`와 그 안에서 펼쳐지는 `@AGENTS.md`를 그대로 받는다(2026-08-19 실측 확인). 그래서 에이전트 파일에 공통 규칙을 다시 적지 않는다 — 적는 건 공통 규칙을 덮어쓰는 선언뿐이다. 예를 들어 `git-flow` 에이전트에는 "위임 원칙은 메인 세션용이고 너는 그 위임을 받은 실행자다"라고만 적혀 있다.
 
 **이 저장소 자체도 하네스 사용자다.** 루트의 `.claude/`에 `payload/`와 같은 스킬·서브에이전트·훅이 적용돼 있어서, 하네스를 고치는 작업도 `/new-task`·`/done-task`로 한다. main에 바로 올리는 것도 `no-main-push` 훅에 막혀 관리자든 기여자든 반드시 PR을 거친다. 만드는 제품이 없는 저장소라서 규칙도 범용 작업 원칙뿐이고, 프로젝트에 권하는 것과 같은 방식으로 루트 `AGENTS.md`(모든 AI 도구용)와 `CLAUDE.md`(클로드 전용) 둘로 나눠 두었다.
 
