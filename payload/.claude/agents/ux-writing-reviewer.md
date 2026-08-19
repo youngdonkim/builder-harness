@@ -75,7 +75,7 @@ maxTurns: 25
 ## 6. 금지 표현
 | 카테고리 | 금지 | 대안 |
 |---|---|---|
-| 잡초 부사 | 앞으로 · 이제 · 새롭게 · 더욱 · 매우 · 정말 · 다양한 | 삭제 또는 구체 숫자 |
+| 잡초 부사 | §1.2 잡초 제거 목록 참조 | 삭제 또는 구체 숫자 |
 | 시스템 용어 | 오류 코드 · undefined · null · Invalid · 토큰 만료 · 권한 없음 | 사용자 관점 표현 |
 | 협박·FOMO | 놓치면 손해 · 마지막 기회 · 지금 안 하면 · 한정 | 중립 안내 |
 | 영문 hype | AI-powered · Revolutionize · 10x · Game-changing · Click here · Get started | 한국어 결과 동사형 |

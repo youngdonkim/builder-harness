@@ -22,7 +22,7 @@ grok inspect
 
 ## 테스트 힌트 (T1~T3 실행 시 도메인 특이사항)
 - T1(읽기): `--write` 없이 호출 — 브리지가 읽기 전용 샌드박스로 띄운다
-- T2(쓰기): `--write` 필요 — 없으면 `Operation not permitted`로 실패하거나 엉뚱한 워크트리에 쓴다
+- T2(쓰기): `--write` 필요 (동작·검증 상태는 reference.md)
 - T3(고급): `--background`(뒤에서 돌리기), `--resume`(직전 세션 이어붙이기)
 - 자동화 공통: 지시서는 `--prompt-file` 또는 따옴표 씌운 heredoc으로 넘긴다 (명령줄 인자 금지)
 
