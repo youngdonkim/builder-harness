@@ -58,6 +58,16 @@
 #   → 슬래시 명령은 쓰레기가 아니라 사용자가 실제로 친 진짜 의도이므로,
 #     명령 이름(+인자)을 뽑는 extract_slash_command()를 추가하고 후보를 훑는
 #     루프에서 strip_harness_tags보다 먼저 시도하도록 했다.
+#
+# 스킬 재호출 힌트 살리기 (2026-08-20):
+#   같은 세션에서 스킬을 두 번째로 부르면 <command-name> 태그가 아예 안 붙고
+#   "Skill /simplify is already loaded above; instructions unchanged" 같은
+#   하네스 안내문만 온다. 태그 추출이 실패하고 strip_harness_tags()가 이 문장을
+#   그대로 통과시켜서 커밋 제목이 "wip: Skill /simplify is already loaded above;
+#   instructions unchan — …"이 됐고, done-task의 simplify 게이트가 표식을 못
+#   알아봤다. (2026-08-05 항목과 같은 증상의 태그-없는 형태다.)
+#   → extract_slash_command()에 폴백을 넣어, 태그가 없어도 이 안내문 형태면
+#     거기서 스킬 이름을 뽑아 /이름으로 돌려준다.
 
 set -uo pipefail
 
@@ -146,6 +156,17 @@ extract_slash_command() {
   flat=$(printf '%s' "$1" | tr '\n' ' ')
   name=$(printf '%s' "$flat" | sed -nE 's/.*<command-name>([^<]*)<\/command-name>.*/\1/p')
   name=$(printf '%s' "$name" | sed -E 's/^ +//; s/ +$//')
+  # 태그가 없는 재호출 형태 폴백. 같은 세션에서 스킬을 두 번째로 부르면 태그 대신
+  # "Skill /simplify is already loaded above; instructions unchanged" 같은 안내문만 온다.
+  # 잡는 폭: 메시지가 `Skill /이름`으로 시작하고, 그 뒤 80자 안에 loaded가 있을 때만.
+  # 문구 전체를 박지 않는 이유 — 하네스가 바뀌면 안내문 표현이 달라질 수 있어서다.
+  # 그래도 "맨 앞에서 시작" + "loaded가 근처에" 두 조건을 같이 요구하면
+  # "Skill /simplify 스킬이 뭐 하는 거야?" 같은 사람 질문은 안 걸린다.
+  # 이름에 콜론·하이픈·점을 허용해 /payload:harness-diet 같은 형태도 잡는다.
+  if [ -z "$name" ]; then
+    name=$(printf '%s' "$flat" \
+      | sed -nE 's|^[[:space:]]*Skill (/[A-Za-z0-9_.:-]+)[[:space:]].{0,80}loaded.*|\1|p')
+  fi
   [ -z "$name" ] && return 1
   case "$name" in
     /*) ;;

@@ -88,10 +88,15 @@ ship 전에 코드 품질 정리(`simplify` 스킬 — 재사용·단순화·효
 git diff origin/main...HEAD --name-only | grep '^src/' | head -1
 
 # 브랜치 안에서 가장 최근 simplify 표식 커밋 찾기 (없으면 출력 비어 있음)
-# 제목에 simplify라는 단어만 들어 있으면 안 됨 — simplify 게이트 자체를 고치는 작업처럼
-# simplify와 무관한 커밋도 제목에 그 단어가 섞일 수 있어서, 표식은 정확히 이 두 형태만 인정한다:
-# `chore: simplify 반영`(사람이 직접 남기는 빈 표식) 또는 `/simplify`(auto-wip-commit 훅이 슬래시 명령 턴에 붙이는 제목)
-git log origin/main..HEAD --format='%H %s' | grep -E 'chore: simplify 반영|/simplify' | head -1
+# 제목 어딘가에 simplify가 섞였다고 표식이 아니다 — simplify 게이트 자체를 고치는 작업만
+# 해도 훅이 사용자 메시지로 제목을 지어서 `/simplify`가 제목 중간에 들어간다.
+# 그래서 표식은 다음 두 형태만 인정한다:
+#   1) `chore: simplify 반영` — 사람이 직접 남기는 빈 표식 (제목 전체가 정확히 이 문구)
+#   2) `wip: /simplify …`     — auto-wip-commit 훅이 슬래시 명령 턴에 붙이는 제목.
+#      훅은 제목을 `wip: <힌트> — <파일목록> (<통계>)`로 조립하므로,
+#      `/simplify`가 힌트 자리의 맨 앞일 때만 표식이다 (`wip: /simplify src/lib — …`처럼 인자는 허용).
+# --format='%H %s' 출력이라 줄 앞에 해시가 붙는다 — 앵커를 거기에 맞춘다.
+git log origin/main..HEAD --format='%H %s' | grep -E '^[0-9a-f]+ (wip: /simplify( |$)|chore: simplify 반영$)' | head -1
 
 # 표식이 있으면, 그 커밋 이후로 src 코드가 또 바뀌었는지
 # (표식 이후에 새로 짠 코드는 아직 simplify를 안 거친 것)
@@ -108,7 +113,7 @@ git diff --name-only <표식 커밋의 SHA>..HEAD -- 'src/**'
 
   선택지:
   ① 메인 세션에서 /simplify 돌린 뒤 재호출
-     — /simplify가 코드를 고쳤으면 그 변경이 커밋될 때 제목에 `/simplify`(슬래시 포함)가 자동으로 들어가 —
+     — /simplify가 코드를 고쳤으면 그 변경이 커밋될 때 제목이 `wip: /simplify …`로 시작해 —
        그게 곧 게이트가 찾는 표식이라 따로 챙길 필요 없어.
      — simplify가 검토했는데 고칠 게 없었으면 커밋 자체가 안 생겨서 표식도 없어. 그럴 땐
        빈 표식 커밋을 직접 남겨줘: `git commit --allow-empty -m "chore: simplify 반영"` (오타 없이 정확히 이 문구여야 게이트가 표식으로 알아본다)
@@ -453,9 +458,9 @@ CI의 밀림 감지는 다음 main push 때나 돌아서, 그때까진 DB에 안
 | CI 검사가 하나도 없음 (§3-c)                            | 20초 기다렸다 재확인 → 그래도 없으면 머지 진행 + 완료 보고에 한 줄 (§3-c) |
 | 사용자 working tree 변경이 _이번 작업 일부_             | (a) 옵션으로 추가 commit하고 진행 권장 ([결정 필요] 반환에 명시)         |
 | 사용자 working tree 변경이 _별개_                       | (b) stash 권장 ([결정 필요] 반환에 명시)                                 |
-| simplify 재호출 감지                                    | 브랜치 안 simplify 표식 커밋(`chore: simplify 반영` 또는 `/simplify`) 이후 `src/**` 변경 없으면 게이트 skip → 바로 ship (§1.5) |
+| simplify 재호출 감지                                    | 브랜치 안 simplify 표식 커밋(`chore: simplify 반영` 또는 `wip: /simplify …`) 이후 `src/**` 변경 없으면 게이트 skip → 바로 ship (§1.5) |
 | simplify 표식은 있는데 그 이후 `src/**`가 또 바뀜         | 게이트 재발동 — 표식 이후 새 코드는 아직 simplify를 안 거쳤음, [결정 필요] 반환 (§1.5) |
-| 커밋 제목에 simplify가 들어갔지만 표식 패턴이 아님 (예: `wip: simplify 게이트 고치기 — done-task/SKILL.md`) | 표식 아님 — `chore: simplify 반영`도 `/simplify`도 아니므로 무시하고 표식 없는 것으로 판정 (§1.5) |
+| 제목에 simplify나 `/simplify`가 섞였지만 맨 앞이 아님 (예: `wip: simplify 게이트 고치기 — …`, `wip: "/simplify" 이게 마지막 커밋에 — …`) | 표식 아님 — `/simplify`는 `wip:` 바로 뒤 힌트 자리의 맨 앞일 때만 인정. 무시하고 표식 없는 것으로 판정 (§1.5) |
 | `supabase/migrations/`에 새 파일 없음 (대부분의 브랜치)  | 게이트 통과 — 아무 말 없이 다음 단계로 (§1.7)                            |
 | `supabase/migrations/`에 새 파일 있음                   | [결정 필요]로 멈춤 — 더하는 것인지 없애는 것인지, 밀었는지 물음 (§1.7)   |
 | "없애는 거라 머지 후에 민다"로 통과                     | 그대로 ship하되, 완료 보고 맨 끝에 `db push --linked` 안내를 남김 (§1.7, §4) |
