@@ -28,6 +28,8 @@ new-task → 작업 → done-task → new-task → 작업 → ...
   마무리해. CI가 실패하면 머지하지 않고 멈춰.
 - 다시 `new-task`로 돌아가서 다음 작업을 시작.
 
+한 가지 헷갈리기 쉬운 것 — `new-task`는 **main에 서 있을 때** 도는 단계야. 이미 feature 브랜치를 열고 작업 중이라면 `new-task`를 또 돌리는 게 아니라 그냥 이어서 작업하면 돼. 지금 어디 서 있는지는 `git branch --show-current`로 확인한다.
+
 main에 머지되면 Vercel이 그 커밋을 자동으로 배포해. 즉 **main에 뭔가 들어가는 순간 =
 서비스가 바뀌는 순간**이라고 생각하면 돼.
 
