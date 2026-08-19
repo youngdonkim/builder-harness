@@ -142,7 +142,9 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
 | 횡단 스킬 | `grok-delegation` | 그록(Grok) CLI에 작업을 위임하는 방법 — 부르는 법·읽기/쓰기 모드 고르기·결과 검증 |
+| 횡단 스킬 | `harness-diet` | 지시 문서(CLAUDE.md·AGENTS.md·스킬·에이전트·rules)의 군살·중복·모순 검토 → 보고서 + 사람 결정 목록 (수정은 결정 후 별도) |
 | 서브에이전트 | `git-flow` | `new-task`·`done-task`·`rewind-task`의 실제 실행자 |
+| 서브에이전트 | `harness-auditor` | `harness-diet`의 회차별 감사관 — 지시 문서를 읽기 전용으로 정독해 판정만 반환 |
 | 서브에이전트 | `user-scenario-writer` | 영화 시나리오형 유저 스토리 작성 |
 | 서브에이전트 | `ux-writing-reviewer` | UI 문구를 UX writing 원칙과 대조해 직접 교정 |
 | 서브에이전트 | `delegation-integrator` | 타 코딩 에이전트 연동 조사·설치·테스트·위임 스킬 생성/갱신 |
