@@ -36,7 +36,7 @@ design-system 스킬의 bootstrap-project.md 절차가 토큰 3층 경로·부�
 
 3단계에서 고정된 Supabase·Vercel 스택 기준이다.
 
-- **Supabase CLI** — 개발 의존성으로 깔아 `npx supabase`로 부른다. 로컬 스택을 `start`/`stop`으로 올리고 내리고, 스키마는 마이그레이션(migration — 스키마를 어떻게 바꿨는지 순서대로 적어 둔 파일) 파일로 쓰고 `db reset`으로 검증한다. **클라우드 반영은 `db push --linked`.** 대시보드에서 스키마를 직접 고치면 이력이 어긋나 `db push`가 실패한다.
+- **Supabase CLI** — 개발 의존성으로 깔아 `npx supabase`로 부른다. 로컬 스택을 `start`/`stop`으로 올리고 내리고, 스키마는 마이그레이션(migration — 스키마를 어떻게 바꿨는지 순서대로 적어 둔 파일) 파일로 쓰고 로컬 리셋으로 검증한다 — **래퍼가 있으면 맨손 `db reset` 대신 래퍼로 부른다**(아래). **클라우드 반영은 `db push --linked`.** 대시보드에서 스키마를 직접 고치면 이력이 어긋나 `db push`가 실패한다.
 - **gh CLI** — PR을 만들고 머지한다. `done-task` 스킬이 이 명령으로 돈다.
 - **Vercel CLI** — 배포와 환경변수(`vercel env pull`).
 - **Docker** — 로컬 Supabase가 그 위에서 돈다.
@@ -46,7 +46,12 @@ design-system 스킬의 bootstrap-project.md 절차가 토큰 3층 경로·부�
   - 더하는 마이그레이션 → **밀고 나서 머지**
   - 없애는 마이그레이션 → **머지·배포된 뒤에 민다**
 
-#### 클라우드에 시드(seed — 처음 채워 넣는 기본·데모 데이터) 넣기
+#### 로컬 DB 리셋 (도커 스택 — 아래 클라우드 얘기와 별개다)
+
+- **리셋은 로컬 DB를 0부터 다시 만든다** — 시드(seed — 처음 채워 넣는 기본·데모 데이터)에 없는 것은 다 사라진다: 로컬 계정, 손으로 넣은 데이터, 업로드한 파일(Storage)까지. 에러는 안 나니 눈으로 발견하게 된다.
+- **Storage 파일은 시드가 안 채운다** — 리셋과 복구 스크립트를 `package.json`에 하나로 묶어 두고(예: `"db:reset": "supabase db reset && npm run seed:images"`), **묶은 뒤엔 맨손 `supabase db reset`을 부르지 않는다.** 리셋 전에 scripts를 먼저 확인한다.
+
+#### 클라우드에 시드 넣기 (위 로컬 리셋과 별개다)
 
 스키마는 마이그레이션으로 밀지만 **데이터는 따로 넣어야 한다.** 실측 검증된 절차:
 
