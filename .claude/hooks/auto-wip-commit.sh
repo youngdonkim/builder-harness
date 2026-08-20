@@ -68,6 +68,13 @@
 #   알아봤다. (2026-08-05 항목과 같은 증상의 태그-없는 형태다.)
 #   → extract_slash_command()에 폴백을 넣어, 태그가 없어도 이 안내문 형태면
 #     거기서 스킬 이름을 뽑아 /이름으로 돌려준다.
+#
+# /simplify 빈 표식 자동화 (2026-08-20, 위 항목과 별건):
+#   /simplify가 검토했는데 고칠 게 없으면 변경이 안 생겨서 wip 커밋도 안 남는다.
+#   그러면 done-task의 simplify 게이트가 표식을 못 찾아 막고, 사람이
+#   `git commit --allow-empty -m "chore: simplify 반영"`을 손으로 쳐야 했다.
+#   → /simplify 턴인데 커밋할 변경이 없으면 훅이 빈 표식 커밋을 자동으로 남긴다.
+#     /simplify 턴에만 좁게 건다 — 모든 턴으로 넓히면 변경 없는 턴마다 빈 커밋이 쌓인다.
 
 set -uo pipefail
 
@@ -107,13 +114,15 @@ if [ -f "$GIT_DIR/MERGE_HEAD" ] || [ -f "$GIT_DIR/REBASE_HEAD" ] \
   exit 0
 fi
 
-# 3. 변경 없으면 skip
+# 3. 변경 없음 표시 — 여기서 바로 끝내지 않는다.
+#    /simplify 턴이면 6번에서 빈 표식 커밋을 남겨야 하는데, 그러려면 힌트(5번)를 먼저 뽑아야 한다.
+no_changes=0
 if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
-  exit 0
+  no_changes=1
 fi
 
 # 4. 시크릿 패턴 검사 — staging 대상 파일 중 위험 패턴에 걸리는 파일 목록만 구한다.
-#    여기서 커밋을 포기하지 않는다 — 의심 파일만 나중에(6번) staging에서 뺀다.
+#    여기서 커밋을 포기하지 않는다 — 의심 파일만 나중에(7번) staging에서 뺀다.
 #    단 .example/.sample/.template로 끝나는 이름(값 없는 예시 템플릿)은 예외로 뺀다.
 #    끝을 보는 이유: .env.local.example처럼 중간에 환경 이름이 끼는 형태가 흔해서
 #    정확히 .env.example 등 세 이름만 보면 놓친다.
@@ -263,7 +272,26 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
   fi
 fi
 
-# 6. add + commit — 의심 파일만 빼고 나머지는 그대로 커밋
+# 6. 커밋할 변경이 없는 경우 — /simplify 턴에만 빈 표식 커밋을 남긴다.
+#    done-task의 simplify 게이트는 브랜치에 표식 커밋이 하나라도 있으면 통과시키는데,
+#    고칠 게 없던 /simplify 턴은 변경이 없어 표식이 안 남는다. 그 구멍만 메운다.
+#    다른 스킬 턴까지 넓히지 않는 이유 — 변경 없는 턴마다 빈 커밋이 쌓여서 로그가 지저분해진다.
+#    표식으로 인정받는 제목이어야 하므로 `wip: /simplify ` 로 시작하는 문구를 고정으로 쓴다.
+if [ "$no_changes" -eq 1 ]; then
+  case "$hint" in
+    "/simplify" | "/simplify "*)
+      marker_msg="wip: /simplify — 변경 없음"
+      if git commit --allow-empty -m "$marker_msg" >/dev/null 2>&1; then
+        echo "[auto-wip] 빈 표식 커밋: $marker_msg" >&2
+      else
+        echo "[auto-wip] 빈 표식 커밋 실패 (pre-commit hook 등) — 사용자 확인 필요" >&2
+      fi
+      ;;
+  esac
+  exit 0
+fi
+
+# 7. add + commit — 의심 파일만 빼고 나머지는 그대로 커밋
 git add -A 2>/dev/null
 
 # 4번에서 걸린 의심 파일만 staging에서 뺀다. 파일명에 공백이 있어도 깨지지 않게
