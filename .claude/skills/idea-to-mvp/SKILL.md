@@ -1,7 +1,6 @@
 ---
 name: idea-to-mvp
 description: 아이디어에서 MVP까지 7단계 (UserStory · InformationArchitecture · Prototype · DemoValidation · MarketResearch · MvpBuild · MvpLaunch). 유저 스토리를 화면 인벤토리로 펼쳐 빠진 화면을 없애고 → 그 인벤토리로 목업을 받아 실개발환경의 리액트 워킹 프로토타입까지 만들어 배포하고 → 그 프로토타입 데모 반응으로 거르고(painkiller + Pull 신호) → 검증된 아이디어로 경쟁 지형·차별화 축을 조사하고 → 같은 코드에 백엔드·DB·로그인·계측을 얹어 배포까지 완주(+베타 공유로 치명 결함 확인) → 발품+소액 광고로 모은 실제 사용자 행동으로 가설 최종 검증까지. 통과 기준 2개로 가짜 문제·가망 없는 아이디어를 조기에 거름.
-disable-model-invocation: true
 ---
 
 이 스킬은 한 번 호출되면 7단계 중 **현재 단계**를 판별하고 해당 단계의 안내 문서(`references/` 폴더의 단계별 문서 — 이하 references)를 읽어 진행한다. 가령 처음이라면 1단계(UserStory)부터 순서대로 실행하고, 만약 4단계(DemoValidation)까지 했다면 5단계(MarketResearch)부터 순서대로 실행한다.
