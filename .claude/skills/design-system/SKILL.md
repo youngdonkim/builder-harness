@@ -30,7 +30,7 @@ description: 3단 토큰 계층(foundation→semantic→component) + 조립 계�
 git rev-parse --abbrev-ref HEAD
 ```
 
-**main이면 멈추고** `/new-task`로 작업 브랜치를 먼저 열라고 안내한다. main에서 파일을 바꾸면 `auto-wip-commit` 훅이 안 돌아 자동 저장이 안 되고(되돌릴 지점이 안 남는다), 나중에 `no-main-push` 훅에 막혀 올리지도 못한다.
+**main이면 `/new-task`를 직접 호출해 작업 브랜치를 연 뒤 진행한다.** main에서 파일을 바꾸면 `auto-wip-commit` 훅이 안 돌아 자동 저장이 안 되고(되돌릴 지점이 안 남는다), 나중에 `no-main-push` 훅에 막혀 올리지도 못한다.
 
 프로젝트의 AGENTS.md에서 **프로젝트 연결 정보(adapter)**를 확인한다:
 층별 실제 파일 경로 · import 순서 · 프로젝트 고유 예외(함정 토큰 등) · 컴포넌트 인벤토리 위치.

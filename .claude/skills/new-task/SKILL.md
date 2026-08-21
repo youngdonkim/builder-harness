@@ -1,7 +1,6 @@
 ---
 name: new-task
 description: PR 머지 후 작업 단위 전환 — main 싱크 + 머지 끝난 옛 feature 브랜치 정리(local·remote) + 새 feature 브랜치 자동 생성. 사용자 의도(args 또는 follow-up)에서 type·topic을 Claude가 추론. "다음 작업 시작", "새 브랜치 만들어줘", "PR 머지했어 다음 가자" 등에 사용.
-disable-model-invocation: true
 allowed-tools: Bash(git *) Bash(gh *)
 context: fork
 agent: git-flow
@@ -11,7 +10,9 @@ agent: git-flow
 
 사용자 대신 **브랜치 단위**로 작업 전환을 안전하게 자동화하는 스킬. 작업 하나에 브랜치 하나가 1:1로 붙는다.
 
-이 스킬은 `context: fork`로 git-flow 서브에이전트(sonnet)에서 격리 실행된다 — 메인 세션 토큰 절약 목적. 실행 중 사용자 질문이 불가능하므로 결정 지점은 [결정 필요] 반환 → 메인이 사용자에게 확인 → **사용자가 직접** 결정을 args에 담아 슬래시 명령으로 재호출하는 프로토콜을 쓴다. (`disable-model-invocation: true`라 AI는 이 스킬을 재호출할 수 없다 — 재호출 입력은 반드시 사용자 몫. 예외적으로 급할 땐 메인 세션이 git-flow 에이전트를 직접 호출해 SKILL.md 절차 + 결정을 프롬프트로 넘겨 실행하는 우회가 가능하다.)
+이 스킬은 `context: fork`로 git-flow 서브에이전트(sonnet)에서 격리 실행된다 — 메인 세션 토큰 절약 목적. 실행 중 사용자 질문이 불가능하므로 결정 지점은 [결정 필요] 반환 → 결정을 args에 담아 재호출하는 프로토콜을 쓴다.
+
+**호출은 클로드가 직접 한다.** main에 서 있는데 작업 요청이 오면 사용자에게 되묻지 말고 이 스킬을 불러 브랜치를 연다. [결정 필요]가 돌아오면 클로드가 맥락을 보고 판단해 결정을 args에 담아 재호출한다 — 브랜치를 새로 만드는 일이라 되돌리기 쉬워서, 판단을 사람에게 넘길 이유가 없다. 다만 PR 없는 로컬 브랜치 삭제(§3)처럼 되살릴 수 없는 선택은 판단이 애매하면 보존 쪽으로 기울이고 사용자에게 알린다.
 
 ## 호출 인자
 
@@ -284,9 +285,8 @@ git ls-remote --heads origin "${type}/${topic}-${n}"
 ## 안 하는 것 (의도적)
 
 - ❌ PR 자동 머지 — 사용자가 직접 또는 GitHub UI에서 결정
-- ❌ commit·push 자동화 — 새 브랜치 만들기만 한다. 커밋은 사용자가 §1-b (a) 옵션으로 지시했을 때만 그 지시대로 실행한다
+- ❌ commit·push 자동화 — 새 브랜치 만들기만 한다. 커밋은 §1-b (a) 옵션이 args에 지시로 담겼을 때만 그 지시대로 실행한다
 - ❌ 다른 base 브랜치 지원 — main 전제. 다른 base 필요하면 별 스킬
-- ❌ Claude 자동 invoke — `disable-model-invocation: true`로 차단
 - ❌ 브랜치 생성 전 type·topic 확인 받기 — 자동 생성 후 사후 수정 받음 (마찰 최소화)
 - ❌ PR 없는 로컬 브랜치 자동 삭제 — GitHub에 사본이 없어 지우면 되살릴 방법이 사실상 없다. [결정 필요]로 물어본다 (§3)
 - ❌ 미머지 PR 브랜치 자동 삭제 — args에 명시 지시가 있을 때만 (§3)

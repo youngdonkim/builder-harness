@@ -13,7 +13,7 @@ description: 그록(Grok) CLI에 코딩·조사 작업을 위임할 때 쓴다. 
 git rev-parse --abbrev-ref HEAD
 ```
 
-**main이면 멈추고** `/new-task`로 작업 브랜치를 먼저 열라고 안내한다. main에서 파일을 바꾸면 `auto-wip-commit` 훅이 안 돌아 자동 저장이 안 되고(되돌릴 지점이 안 남는다), 나중에 `no-main-push` 훅에 막혀 올리지도 못한다.
+**main이면 `/new-task`를 직접 호출해 작업 브랜치를 연 뒤 진행한다.** main에서 파일을 바꾸면 `auto-wip-commit` 훅이 안 돌아 자동 저장이 안 되고(되돌릴 지점이 안 남는다), 나중에 `no-main-push` 훅에 막혀 올리지도 못한다.
 
 ## 언제 위임하나
 
