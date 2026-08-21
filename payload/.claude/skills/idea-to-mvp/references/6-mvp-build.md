@@ -95,7 +95,7 @@ description: MVP 빌드 단계 가이드. 3단계가 만든 리액트 프로토�
 
 **RLS는 필수다.** Supabase 연동 시 **RLS(행 단위 보안 규칙, Row Level Security — 테이블마다 "누가 어느 행을 읽고 쓸 수 있나"를 DB가 직접 강제하는 규칙) 활성화 + 정책 작성**을 반드시 한다. Supabase의 공개 키(anon key)는 브라우저에 그대로 노출되는 구조라, RLS를 안 걸면 그 키만으로 아무나 모든 테이블을 읽고 쓸 수 있다 — Supabase 프로젝트에서 가장 흔하고 치명적인 사고 지점이다.
 
-**보안 baseline**: auth·API·업로드·`supabase/` 코드를 만지면 `.claude/rules/security-baseline.md`가 자동 로드된다 — 1부 외부 도달 baseline(http-only cookie·민감정보·업로드 검증·rate limit·에러에 stack 미노출)과 2부 Supabase 권한 baseline(기본 비공개·grant와 정책 두 겹·정책 모양 다섯 줄·하지 말 것 여덟) 준수. 광고로 모르는 사람들이 실제로 들어오는 코드다.
+**보안 baseline**: auth·API·업로드·`supabase/` 코드를 만지면 `.claude/rules/security-baseline.md`가 자동 로드된다 — 1부 외부 도달 baseline(http-only cookie·민감정보·업로드 검증·rate limit·에러에 stack 미노출)과 2부 Supabase 권한 baseline(기본 비공개·grant와 정책 두 겹·정책 모양 다섯 줄·하지 말 것 아홉) 준수. 광고로 모르는 사람들이 실제로 들어오는 코드다.
 
 **범위 가드 (강제)**:
 
@@ -447,6 +447,8 @@ npx supabase backups list --linked
 퍼널 계측과 별개로 에러를 감지할 수단도 확보한다 — 최소 배포 후 Vercel 대시보드의 런타임 로그(Runtime Logs, 서버 실행 중 발생한 에러·로그를 모아 보여주는 화면)를 확인하는 방법을 알아둔다. 원하면 Sentry류 경량 에러 추적 도구를 붙여도 되지만 필수는 아니다. 7단계 측정 기간에 가입 실패·결제 에러 같은 버그가 조용히 나면 퍼널 숫자가 나쁜 게 제품 탓인지 버그 탓인지 구분을 못 해 판정이 오염된다 — "버그는 즉시 고친다"는 룰(7단계)이 있어도 버그가 났다는 걸 아는 수단이 없으면 소용없다.
 
 ### 2.5 배포·완료
+
+**Vercel 함수 리전은 DB 리전에 맞춘다** — `vercel.json`의 `regions`로 명시한다. 기본값(iad1, 미국 동부)으로 두면 DB가 멀 경우 질의마다 대륙 왕복이 곱해진다. [실측 1건: 상세 페이지 첫 응답 566→188ms] 프로젝트별 구체 리전 값은 각 프로젝트 AGENTS.md에 적는다.
 
 1. 최종 배포 (3단계에서 붙여둔 Vercel 그대로). main 직접 push 금지 — PR 워크플로 (repo 훅이 막음).
 2. **사용자가 배포 URL을 브라우저로 직접 클릭** — 핵심 시나리오 끝까지 통과 + 가입·핵심행동 이벤트가 실제로 찍히는지 확인 (AI가 자동 도구로 검증·사인오프하지 않음 — SKILL.md §1.5 사람 몫).
