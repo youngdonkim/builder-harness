@@ -114,6 +114,8 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 - **서브에이전트(subagent)** — 특정 일만 전담하는 **보조 AI**다. 본 대화와 따로 떨어져 일하기 때문에, 긴 작업을 맡겨도 본 대화가 지저분해지지 않는다. 대개 스킬이 알아서 호출하므로 사용자가 직접 부를 일은 적다.
 - **훅(hook)** — 정해진 순간마다 **자동으로 실행되는 규칙**이다. 사용자가 부르지 않아도 걸린다. 예: main 브랜치에 코드를 바로 올리려 하면 막고, 답변이 끝날 때마다 작업 내용을 자동 저장한다.
 
+이 세 부품 말고 **규칙·설정 파일**도 하네스에 들어 있다 — Claude가 항상 지킬 규칙(`CLAUDE.md`·`AGENTS.md`), 특정 파일을 다룰 때만 적용되는 세부 규칙(`.claude/rules/`), 훅을 작동시키는 등록 설정(`.claude/settings.json`에 합쳐진다) 같은 것들이다. 전체 목록은 [§5.3](#53-프로젝트에-무엇이-생기나)에 있다.
+
 ### 3.3 어떻게 전해지나 — 파일 복사
 
 이 저장소가 하네스의 **원본(SoT, Source of Truth — 정답이 되는 하나뿐인 출처)**이다. 하네스 본체는 전부 이 저장소의 `payload/` 아래에 있고, 그 안의 구조가 곧 **프로젝트 루트에 그대로 복사될 모양**이다 — 이런 걸 미러(mirror, 거울처럼 같은 모양)라고 한다.
@@ -150,6 +152,8 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 서브에이전트 | `delegation-integrator` | 타 코딩 에이전트 연동 조사·설치·테스트·위임 스킬 생성/갱신 |
 | 훅 | `no-main-push` | main 브랜치에 바로 올리는 것을 차단 (PR 검토 흐름 강제) |
 | 훅 | `auto-wip-commit` | 응답이 끝날 때마다 작업 브랜치에 진행 중 커밋(wip)을 자동 생성 |
+
+위 표는 부품(스킬·서브에이전트·훅)만 담았고, 함께 복사되는 규칙·설정 파일은 [§5.3](#53-프로젝트에-무엇이-생기나)에 정리돼 있다.
 
 용어 참고 — **PR(Pull Request)**은 "내가 고친 걸 본체에 반영해 달라"고 올리는 제안이다. **CI(Continuous Integration)**는 그 제안이 반영되기 전에 코드가 깨지지 않았는지 자동으로 검사하는 절차다. **wip(work in progress)**는 아직 끝나지 않은 진행 중 상태를 뜻한다.
 
