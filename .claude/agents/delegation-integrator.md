@@ -49,10 +49,11 @@ maxTurns: 50
 `.claude/skills/<대상>-delegation/`
 - `SKILL.md`     — 검증된 최선의 위임 방법. 트리거 description 포함.
                    테스트 통과 항목만 기재.
-- `reference.md` — 플래그/옵션 전체 목록 + 출처 + 확인일 + 검증 여부.
-- `sources.md`   — 조사 소스 정의 (계층: 공식 > 준공식 > 커뮤니티).
-- `status.md`    — 수명주기 상태: 설치 여부/버전, 인증 상태,
-                   각 테스트 결과와 실행일, 미해결 이슈.
+- `references/` 하위 (부속 파일은 스킬 관례대로 이 폴더에 둔다):
+  - `reference.md` — 플래그/옵션 전체 목록 + 출처 + 확인일 + 검증 여부.
+  - `sources.md`   — 조사 소스 정의 (계층: 공식 > 준공식 > 커뮤니티).
+  - `status.md`    — 수명주기 상태: 설치 여부/버전, 인증 상태,
+                     각 테스트 결과와 실행일, 미해결 이슈.
 
 sources.md 또는 status.md가 없으면 `.claude/templates/sources-template.md`,
 `.claude/templates/status-template.md`를 복사해 초기화한 뒤 채운다.
