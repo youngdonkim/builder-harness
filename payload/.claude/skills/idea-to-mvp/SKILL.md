@@ -123,7 +123,7 @@ git rev-parse --abbrev-ref HEAD
 
 | 단계 | 이 단계가 확정하는 산출물 (= 그 영역의 SoT) | 다음 단계와의 관계 | references |
 |---|---|---|---|
-| 1 UserStory | `user-story.md` — 필수 입력 4개(서비스 한 줄 정의·타겟·현재 대안과 불편함·해결책 핵심) + user-scenario-writer 에이전트가 쓴 영화 시나리오형 유저 스토리 | 2단계 InformationArchitecture가 화면을 뽑아내는 입력으로 쓰고, 3단계 Prototype이 Claude Design 입력 프롬프트의 톤·마이크로카피 재료로 씀 | `1-user-story.md` |
+| 1 UserStory | `user-story.md` — 필수 입력(서비스 한 줄 정의·타겟·현재 대안과 불편함·해결책 핵심 4개, 양면 시장이면 2·3·4가 역할별로 갈리고 초기 공급 방법이 추가) + user-scenario-writer 에이전트가 쓴 영화 시나리오형 유저 스토리 | 2단계 InformationArchitecture가 화면을 뽑아내는 입력으로 쓰고, 3단계 Prototype이 Claude Design 입력 프롬프트의 톤·마이크로카피 재료로 씀 | `1-user-story.md` |
 | 2 **InformationArchitecture** | `information-architecture.md` — 객체 지도 · 역할 목록 · 화면 인벤토리(진입·이탈 경로 포함) · 상태 매트릭스 · 네비게이션 구조 · 커버리지 자가 점검 | 3단계 Prototype이 이 인벤토리를 Claude Design 입력으로 써서 화면을 하나도 빠짐없이 만든다 | `2-information-architecture.md` |
 | 3 **Prototype** | **`mvp/handoff/`** — `information-architecture.md` + `user-story.md`를 외부 Claude Design("Mobile app design" 또는 "UI mockups" 모드)에 파일로 첨부해 받아 온 꾸러미를 압축 해제한 폴더(목업 standalone.html + 제품 정의·데이터 모델·규칙·화면별 상태와 문구·디자인 토큰). **+ 프로젝트 루트의 앱 코드** — 고정 스택(Next.js·React·TypeScript·Supabase·Vercel) 개발환경을 잡고 그 목업을 리액트로 옮긴 **워킹 프로토타입**(백엔드 없이 브라우저 로컬스토리지에 저장) + Vercel 배포 링크 | 4단계 데모 대상은 이 **배포 링크**. 4단계에서 구조적 수정사항이 나오면 이 단계로 돌아와 **코드를 고친다**(3↔4 순환, 목업 재생성 아님). 6단계는 같은 코드에 백엔드를 얹는다 | `3-prototype.md` |
 | 4 **DemoValidation** (구 IdeaValidation 개편) | `demo-validation.md` — 맘 테스트 인터뷰(데모 *전* 과거 행동) + 데모 반응·Pull 신호·UI 피드백 + go 시점 최종 확정 아이디어·비목표·검증 가설·북극성(구 MarketResearch의 "최종 서비스 기획 요약" 역할 흡수) | 순환 수렴 시 5단계 MarketResearch·6단계 MvpBuild의 출발점. 미수렴이면 3단계로 복귀해 프로토타입 코드를 고친다. 아이디어·가설은 여기서부터 `이전 결론 → 이번 결론` 체인으로 이어진다 (§2.2) | `4-demo-validation.md` |
