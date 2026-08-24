@@ -253,7 +253,7 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 
 ## 안 하는 것 (의도적)
 
-- ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 6단계 MvpBuild 영역
+- ❌ 앱 스캐폴딩(`package.json`·`src/`) 생성 — 그건 4단계 Prototype 영역
 - ❌ GitHub repo 생성·push — 사용자가 원할 때 별도로
 - ❌ 기존 CLAUDE.md·AGENTS.md 무단 덮어쓰기 — 동기화 모드에서도 프로젝트 고유 내용은 병합으로 보존하고, 반영은 사용자 확인 뒤에만. AGENTS.md 안에서 다른 도구가 만든 구역도 손대지 않는다
 - ❌ 하네스 원본 저장소를 프로젝트에서 고치기 — 하네스 개선은 builder-harness 저장소에서 PR로. 프로젝트 `.claude/` 안의 복사본을 고쳐봐야 다음 동기화에서 충돌로 잡힌다
