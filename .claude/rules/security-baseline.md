@@ -89,7 +89,7 @@ using ( (select authorize('reports.resolve')) ) -- ✅ 문에 권한을 쓴다
 
 지금은 둘이 똑같이 동작한다. 갈리는 건 나중에 **"검토자도 신고를 처리한다"**가 될 때다 — 신분을 쓴 정책은 **전부** 고쳐야 하고, 권한을 쓴 정책은 **판정 함수만** 고치면 된다.
 
-역할 표·판정 함수를 실제로 만드는 절차는 `idea-to-mvp` 6단계의 `6-mvp-build-auth-authz.md` §2에 있다.
+역할 표·판정 함수를 실제로 만드는 절차는 `idea-to-mvp` 7단계의 `7-mvp-build-auth-authz.md` §2에 있다.
 
 ### ⚠ 공개 정책이 판정 함수를 타면 `anon`에도 `grant execute` **[실측 1건]**
 
