@@ -22,6 +22,12 @@ semantic 층에 토큰을 추가할 때 따르는 규범. **기존 토큰의 이
 3. [표면 위계 규범 (surface hierarchy)](#3-표면-위계-규범-surface-hierarchy)
 4. [on- 패턴 규범](#4-on--패턴-규범)
 5. [radius 위계 참고](#5-radius-위계-참고)
+6. [새 토큰 추가 절차](#6-새-토큰-추가-절차)
+   - [6.1 자리 찾기](#61-자리-찾기)
+   - [6.2 이름 짓기](#62-이름-짓기)
+   - [6.3 값 배선](#63-값-배선)
+   - [6.4 주석](#64-주석)
+   - [6.5 검증](#65-검증)
 
 ---
 
@@ -58,7 +64,7 @@ semantic 층에 토큰을 추가할 때 따르는 규범. **기존 토큰의 이
 | motion | 이징·시간 | `--ease-standard` · `--duration-fast/base/slow` | `--ease-{느낌}` / `--duration-{속도}` |
 | typography/family | 글꼴 자체 | `--font-family-base`(본문 기본) · 필요시 `--font-family-brand`·`--font-family-mono` | `--font-family-{역할}` — 값은 foundation의 폰트 변수를 가리키는 별칭. 로딩 방법은 [font-loading.md](font-loading.md) |
 | typography/scale | 글(prose) 전용 — 제목·본문·캡션 | `t1~t4`(제목) `h1~h2` `b1~b2` `c1~c2`·`label` | 스케일 이름은 시스템 규약으로 고정, 크기 값만 프로젝트별 교체. 11단계에 안 맞는 크기는 typography/component으로 |
-| typography/component | UI 부품 전용 — 칩·뱃지·필드라벨·헬퍼텍스트 등 prose 스케일에 안 맞는 크기 | `--font-size-chip` · `--font-size-field-label` | `--font-size-{부품/역할}` — [add-a-token.md](add-a-token.md) 절차로 신규 추가 |
+| typography/component | UI 부품 전용 — 칩·뱃지·필드라벨·헬퍼텍스트 등 prose 스케일에 안 맞는 크기 | `--font-size-chip` · `--font-size-field-label` | `--font-size-{부품/역할}` — §6 절차로 신규 추가 |
 
 **typography가 두 갈래인 이유:** `t1~label` 11단계는 **글(prose) 역할** 전용이다 — 제목·본문·캡션처럼
 문서 구조를 나타내는 텍스트에만 쓴다. 칩·뱃지·필드 라벨·헬퍼텍스트 같은 **UI 부품 텍스트**는 이 11단계에
@@ -97,7 +103,7 @@ canvas(뷰포트의 배경색 — 웹에선 body background. 프레임이 덮은
 (예: 모달 위 팝오버가 생기면 `--color-surface-overlay` 같은 상위 깊이로.)
 
 canvas ≠ gutter: canvas는 뷰포트 배경**색(면)**, gutter는 프레임 안 좌우 **여백(간격)** —
-gutter는 layout/frame-budget 유형이다. 플랫폼별 차이는 [layout-frames.md](layout-frames.md) §4 참조.
+gutter는 layout/frame-budget 유형이다.
 
 ## 4. on- 패턴 규범
 
@@ -118,3 +124,30 @@ tight(장식) < badge(작은 태그) < input/control(컨트롤) < card(컨테이
 ```
 
 동심원 규칙(SKILL.md 참조): 컨테이너 안 요소는 `max(0px, 바깥 radius − padding)`.
+
+## 6. 새 토큰 추가 절차
+
+semantic 층에 토큰을 추가할 때. (foundation 확장은 원료 자체가 없을 때만 — 드묾, 신중히.)
+
+### 6.1 자리 찾기
+
+§2 유형표에서 어느 유형·하위 유형인지 정한다.
+기존 토큰으로 커버되면 추가하지 않는다 (중복 별칭 금지).
+
+### 6.2 이름 짓기
+
+문법 `--{유형}-{역할}[-{변형}][-{상태}]` (§1).
+의도로 명명: `--color-info-text` ✓ / `--color-blue-text` ✗
+
+### 6.3 값 배선
+
+semantic 파일의 알맞은 섹션에 추가하되, **값은 반드시 foundation 변수 참조**.
+`var(--blue-300)` ✓ / `#64A8FF` ✗ — hex를 직접 쓰면 foundation 교체 시 안 따라간다.
+
+### 6.4 주석
+
+용처 한 줄 기록 (기존 파일의 주석 스타일 유지).
+
+### 6.5 검증
+
+빌드가 통과하는지 확인 (프로젝트의 빌드 명령은 AGENTS.md 참조).

@@ -2,7 +2,7 @@
 name: design-system
 description: 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론.
   화면·컴포넌트에 색/간격/글자/그림자를 적용할 때, CSS·토큰 파일을 만들거나 수정할 때,
-  새 컴포넌트·화면을 만들 때, 새 프로젝트에 토큰 시스템을 도입할 때 사용.
+  새 컴포넌트·화면을 만들 때, 새 프로젝트에 토큰 시스템을 도입할 때, 새 토큰을 추가할 때 사용.
 ---
 
 # 디자인 시스템 — 계층 아키텍처
@@ -63,7 +63,7 @@ git rev-parse --abbrev-ref HEAD
 **값(색·간격·모서리…)이 필요하다** (semantic-first)
 1. semantic에 의미가 맞는 토큰이 있나? → [references/naming-taxonomy.md](references/naming-taxonomy.md) 유형표로 탐색
 2. 있다 → 쓴다
-3. 없다 → semantic에 추가 → [references/add-a-token.md](references/add-a-token.md)
+3. 없다 → semantic에 추가 → [references/naming-taxonomy.md](references/naming-taxonomy.md) §6
 4. foundation에 원료 자체가 없다? → 그때만 foundation 확장 검토 (드묾, 신중히)
 
 ## 안티패턴
@@ -85,11 +85,10 @@ git rev-parse --abbrev-ref HEAD
 패딩 있는 컨테이너 안의 요소 모서리는 `max(0px, 바깥 radius − padding)`.
 (카드 안 버튼이 어색하게 각져 보이는 문제 방지. 하드코딩으로 어긋나게 하지 말 것.)
 
-## 상세 참조
+## 어느 문서를 언제 읽나
 
-- 토큰 명명 문법·유형표: [references/naming-taxonomy.md](references/naming-taxonomy.md)
-- 컴포넌트 역할·티어·어휘 규칙: [references/component-taxonomy.md](references/component-taxonomy.md)
-- 프레임·레이아웃 방법론: [references/layout-frames.md](references/layout-frames.md)
-- 새 토큰 추가 절차: [references/add-a-token.md](references/add-a-token.md)
-- 새 프로젝트 도입: [references/bootstrap-project.md](references/bootstrap-project.md)
-- 한글 웹폰트 로딩: [references/font-loading.md](references/font-loading.md)
+- **값(색·간격·모서리…) 이름을 정하거나 새 토큰을 추가할 때** — [naming-taxonomy.md](references/naming-taxonomy.md) (토큰 명명 문법·유형표 + 새 토큰 추가 절차)
+- **새 UI 컴포넌트를 만들거나 인벤토리에 등록할 때** — [component-taxonomy.md](references/component-taxonomy.md) (컴포넌트 역할·티어·어휘 규칙)
+- **새 화면·레이아웃을 설계할 때** — [layout-frames.md](references/layout-frames.md) (frame-first 절차, 셸 분류, 컨테이너 정책)
+- **폰트를 새로 넣거나 바꿀 때** — [font-loading.md](references/font-loading.md) (조각화·자체 호스팅 원리, Next.js 로딩 결정표, 빌드 검증 관문 3종)
+- **새 프로젝트에 도입할 때** — [bootstrap-project.md](references/bootstrap-project.md)를 순서대로 따른다. 이 절차는 도중에 세 문서를 함께 읽는다: 토큰 3층 단계에서 font-loading.md(폰트 선정·로딩 방식을 같이 정한다 — 미루면 foundation을 다시 갈아엎는다), 인벤토리 생성에서 component-taxonomy.md §6(인벤토리 한 줄 형식), 프레임 정의에서 layout-frames.md §4(웹·앱 통합이면 canvas·gutter 플랫폼 차이)
