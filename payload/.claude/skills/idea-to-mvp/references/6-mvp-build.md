@@ -125,6 +125,8 @@ description: MVP 빌드 단계 가이드. 4단계가 만든 리액트 프로토�
 docker info      # 정보가 나오면 준비된 것
 ```
 
+Docker Desktop이 꺼진 채로 `npx supabase status`/`start`를 돌리면 **원인을 알기 어려운 JSON 에러만 뱉는다** (실제 겪음 — 에러 어디에도 Docker 얘기가 없다). supabase 명령이 정체불명 에러를 내면 먼저 `docker info`를 돌려본다 — `docker.sock` 연결 오류면 데몬(daemon — 뒤에서 계속 도는 프로그램)이 꺼진 것이니, 맥은 `open -a Docker`로 켜고 `docker info`가 성공할 때까지 기다린 뒤 supabase 명령을 재시도한다. 재부팅 뒤에 특히 자주 겪는다.
+
 > Docker Desktop은 직원 250명 미만 **그리고** 연 매출 1000만 달러 미만이면 무료다. 넘는 조직에서 업무용으로 쓰면 유료 라이선스가 필요하다 (https://docs.docker.com/subscription/desktop-license/). 여기 걸리는 조직이면 공식 문서가 같이 적어둔 Rancher Desktop·Podman·OrbStack 중 하나를 쓴다.
 
 **② CLI는 전역이 아니라 프로젝트 개발 의존성으로 깐다**
@@ -215,6 +217,8 @@ Supabase 공식 문서가 원격(클라우드) DB에 대해 못 박는다:
 
 **실행 권한은 함수마다 이름과 인자를 적어 회수한다.** Postgres는 함수를 만들면 모두에게 실행 권한을 자동으로 주므로, `revoke execute on function 이름(인자…) from public, anon, authenticated;`로 거두지 않으면 비로그인 방문자도 그 함수를 부를 수 있다. **한 번에 막으려는 시도는 안 통한다** — `alter default privileges … revoke execute on functions from public`으로 앞으로 만들 함수까지 미리 막아도, Supabase 마이그레이션에서는 `pg_default_acl`에 줄만 들어가고 그 뒤에 만든 함수는 권한이 열린 채로 태어난다(`for role`을 붙여도 같다 — 재현해 확인한 동작). 실제로 이렇게 뚫린 함수를 비로그인 상태로 불러 데이터가 굳은 사고도 있었다.
 
+**함수의 인자 타입이 바뀌면 `create or replace`가 안 통한다** — 다른 시그니처(signature — 함수 이름과 인자 타입의 조합)의 새 함수가 하나 더 생길 뿐이라 `drop` → `create`를 해야 하는데, drop하면 그 함수에 걸어둔 grant까지 함께 사라져 클라이언트 호출이 통째로 죽는다 (grant 재발급을 빼먹어 기능이 통째로 죽은 실제 사고 있었음). 그래서 시그니처가 바뀌면 **한 마이그레이션 안에서 drop → create → 위 문단대로 실행 권한 회수(`revoke execute … from public, anon, authenticated`) → 클라이언트가 부르는 함수면 `grant execute … to authenticated`로 다시 열기까지 끝낸다.** drop 대상 시그니처는 로컬 파일이 아니라 **클라우드에 실제 있는 버전 기준**으로 적는다.
+
 여기서 회수한 권한이 클라우드에서도 실제로 걸리는지는 로컬로 확인이 안 된다 — 아래 ④에서 다시 본다.
 
 **③ 로컬에서 검증한다 — `db reset` 통과는 "문법이 맞다"까지다**
@@ -226,6 +230,8 @@ Supabase 공식 문서가 원격(클라우드) DB에 대해 못 박는다:
 | `supabase migration new <이름>` | 빈 마이그레이션 파일을 만든다 |
 | `supabase db reset` | 로컬 DB를 밀고 마이그레이션을 처음부터 다시 적용한다 |
 | `supabase db push` | 로컬 마이그레이션을 클라우드에 올린다 |
+
+**`db push --linked`가 EAUTHQUERY(`auth_query secret check timed out` / `unsupported secret format`) 류 서버 오류로 실패하면** CLI의 임시 역할 로그인이 서버 쪽에서 깨진 것이라 재시도로는 안 풀린다 [실측 1건: 8회 재시도 전부 실패]. `SUPABASE_DB_PASSWORD`를 `.env.local`(git 미추적)에 넣으면 CLI가 직접 연결로 우회해 통과한다. DB 비밀번호는 대시보드 어디서도 다시 볼 수 없고 Settings → Database에서 재설정만 된다 — 재설정했으면 ⑥의 깃허브 Secret(`SUPABASE_DB_PASSWORD`) 값도 같이 갱신한다.
 
 `db reset`은 **순서 문제·문법 오류를 드러내는 도구**고, 마이그레이션을 고쳐 가는 이 단계에선 여러 번 돌리게 된다. 쓰려면 로컬 스택이 떠 있어야 한다(`npx supabase start`). 같은 걸 클라우드에서 하면 느리고, 시험 데이터가 쌓인 뒤엔 되돌리는 비용도 커진다(⑧) — 그래서 고쳐 가며 반복하는 자리는 로컬이다.
 
@@ -366,6 +372,8 @@ npx supabase backups list --linked
 | 클라우드, 실사용자 데이터 있음 | 금지 | 무조건 덧붙이기 |
 
 전환 기준은 파일 개수나 날짜가 아니라 **"날아가면 아까운 데이터가 생겼을 때"**다. 시험용 데이터를 SQL로 만들어 두면(다시 채우는 게 명령 한 번이면 되면) 클라우드를 리셋하는 비용이 계속 싸게 유지돼서, 제자리 수정 단계를 훨씬 오래 끌고 갈 수 있다.
+
+표의 구간과 별개로 **파일 단위 기준이 하나 더 있다** — `npx supabase migration list --linked`로 클라우드에 민 파일인지 확인하고, **아직 안 민 파일은 설계가 바뀌면 새 장을 쌓지 말고 기존 파일을 고쳐 쓴다** [실측 1건: 같은 브랜치에서 설계가 두 번 바뀌어도 고쳐 쓰기로 마이그레이션을 2장으로 유지]. **이미 민 파일은 절대 고치지 않는다** — 고치면 이력이 어긋나 push가 실패한다. 예외는 위 표의 '자유' 구간에서 리셋을 같이 돌릴 때뿐이다(바로 위의 "제자리에서 고치고 리셋"이 그 경우다).
 
 #### 2.2.3 검색 노출(SEO) — 이 시점에 같이 한다
 
