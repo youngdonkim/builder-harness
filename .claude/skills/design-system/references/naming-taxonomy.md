@@ -63,6 +63,7 @@ semantic 층에 토큰을 추가할 때 따르는 규범. **기존 토큰의 이
 | shadow | 용도별 | `--shadow-fab/cta/sheet/card` | `--shadow-{용도}` |
 | motion | 이징·시간 | `--ease-standard` · `--duration-fast/base/slow` | `--ease-{느낌}` / `--duration-{속도}` |
 | typography/family | 글꼴 자체 | `--font-family-base`(본문 기본) · 필요시 `--font-family-brand`·`--font-family-mono` | `--font-family-{역할}` — 값은 foundation의 폰트 변수를 가리키는 별칭. 로딩 방법은 [font-loading.md](font-loading.md) |
+| typography/weight | 글자 굵기 | `--font-weight-regular`(400) · `-medium`(500) · `-bold`(700) | `--font-weight-{역할}` |
 | typography/scale | 글(prose) 전용 — 제목·본문·캡션 | `t1~t4`(제목) `h1~h2` `b1~b2` `c1~c2`·`label` | 스케일 이름은 시스템 규약으로 고정, 크기 값만 프로젝트별 교체. 11단계에 안 맞는 크기는 typography/component으로 |
 | typography/component | UI 부품 전용 — 칩·뱃지·필드라벨·헬퍼텍스트 등 prose 스케일에 안 맞는 크기 | `--font-size-chip` · `--font-size-field-label` | `--font-size-{부품/역할}` — §6 절차로 신규 추가 |
 
@@ -71,6 +72,14 @@ semantic 층에 토큰을 추가할 때 따르는 규범. **기존 토큰의 이
 억지로 맞추지 않는다 — 실무에서 제일 흔한 이탈 지점이 바로 여기서, 안 맞는 크기를 욱여넣거나 그냥
 magic-number px로 새 버린다. 부품 텍스트는 `typography/component` 유형으로 별도 토큰을 만든다
 (철칙 #2는 그대로 지키되, 스케일 이름만 부품 전용으로 분리하는 것).
+
+**글자 크기로 위계를 만들려고 계속 줄이지 않는다.** 사진·이미지 위 캡션을 제외한 모든 텍스트는
+14px 아래로 내려가지 않는다(가독성 바닥). 크기 단계가 좁아져 위계가 안 설 때는 크기를 더 쪼개는
+대신 `typography/weight`(400/500/700)와 `color/text` 위계(§2 — 기본/보조/희미처럼 3단 정도면
+대부분 충분하다)를 함께 써서 위계를 표현한다. 단 가장 옅은 단계도 배경과의 명도 대비는 4.5:1
+이상을 지킨다 — 위계를 만들려다 안 보이는 글자를 만들면 본말전도다. (근거: idea-to-mvp
+`2-sketch.md` — 스케치 단계 실사용 검증에서 나온 요건이지만, 크기·굵기·대비는 특정 단계가 아니라
+서비스 전체에 적용되는 타이포 규칙이라 여기 옮겨 적는다.)
 
 **기존 코드의 하드코딩 px 이관은 점진적으로.** 이미 px가 많은 코드베이스를 한 번에 토큰화하려 들지
 말 것 — 과설계 위험이 크고, 각 부품이 어느 역할 토큰에 맞는지 판정하는 데만도 큰 작업이 된다.
