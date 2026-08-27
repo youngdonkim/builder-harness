@@ -137,7 +137,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 | 종류 | 이름 | 역할 |
 |---|---|---|
-| 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · Sketch · MarketResearch · InformationArchitecture · FrontendBuild · MvpBuild · MvpLaunch (통과 기준) |
+| 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · Sketch · MarketResearch · InformationArchitecture · FrontendBuild · BackendBuild · MvpLaunch (통과 기준) |
 | 횡단 스킬 | `project-init` | 프로젝트에 하네스 적용 — `payload/`를 프로젝트 루트에 복사 + 훅 등록 설정 병합 + CLAUDE.md 뼈대 생성. 이미 적용된 프로젝트에서 재실행하면 최신 원본과 비교해 동기화 |
 | 횡단 스킬 | `new-task` | main 최신화 + 머지가 끝난 옛 작업 브랜치 정리 + 새 작업 브랜치 생성 |
 | 횡단 스킬 | `done-task` | 자동 저장 커밋 → 원격 올리기(push) → PR 생성 → (오너면) CI 통과 대기 → 합치기(merge) → 원격·로컬 브랜치 정리(로컬은 main으로 이동) 한 흐름. 팀원은 PR까지, 오너는 로컬 정리까지 |
