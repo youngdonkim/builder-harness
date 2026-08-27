@@ -28,7 +28,7 @@ preview URL·공유 링크·봇 prefetch·검색엔진·우연한 ID 추측 — 
 이 사이클이 가진 attack surface에 따라 적용 룰 0~다수:
 
 - **없음** (정적 사이트·외부 link redirect만) → 적용 0
-- **있음** (사용자 데이터·인증·업로드·DB·API) → prototype부터 baseline 박음. mvp 진화 시 자연 흡수.
+- **있음** (사용자 데이터·인증·업로드·DB·API) → 5단계(FrontendBuild)부터 baseline 박음. mvp 진화 시 자연 흡수.
 
 ### 영역별 baseline
 
