@@ -194,15 +194,7 @@ description: 6단계(BackendBuild)의 두 번째 하위 단계. 스키마를 만
 
 **근거는 "모든 프로젝트에 역할이 둘 이상 필요하다"가 아니다.** 그건 확인된 게 아니다. 근거는 **추가 부담이 작다**는 것이다 — 실제 부담은 RLS 규율(모든 표에 RLS·grant 회수·정책 4개로 쪼개기·테스트)인데, 그건 역할을 나누든 안 나누든 **공식이 요구하는 필수**다. 그 위에 역할 구조를 얹는 비용은 표 하나와 함수 하나뿐이다. **[우리 결정]**
 
-```sql
-create type app_role as enum ('operator');   -- 늘어나면 값만 추가
-create table user_roles (
-  user_id uuid references auth.users on delete cascade not null,
-  role app_role not null,
-  unique (user_id, role)
-);
-alter table user_roles enable row level security;   -- 이 표도 예외 없음
-```
+**만들 모양** — 역할은 enum 타입으로 만들고(늘어나면 값만 추가), 사용자-역할 매핑 표(`user_roles`)는 `auth.users` 외래 키에 `on delete cascade`, `(user_id, role)`에 unique를 건다. **이 표도 RLS 예외 없음.**
 
 ### 11.1 규칙 넷
 
@@ -212,36 +204,9 @@ alter table user_roles enable row level security;   -- 이 표도 예외 없음
 
 **규칙 3 — 정책은 신분이 아니라 권한 이름으로 묻는다.** ← **넷 중 제일 중요하다** **[우리 결정]**
 
-원칙과 이유는 `security-baseline.md` 2부에 있다. 여기선 실제로 만들 모양만 적는다.
+원칙과 이유는 `security-baseline.md` 2부에 있다. 여기선 우리가 정한 것만 적는다 — **판정 함수는 역할 이름이 아니라 권한 이름을 받아 예/아니오를 돌려준다**(`authorize('reports.resolve')` 꼴). 역할↔권한 매핑은 함수 안에 숨기고, 정책 문에는 신분이 아니라 그 권한 이름만 쓴다. 함수를 만들면 실행 권한을 모두에게서 회수하고 `authenticated`에만 다시 준다.
 
-```sql
--- 판정 함수: 권한 이름을 받아 예/아니오를 돌려준다
-create function public.authorize(required text) returns boolean
-language plpgsql stable security definer set search_path = ''
-as $$
-declare ok boolean;
-begin
-  select case required
-           when 'reports.resolve' then exists (
-             select 1 from public.user_roles
-             where user_id = (select auth.uid()) and role = 'operator'
-           )
-           else false
-         end into ok;
-  return coalesce(ok, false);
-end;
-$$;
-
-revoke execute on function public.authorize(text) from public;
-grant   execute on function public.authorize(text) to authenticated;
-
--- 정책: 문에 신분이 아니라 권한 이름을 쓴다
-create policy reports_resolve on public.reports
-  for update to authenticated
-  using ( (select public.authorize('reports.resolve')) );
-```
-
-**규칙 4 — 매핑은 함수 안 `case`로 시작하고, 관리가 필요해지면 표로 옮긴다.** 위 `case` 갈래를 `role_permissions` 표 조회로 바꾸는 건 `create or replace function` 하나다. **규칙 3을 지켰으면 이때 정책은 한 줄도 안 바뀐다.** **[우리 결정]**
+**규칙 4 — 매핑은 함수 안 `case`로 시작하고, 관리가 필요해지면 표로 옮긴다.** 함수 안 `case` 갈래를 `role_permissions` 표 조회로 바꾸는 건 `create or replace function` 하나다. **규칙 3을 지켰으면 이때 정책은 한 줄도 안 바뀐다.** **[우리 결정]**
 
 **바깥 모양(계약)은 처음부터 고정하고, 안쪽 구현은 자라게 둔다** — 이게 규칙 3·4의 요지다.
 
@@ -271,12 +236,7 @@ create policy reports_resolve on public.reports
 
 **④ 기본 키를 둘지 정한다.** `unique (user_id, role)`만으로도 동작하지만, 행을 하나씩 가리켜야 할 일(부여 취소 화면 등)이 생기면 대리 키가 필요하다. **미루기로 했으면 미룬다고 적어둔다.** **[우리 결정]**
 
-**⑤ ⚠ 불리언 컬럼에서 옮겨오는 경우, 데이터 이관을 같은 마이그레이션에 넣는다.** 구조만 바꾸고 기존 값을 안 옮기면 **권한이 통째로 사라지는데 에러가 안 난다.** **[우리 결정]**
-
-```sql
-insert into public.user_roles (user_id, role)
-select id, 'operator' from public.profiles where is_operator;
-```
+**⑤ ⚠ 불리언 컬럼에서 옮겨오는 경우, 데이터 이관을 같은 마이그레이션에 넣는다.** 구조만 바꾸고 기존 값을 안 옮기면 **권한이 통째로 사라지는데 에러가 안 난다.** 옛 불리언 컬럼이 참인 사람을 역할 표로 옮겨 넣는 문장을 같은 파일에 넣는다. **[우리 결정]**
 
 ## 12. 권한은 테스트로 고정한다
 
@@ -288,13 +248,7 @@ select id, 'operator' from public.profiles where is_operator;
 2. 역할 표가 **남에게 안 보이는가**
 3. 권한이 필요한 일이 **일반 회원에게 막히는가**
 
-**② 정체성 전환은 두 줄을 다 넣는다.** `auth.uid()` 구현이 버전에 따라 둘 중 하나를 보므로 둘 다 넣는 게 안전하다. **[우리 결정]**
-
-```sql
-set local role authenticated;
-set local request.jwt.claim.sub = '<uuid>';
-set local request.jwt.claims    = '{"sub":"<uuid>"}';
-```
+**② 정체성 전환은 두 꼴을 다 넣는다.** 테스트 안에서 `anon`·`authenticated` 역할로 전환해 실제 권한으로 질의하는데, 이때 사용자 식별자를 심는 자리가 둘이다 — 낱값 꼴(`request.jwt.claim.sub`)과 JSON 전체 꼴(`request.jwt.claims`). `auth.uid()` 구현이 버전에 따라 둘 중 하나를 보므로 둘 다 넣는 게 안전하다. **[우리 결정]**
 
 **③ ⚠ 거절 판정이 두 가지다 — 다르게 테스트해야 한다.** **[공식]**
 
@@ -305,12 +259,7 @@ set local request.jwt.claims    = '{"sub":"<uuid>"}';
 
 이걸 모르면 **통과하는데 아무것도 안 검사하는 테스트**가 된다. 에러를 기다리는 검사에 정책 거름을 물리면 영원히 초록불이다.
 
-**④ 문서에 "이 표는 공개"라고 적지 않는다 — 테스트가 그 기록이다.** **[우리 결정]** 글로 적으면 코드와 어긋나는 날이 온다. 테스트로 적어두면 실수로 닫았을 때 깨지고, 실수로 열어도 "공개 아님" 테스트가 깨진다.
-
-```sql
-set local role anon;
-select is(count(*), 8::bigint, '비로그인이 공개 프로젝트를 본다') from public.eggs;
-```
+**④ 문서에 "이 표는 공개"라고 적지 않는다 — 테스트가 그 기록이다.** **[우리 결정]** 글로 적으면 코드와 어긋나는 날이 온다. 테스트로 적어두면 실수로 닫았을 때 깨지고, 실수로 열어도 "공개 아님" 테스트가 깨진다. 모양은 `anon` 역할로 전환한 뒤 그 표의 행 개수가 기대값과 같은지 단언하는 pgTAP 한 줄이면 된다.
 
 > **⚠ 남은 숙제 — CI 연결은 별도 작업이다.** `supabase test db`(pgTAP)를 돌리는 단계가 **하네스 CI 워크플로에 아직 없다.** 규칙만 있고 실행 장치가 없으면 테스트가 안 돌아도 아무도 모른다. 이 프로젝트에서 테스트를 썼다면 **로컬에서 직접 돌려 통과를 확인**하고, CI에 붙이는 건 하네스 쪽 별도 작업으로 남겨둔다.
 
@@ -333,8 +282,4 @@ select is(count(*), 8::bigint, '비로그인이 공개 프로젝트를 본다') 
 
 **⑤ ⚠ `sessionStorage`는 쓰지 마라 — 탭 단위다.** **[실측 1건]** 모바일 인앱 브라우저처럼 OAuth가 새 탭이나 외부 앱으로 튀면 값이 통째로 사라진다. `localStorage`나 짧은 만료를 건 쿠키를 쓴다.
 
-**⑥ 돌아올 주소에서는 모달 파라미터만 지운다.** **[실측 1건]** `?modal=login`이 살아 돌아와 로그인 창이 다시 열리는 걸 막으려고 **쿼리 전체를 버리면 `?step=3` 같은 멀쩡한 화면 상태까지 잃는다.**
-
-```ts
-url.searchParams.delete(MODAL_PARAM);   // 이 한 줄이면 나머지 쿼리는 산다
-```
+**⑥ 돌아올 주소에서는 모달 파라미터만 지운다.** **[실측 1건]** `?modal=login`이 살아 돌아와 로그인 창이 다시 열리는 걸 막으려고 **쿼리 전체를 버리면 `?step=3` 같은 멀쩡한 화면 상태까지 잃는다.** 모달 파라미터 하나만 골라 지우면 나머지 쿼리는 산다.
