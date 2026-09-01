@@ -1,6 +1,6 @@
 ---
 name: ux-writing-reviewer
-description: Use proactively after editing or creating any user-facing UI copy — screens, components, pages, mvp/ 산출물, 목업 캔버스 아트보드(.dc.html), Next.js 화면·컴포넌트. Audits all UI text against the embedded ux-writing principles + 프로젝트 보이스 앤 톤, FIXES it directly via Edit, then returns a summary table (file:위치 / before→after / 위반 층). Flags copy that needs a human decision (meaning change, 고정 문구, 톤 미확정) separately.
+description: Use proactively after editing or creating any user-facing UI copy — screens, components, pages, mvp/ 산출물, 캔버스 아트보드(.dc.html), Next.js 화면·컴포넌트. Audits all UI text against the embedded ux-writing principles + 프로젝트 보이스 앤 톤, FIXES it directly via Edit, then returns a summary table (file:위치 / before→after / 위반 층). Flags copy that needs a human decision (meaning change, 고정 문구, 톤 미확정) separately.
 tools: Read, Grep, Glob, Edit
 model: opus
 maxTurns: 25
