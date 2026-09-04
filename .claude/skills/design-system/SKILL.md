@@ -80,6 +80,7 @@ git rev-parse --abbrev-ref HEAD
 | 상태색(danger/success)을 장식용으로 사용 | 상태색은 의미 전달에만 |
 | 글자 크기를 계속 줄여 위계 표현 (14px 밑으로) | 굵기(`typography/weight`)+명도(`color/text`) 위계로 표현, 가장 옅은 단계도 대비 4.5:1 유지 ([naming-taxonomy.md](references/naming-taxonomy.md)) |
 | 통짜 폰트 파일 로딩 / CDN `<link>`로 웹폰트 불러오기 | 조각화(unicode-range) + 자체 호스팅 ([references/font-loading.md](references/font-loading.md)) |
+| 하단 상시 요소(버튼 막대·입력창·탭바)를 화면에 붙여 띄우고 본문 끝을 어림 여백으로 비우기 | 셸 설계 때 하단 칸을 정하고 거기 흐름대로 — 스크롤은 본문 칸만 ([references/layout-frames.md](references/layout-frames.md) §2.2) |
 
 ## 동심원 radius 규칙
 
