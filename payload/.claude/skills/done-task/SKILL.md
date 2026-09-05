@@ -112,10 +112,10 @@ git log origin/main..HEAD --format='%H %s' | grep -E '^[0-9a-f]+ (wip: /simplify
   [결정 필요] src 코드 변경이 있어. ship 전에 simplify(재사용·단순화·효율 리뷰)를 거칠지 결정 필요해.
 
   선택지:
-  ① 메인 세션에서 /simplify 돌린 뒤 재호출
-     — 표식은 auto-wip-commit 훅이 알아서 남겨. 고친 게 있으면 `wip: /simplify …`,
-       고칠 게 없어 변경이 안 생겼으면 `wip: /simplify — 변경 없음` 빈 커밋으로.
-       사람이 손으로 커밋을 칠 일은 없어.
+  ① 메인 세션에서 /simplify 돌린 뒤 재호출 — 사용자가 직접 치든 클로드가 Skill 도구로
+     부르든 훅이 표식을 남긴다. 고친 게 있으면 `wip: /simplify …`,
+     고칠 게 없어 변경이 안 생겼으면 `wip: /simplify — 변경 없음` 빈 커밋으로.
+     사람이 손으로 커밋을 칠 일은 없어.
   ② 스킵하고 바로 ship
 
   재호출 예시: `/done-task 스킵`

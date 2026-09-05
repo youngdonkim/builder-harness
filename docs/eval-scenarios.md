@@ -33,3 +33,4 @@
 | 21 | 그록 지시를 명령줄 인자로 넣어 셸이 내용을 훼손 (조용히 깨짐) | `grok-delegation` §어떻게 부르나 (파일/heredoc만) | 위임 호출법을 고칠 때 인자 금지가 남아 있나? |
 | 22 | 판올림 문서에 변경 주석이 쌓여 완결성 붕괴 (사용자 직접 지시) | `AGENTS.md.template` 판올림 규칙 + `user-scenario-writer` 작법 규칙 | 산출물 규칙을 고칠 때 "매 판 완결" 원칙이 남아 있나? |
 | 23 | 하단 막대를 화면에 붙이고 본문 끝을 어림 여백으로 비움 — 화면마다 가려지거나 비어 셸 재작업 (Cheklist 2026-09-05) | `design-system` `layout-frames.md` §2.2 + SKILL.md 안티패턴 표 + `bootstrap-project.md` §4 | 셸·레이아웃 규칙을 고칠 때 "하단 자리는 셸 설계 시점에" 원칙이 남아 있나? |
+| 24 | 클로드가 Skill 도구로 부른 /simplify는 표식이 안 남아 done-task 게이트가 검토한 브랜치를 또 막음 (Cheklist 2026-09-05) | `auto-wip-commit.sh` tool_use 감지 경로 (수정 이력 주석 2026-09-05 항목) | 훅의 힌트 추출을 고칠 때 세 경로(슬래시 명령·Skill 호출·평문)와 우선순위가 유지되나? |
