@@ -85,6 +85,9 @@ src/styles/
 frame-first로 셸·영역·크기 예산을 먼저 정하고, 예산은 layout/frame-budget 토큰으로 박는다.
 웹·앱 통합 개발이면 canvas·gutter의 플랫폼별 차이까지 이때 결정한다
 ([layout-frames.md](layout-frames.md) §4).
+화면 아래에 늘 보여야 하는 요소(주 동작 버튼 막대·탭바 등)의 자리도 이때 정한다 —
+공통 셸은 하단 고정 요소가 아직 없어도 헤더/본문/하단 세 칸으로 시작한다
+([layout-frames.md](layout-frames.md) §2.2).
 
 ## 5. AGENTS.md에 프로젝트 연결 정보(adapter) 기록
 

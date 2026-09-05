@@ -32,3 +32,4 @@
 | 20 | OAuth 왕복에서 `sessionStorage` 값 유실 (인앱 브라우저) | `6-2-backend-auth.md` §13 ⑤ | 세션 절차를 다듬을 때 이 금지가 남아 있나? |
 | 21 | 그록 지시를 명령줄 인자로 넣어 셸이 내용을 훼손 (조용히 깨짐) | `grok-delegation` §어떻게 부르나 (파일/heredoc만) | 위임 호출법을 고칠 때 인자 금지가 남아 있나? |
 | 22 | 판올림 문서에 변경 주석이 쌓여 완결성 붕괴 (사용자 직접 지시) | `AGENTS.md.template` 판올림 규칙 + `user-scenario-writer` 작법 규칙 | 산출물 규칙을 고칠 때 "매 판 완결" 원칙이 남아 있나? |
+| 23 | 하단 막대를 화면에 붙이고 본문 끝을 어림 여백으로 비움 — 화면마다 가려지거나 비어 셸 재작업 (Cheklist 2026-09-05) | `design-system` `layout-frames.md` §2.2 + SKILL.md 안티패턴 표 + `bootstrap-project.md` §4 | 셸·레이아웃 규칙을 고칠 때 "하단 자리는 셸 설계 시점에" 원칙이 남아 있나? |
