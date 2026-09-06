@@ -75,6 +75,21 @@
 #   `git commit --allow-empty -m "chore: simplify 반영"`을 손으로 쳐야 했다.
 #   → /simplify 턴인데 커밋할 변경이 없으면 훅이 빈 표식 커밋을 자동으로 남긴다.
 #     /simplify 턴에만 좁게 건다 — 모든 턴으로 넓히면 변경 없는 턴마다 빈 커밋이 쌓인다.
+#
+# 클로드가 Skill 도구로 부른 /simplify도 표식으로 남기기 (2026-09-05, 실사고 Cheklist 프로젝트):
+#   사용자가 "simplify 돌려줘"처럼 평문으로 시키고 클로드(메인 세션)가 Skill 도구로
+#   /simplify를 부르면, 그 호출은 assistant 줄의 tool_use 블록으로만 남는다 —
+#   사람이 친 메시지엔 <command-name> 태그가 없다. 위 2026-08-05·08-20 두 수정은 전부
+#   "type: user" 메시지에서 힌트를 뽑는 경로라 이 경우를 못 본다. 그러면 힌트가
+#   "simplify 돌려줘" 평문이 되어 done-task의 simplify 게이트가 표식을 못 알아보고
+#   계속 막는 사고가 났다. (2026-08-05 "슬래시 명령 힌트 살리기", 2026-08-20
+#   "스킬 재호출 힌트 살리기"와 같은 계열의 세 번째 사고.)
+#   → 마지막 사람 메시지 이후의 assistant tool_use 중 Skill simplify 호출이 있으면
+#     그걸 `/simplify`(+args) 힌트로 쓴다. 우선순위는 슬래시 명령(기존 경로) > 이
+#     Skill 호출 경로 > 기존 평문 폴백 순 — 마지막 사람 메시지가 슬래시 명령이면
+#     그게 여전히 이긴다. 이전 턴의 호출이 섞이지 않도록 반드시 "마지막 사람 메시지
+#     이후"로 좁힌다. 한 턴에 simplify를 돌리고 다른 파일까지 손대면 전부 한 커밋에
+#     묶이는 건 사람이 직접 칠 때와 같은 성질이라 새 문제로 다루지 않는다.
 
 set -uo pipefail
 
@@ -245,20 +260,72 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
     # read는 IFS 설정과 무관하게 개행에서 한 줄을 끊어버리므로 -d ''로 그 동작을 끄고
     # \x1e만 구분자로 쓴다 — 메시지 내부의 진짜 줄바꿈이 잘리는 걸 막기 위함.
     IFS=$'\x1e' read -r -d '' -a _candidates <<< "$joined"
-    # 뒤(최신)에서부터 앞으로 훑으며 하네스 산물이 아닌 첫 메시지를 찾는다.
-    # 슬래시 명령 턴이면 명령 이름을 우선 힌트로 쓰고, 아니면 기존대로
-    # strip_harness_tags 결과가 비어있지 않고 '<'로 시작하지 않을 때 그걸 쓴다.
-    for (( idx = ${#_candidates[@]} - 1; idx >= 0; idx-- )); do
-      if slash=$(extract_slash_command "${_candidates[idx]}"); then
-        raw="$slash"
-        break
+
+    # 마지막 사람 메시지(_candidates 맨 끝)가 이미 슬래시 명령 턴이면 그게 최우선이다 —
+    # 아래 기존 루프의 첫 반복(idx=마지막)이 알아서 잡으므로 이 경로는 건드리지 않는다.
+    # 아닐 때만 "그 뒤 assistant tool_use에 Skill simplify 호출이 있는지"를 본다.
+    last_idx=$(( ${#_candidates[@]} - 1 ))
+    boundary_is_slash=false
+    if [ "$last_idx" -ge 0 ] && extract_slash_command "${_candidates[$last_idx]}" >/dev/null 2>&1; then
+      boundary_is_slash=true
+    fi
+
+    skill_hint=""
+    if [ "$boundary_is_slash" = false ]; then
+      # transcript 전체에서 "마지막 user(문자열 content) 메시지"의 위치보다 뒤에 있는
+      # assistant tool_use만 본다 — 이전 턴의 Skill 호출이 섞이면 안 되기 때문이다.
+      skill_check=$(jq -n -c '
+        ([inputs]) as $all
+        | ($all | to_entries
+            | map(select(.value.type == "user" and (.value.message.content | type) == "string")))
+          as $users
+        | if ($users | length) == 0 then {found: false}
+          else
+            ($users[-1].key) as $bi
+            | ([ $all[($bi + 1):][]
+                | select(.type == "assistant" and (.message.content | type) == "array")
+                | .message.content[]?
+                | select(.type == "tool_use" and .name == "Skill" and .input.skill == "simplify")
+                | (.input.args // "")
+              ]) as $matches
+            | if ($matches | length) == 0 then {found: false}
+              else {found: true, args: $matches[-1]}
+              end
+          end
+      ' "$TRANSCRIPT_PATH" 2>/dev/null || true)
+
+      if [ -n "${skill_check:-}" ]; then
+        skill_found=$(printf '%s' "$skill_check" | jq -r '.found // false' 2>/dev/null || echo false)
+        if [ "$skill_found" = "true" ]; then
+          # 같은 턴에 Skill simplify 호출이 여러 번이면 $matches[-1]이 마지막 것을 골랐다.
+          skill_args=$(printf '%s' "$skill_check" | jq -r '.args // empty' 2>/dev/null || true)
+          if [ -n "$skill_args" ]; then
+            skill_hint="/simplify $skill_args"
+          else
+            skill_hint="/simplify"
+          fi
+        fi
       fi
-      cleaned=$(strip_harness_tags "${_candidates[idx]}")
-      if [ -n "$cleaned" ] && [[ "$cleaned" != "<"* ]]; then
-        raw="$cleaned"
-        break
-      fi
-    done
+    fi
+
+    if [ -n "$skill_hint" ]; then
+      raw="$skill_hint"
+    else
+      # 뒤(최신)에서부터 앞으로 훑으며 하네스 산물이 아닌 첫 메시지를 찾는다.
+      # 슬래시 명령 턴이면 명령 이름을 우선 힌트로 쓰고, 아니면 기존대로
+      # strip_harness_tags 결과가 비어있지 않고 '<'로 시작하지 않을 때 그걸 쓴다.
+      for (( idx = ${#_candidates[@]} - 1; idx >= 0; idx-- )); do
+        if slash=$(extract_slash_command "${_candidates[idx]}"); then
+          raw="$slash"
+          break
+        fi
+        cleaned=$(strip_harness_tags "${_candidates[idx]}")
+        if [ -n "$cleaned" ] && [[ "$cleaned" != "<"* ]]; then
+          raw="$cleaned"
+          break
+        fi
+      done
+    fi
   fi
 
   if [ -n "$raw" ]; then
