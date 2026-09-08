@@ -34,3 +34,4 @@
 | 22 | 판올림 문서에 변경 주석이 쌓여 완결성 붕괴 (사용자 직접 지시) | `AGENTS.md.template` 판올림 규칙 + `user-scenario-writer` 작법 규칙 | 산출물 규칙을 고칠 때 "매 판 완결" 원칙이 남아 있나? |
 | 23 | 하단 막대를 화면에 붙이고 본문 끝을 어림 여백으로 비움 — 화면마다 가려지거나 비어 셸 재작업 (Cheklist 2026-09-05) | `design-system` `layout-frames.md` §2.2 + SKILL.md 안티패턴 표 + `bootstrap-project.md` §4 | 셸·레이아웃 규칙을 고칠 때 "하단 자리는 셸 설계 시점에" 원칙이 남아 있나? |
 | 24 | 클로드가 Skill 도구로 부른 /simplify는 표식이 안 남아 done-task 게이트가 검토한 브랜치를 또 막음 (Cheklist 2026-09-05) | `auto-wip-commit.sh` tool_use 감지 경로 (수정 이력 주석 2026-09-05 항목) | 훅의 힌트 추출을 고칠 때 세 경로(슬래시 명령·Skill 호출·평문)와 우선순위가 유지되나? |
+| 25 | 회사 프로젝트인데 gh 활성 계정이 개인 — 첫 push·첫 배포가 조용히 개인 계정에 저장소·Vercel 프로젝트를 만듦, 6-0에서야 발견 (damangochi 2026-09-08) | `AGENTS.md.template` 검문 규칙(처음 생기는 순간마다) + `done-task` §1-0 계정 검문 + `5-frontend-build.md` §2.6 배포 검문 + `6-0-backend-prep.md` §2·§3.4 | 리소스가 처음 생기는 관문(push·배포·6-0·콘솔)마다 표 대조가 남아 있고, 기대 결과가 "만들지 않고 멈춰 보고"인가? |
