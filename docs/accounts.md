@@ -17,26 +17,32 @@
 | 서비스 | 계정 | 확인 명령 |
 |---|---|---|
 | GitHub | (입력 — 예: `계정이름` (이메일)) | `gh auth status` |
+| 커밋 작성자 (git) | (입력 — 이름 (이메일)) | 저장소에서 `git config user.email` |
 | Google (GCP 콘솔·OAuth) | (입력 — 이메일) | 콘솔 오른쪽 위 프로필 |
 | 카카오 developers | (입력 — 이메일) | developers.kakao.com 오른쪽 위 프로필 |
 | Supabase 조직 | (입력 — 조직 (이메일)) | `npx supabase orgs list` |
 | Vercel 팀·계정 | (입력 — 계정 (이메일)) | `vercel whoami` |
 | AI 제공사 키 | (입력 — 이메일) | 각 콘솔 프로필 |
+| Aside 브라우저 프로필 | (입력 — 예: u0) | `aside account list` |
 
 ## 회사
 
 | 서비스 | 계정 | 확인 명령 |
 |---|---|---|
 | GitHub | (입력 — 예: `계정이름` (이메일)) | `gh auth status` |
+| 커밋 작성자 (git) | (입력 — 이름 (이메일)) | 저장소에서 `git config user.email` |
 | Google (GCP 콘솔·OAuth) | (입력 — 이메일) | 콘솔 오른쪽 위 프로필 |
 | 카카오 developers | (입력 — 이메일) | developers.kakao.com 오른쪽 위 프로필 |
 | Supabase 조직 | (입력 — 조직 (이메일)) | `npx supabase orgs list` |
 | Vercel 팀·계정 | (입력 — 계정 (이메일)) | `vercel whoami` |
 | AI 제공사 키 | (입력 — 이메일) | 각 콘솔 프로필 |
+| Aside 브라우저 프로필 | (입력 — 예: u0) | `aside account list` |
 
 ## 계정 바꾸는 법 (CLI는 하나만 기억한다)
 
-- **gh** — 계정을 여러 개 등록해 두고 전환한다: `gh auth login`(추가) → `gh auth switch --user <계정>`. 프로젝트를 옮겨 다닐 때마다 `gh auth status`의 Active account를 본다.
-- **Vercel** — `vercel login`은 마지막 로그인만 남는다. 프로젝트 폴더의 `.vercel/project.json`이 어느 팀(orgId)에 묶였는지가 정본이고, 명령마다 `--scope <팀>`으로 못 박을 수 있다.
+- **gh** — 계정을 여러 개 등록해 두고 전환한다: `gh auth login`(추가) → `gh auth switch --user <계정>`. 프로젝트를 옮겨 다닐 때마다 `gh auth status`의 Active account를 본다 — 전환은 전역이라 다른 소유의 프로젝트를 오간 뒤 특히.
+- **GitHub SSH 키** — 키 하나는 한 계정에만 등록된다. 소유가 다른 저장소가 한 컴퓨터에 있으면 계정별 키를 따로 두고, ssh 설정의 호스트 별칭으로 저장소 원격 주소에 어느 키를 쓸지 박아 둔다 — 별칭 규약: `github.com-<소유자 태그>`. 설정 방법은 그때 공식 문서로. (실사고: 개인 키로 회사 저장소 push 거부 — 키를 옮기면 반대쪽이 막힌다.)
+- **Vercel** — `vercel login`은 마지막 로그인만 남는다. 프로젝트 폴더의 `.vercel/project.json`이 어느 팀(orgId)에 묶였는지가 정본이고, 명령마다 `--scope <팀>`으로 못 박을 수 있다. **다른 계정 세션이 살아 있는 채로 GitHub/Google 로그인을 누르면 "로그인"이 아니라 "현재 계정에 그 로그인 수단 연결"이 된다** — 로그아웃이 실제로 됐는지(로그인 폼이 뜨는지) 확인한 뒤 로그인한다. (실사고: 회사 Vercel 계정에 개인 GitHub이 연결돼 끊어야 했다.)
 - **Supabase** — `npx supabase login`도 덮어쓰기다. 맥은 `security find-generic-password -s "Supabase CLI"`로 지금 누구인지 본다. 프로젝트 `supabase/.temp/project-ref`가 어느 조직 것인지가 정본.
 - **브라우저 콘솔(Google·카카오·Supabase 대시보드)** — 아이디가 아니라 **오른쪽 위 프로필의 이메일**로 판단한다. 여러 계정이 동시에 로그인돼 있으면 마지막에 쓴 계정이 기본으로 열린다 — 콘솔 주소의 `authuser=` 값이나 프로필 전환으로 바꾼다.
+- **Aside(브라우저 에이전트)** — 계정(프로필)마다 로그인·쿠키가 따로다. 개인/회사 콘솔 로그인 세트를 프로필로 갈라 두고(표의 「Aside 브라우저 프로필」 행), 브라우저 작업은 그 프로필을 지정해 돌린다. 기본 프로필을 전환해 두는 방식은 쓰지 않는다 — 다음 프로젝트에서 반대 계정으로 도는 사고가 난다.
