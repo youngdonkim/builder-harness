@@ -4,29 +4,35 @@
 
 이 파일은 `payload/` 바깥이라 프로젝트에 복사되지 않는다. 프로젝트에는 자기 소유자의 세트만 들어간다.
 
-**성격: 사람이 관리하는 데이터 파일이다** — 템플릿(placeholder 채워 복사되는 것)도, 그냥 참고 문서도 아니다. 값 갱신은 사람이 직접 하고, AI는 `project-init`(표 채울 때)과 idea-to-mvp `6-0-backend-prep.md`(계정 대조·확정 문안 만들 때)가 경로를 콕 집어 지시하는 시점에 읽는다. docs/에 있어서 매 세션 자동 로드되지는 않지만, 스킬이 명시 경로로 읽으니 필요한 순간엔 반드시 열린다.
+**성격: 하네스 사용자가 자기 계정으로 직접 채우는 데이터 파일이다** — 템플릿(placeholder 채워 프로젝트로 복사되는 것)도, 그냥 참고 문서도 아니다. 하네스는 여러 사람이 쓰는 범용이라 **이 저장소에는 누구의 실제 계정도 미리 적혀 있지 않다** — 각자 자기 clone에서 아래 `(입력)` 칸을 채워 쓴다. AI는 `project-init`(표 채울 때)과 idea-to-mvp `6-0-backend-prep.md`(계정 대조·확정 문안 만들 때)가 경로를 콕 집어 지시하는 시점에 읽는다. docs/에 있어서 매 세션 자동 로드되지는 않지만, 스킬이 명시 경로로 읽으니 필요한 순간엔 반드시 열린다.
+
+## 채우는 법
+
+- **첫 프로젝트를 시작하기 전에 미리 채워 둔다.** 안 채워 두면 project-init이 프로젝트마다 계정을 새로 묻게 되고, 잘못 로그인된 계정으로 리소스가 만들어지는 사고(6-0 실사고)를 명부가 막아 주지 못한다.
+- **개인/회사를 구분할 필요가 없으면**(모든 프로젝트를 같은 계정으로 만들면) **「개인」 표만 채운다.** 회사 표는 `(입력)` 그대로 두면 되고, project-init의 소유 질문에는 늘 "개인"으로 답하면 된다.
+- 아직 확실하지 않은 칸은 `(확인 필요)`로 바꿔 두면 된다 — 6단계 준비(6-0)에서 실제 계정이 확정될 때 채우라는 문안이 돌아온다.
 
 ## 개인
 
 | 서비스 | 계정 | 확인 명령 |
 |---|---|---|
-| GitHub | `youngdonkim` (ydkim108@gmail.com) | `gh auth status` |
-| Google (GCP 콘솔·OAuth) | ydkim108@gmail.com | 콘솔 오른쪽 위 프로필 |
-| 카카오 developers | (확인 필요) | developers.kakao.com 오른쪽 위 프로필 |
-| Supabase 조직 | (확인 필요) | `npx supabase orgs list` |
-| Vercel 팀·계정 | (확인 필요) | `vercel whoami` |
-| AI 제공사 키 | (확인 필요) | 각 콘솔 프로필 |
+| GitHub | (입력 — 예: `계정이름` (이메일)) | `gh auth status` |
+| Google (GCP 콘솔·OAuth) | (입력 — 이메일) | 콘솔 오른쪽 위 프로필 |
+| 카카오 developers | (입력 — 이메일) | developers.kakao.com 오른쪽 위 프로필 |
+| Supabase 조직 | (입력 — 조직 (이메일)) | `npx supabase orgs list` |
+| Vercel 팀·계정 | (입력 — 계정 (이메일)) | `vercel whoami` |
+| AI 제공사 키 | (입력 — 이메일) | 각 콘솔 프로필 |
 
 ## 회사
 
 | 서비스 | 계정 | 확인 명령 |
 |---|---|---|
-| GitHub | `kyd-allianceinternet` (kimyoungdon@allianceinternet.co.kr) | `gh auth status` |
-| Google (GCP 콘솔·OAuth) | kimyoungdon@allianceinternet.co.kr | 콘솔 오른쪽 위 프로필 |
-| 카카오 developers | (확인 필요) | developers.kakao.com 오른쪽 위 프로필 |
-| Supabase 조직 | (확인 필요) | `npx supabase orgs list` |
-| Vercel 팀·계정 | (확인 필요) | `vercel whoami` |
-| AI 제공사 키 | (확인 필요) | 각 콘솔 프로필 |
+| GitHub | (입력 — 예: `계정이름` (이메일)) | `gh auth status` |
+| Google (GCP 콘솔·OAuth) | (입력 — 이메일) | 콘솔 오른쪽 위 프로필 |
+| 카카오 developers | (입력 — 이메일) | developers.kakao.com 오른쪽 위 프로필 |
+| Supabase 조직 | (입력 — 조직 (이메일)) | `npx supabase orgs list` |
+| Vercel 팀·계정 | (입력 — 계정 (이메일)) | `vercel whoami` |
+| AI 제공사 키 | (입력 — 이메일) | 각 콘솔 프로필 |
 
 ## 계정 바꾸는 법 (CLI는 하나만 기억한다)
 
