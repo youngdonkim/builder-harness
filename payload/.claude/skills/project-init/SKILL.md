@@ -29,7 +29,7 @@ description: 프로젝트에 builder-harness 하네스를 파일 복사로 적�
 
    이 저장소는 비공개(private — 외부에 공개되지 않은 저장소)라 https 주소로는 인증이 막힌다. GitHub 계정에 SSH 키가 등록돼 있어야 clone된다.
 
-   **사용자가 하네스 소유자가 아니고 독자적으로 쓰려는 사람이면 clone이 아니라 fork부터 안내한다** — 계정 명부(`docs/accounts.md`)를 자기 계정으로 채워 커밋해야 해서 자기 소유 저장소가 필요하다 (이유는 하네스 README §5.1).
+   **clone 주소는 프로젝트에 스탬프(`.claude/harness-version`)가 있으면 거기 적힌 `repo=` 값이 먼저다** — fork로 쓰는 사용자면 그게 자기 fork 주소라서다. 스탬프가 없을 때만 위 기본 주소를 쓴다.
 
 ### 원본 검증 (필수 — 건너뛰지 않는다)
 
