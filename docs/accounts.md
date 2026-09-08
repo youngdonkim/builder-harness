@@ -4,12 +4,15 @@
 
 이 파일은 `payload/` 바깥이라 프로젝트에 복사되지 않는다. 프로젝트에는 자기 소유자의 세트만 들어간다.
 
+**성격: 사람이 관리하는 데이터 파일이다** — 템플릿(placeholder 채워 복사되는 것)도, 그냥 참고 문서도 아니다. 값 갱신은 사람이 직접 하고, AI는 `project-init`(표 채울 때)과 idea-to-mvp `6-0-backend-prep.md`(계정 대조·확정 문안 만들 때)가 경로를 콕 집어 지시하는 시점에 읽는다. docs/에 있어서 매 세션 자동 로드되지는 않지만, 스킬이 명시 경로로 읽으니 필요한 순간엔 반드시 열린다.
+
 ## 개인
 
 | 서비스 | 계정 | 확인 명령 |
 |---|---|---|
 | GitHub | `youngdonkim` (ydkim108@gmail.com) | `gh auth status` |
 | Google (GCP 콘솔·OAuth) | ydkim108@gmail.com | 콘솔 오른쪽 위 프로필 |
+| 카카오 developers | (확인 필요) | developers.kakao.com 오른쪽 위 프로필 |
 | Supabase 조직 | (확인 필요) | `npx supabase orgs list` |
 | Vercel 팀·계정 | (확인 필요) | `vercel whoami` |
 | AI 제공사 키 | (확인 필요) | 각 콘솔 프로필 |
@@ -20,6 +23,7 @@
 |---|---|---|
 | GitHub | `kyd-allianceinternet` (kimyoungdon@allianceinternet.co.kr) | `gh auth status` |
 | Google (GCP 콘솔·OAuth) | kimyoungdon@allianceinternet.co.kr | 콘솔 오른쪽 위 프로필 |
+| 카카오 developers | (확인 필요) | developers.kakao.com 오른쪽 위 프로필 |
 | Supabase 조직 | (확인 필요) | `npx supabase orgs list` |
 | Vercel 팀·계정 | (확인 필요) | `vercel whoami` |
 | AI 제공사 키 | (확인 필요) | 각 콘솔 프로필 |
