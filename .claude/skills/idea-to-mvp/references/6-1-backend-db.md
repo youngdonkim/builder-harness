@@ -213,7 +213,7 @@ Supabase 공식 문서가 원격(클라우드) DB에 대해 못 박는다:
 
 흐름은 이렇다: **마이그레이션 파일 작성 → 로컬에서 리셋(래퍼가 있으면 래퍼로 — 아래) → 함수를 실제로 불러 보기 → 클라우드에 `db push` → 클라우드에서 확인(§4.4)**
 
-**`db push --linked`가 EAUTHQUERY(`auth_query secret check timed out` / `unsupported secret format`) 류 서버 오류로 실패하면** CLI의 임시 역할 로그인이 서버 쪽에서 깨진 것이라 재시도로는 안 풀린다 [실측 1건: 8회 재시도 전부 실패]. `SUPABASE_DB_PASSWORD`를 `.env.local`(git 미추적)에 넣으면 CLI가 직접 연결로 우회해 통과한다. DB 비밀번호는 대시보드에서 다시 볼 수 없고 재설정만 되니, 재설정했으면 §4.6의 깃허브 Secret(`SUPABASE_DB_PASSWORD`) 값도 같이 갱신한다.
+**`db push --linked`가 EAUTHQUERY(`auth_query secret check timed out` / `unsupported secret format`) 류 서버 오류로 실패하면** CLI의 임시 역할 로그인이 서버 쪽에서 깨진 것이라 재시도로는 안 풀린다 [실측 1건: 8회 재시도 전부 실패]. `SUPABASE_DB_PASSWORD`를 CLI 전용 깃 미추적 파일(`AGENTS.md` 「소유와 계정」의 보관 원칙 — `.env.local`은 환경변수 내려받기가 통째로 덮어쓴다)에 넣어 CLI가 읽게 하면 직접 연결로 우회해 통과한다. DB 비밀번호는 대시보드에서 다시 볼 수 없고 재설정만 되니, 재설정했으면 §4.6의 깃허브 Secret(`SUPABASE_DB_PASSWORD`) 값도 같이 갱신한다.
 
 > **이건 그때 그렇게 겪었다는 사고 기록이다.** 오류 이름·대시보드 메뉴 위치는 Supabase 쪽 사정이라 바뀌었을 수 있다 — 같은 증상을 만나면 이 우회를 먼저 시도해 보되, 오류 문구가 다르거나 안 통하면 공식 문서에서 지금 방식을 확인한다.
 
