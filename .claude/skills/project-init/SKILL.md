@@ -27,7 +27,7 @@ description: 프로젝트에 builder-harness 하네스를 파일 복사로 적�
    git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
    ```
 
-   이 저장소는 비공개(private — 외부에 공개되지 않은 저장소)라 https 주소로는 인증이 막힌다. GitHub 계정에 SSH 키가 등록돼 있어야 clone된다.
+   이 저장소는 공개다. 위 SSH 주소를 쓰려면 GitHub 계정에 SSH 키가 등록돼 있어야 하고, 키가 없으면 https 주소로 받아도 된다.
 
    **clone 주소는 프로젝트에 스탬프(`.claude/harness-version`)가 있으면 거기 적힌 `repo=` 값이 먼저다** — fork로 쓰는 사용자면 그게 자기 fork 주소라서다. 스탬프가 없을 때만 위 기본 주소를 쓴다.
 
