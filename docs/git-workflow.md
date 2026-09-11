@@ -20,7 +20,7 @@ new-task → 작업 → done-task → new-task → 작업 → ...
 - **작업**: 코드를 고치는 동안, 응답이 끝날 때마다 `auto-wip-commit` 훅이 변경된 파일을
   자동으로 `wip: ...` 커밋으로 저장해. **main 브랜치에서는 이 훅이 안 돌아** — main을
   wip 커밋으로 더럽히지 않으려는 안전장치야. 그래서 wip 커밋은 항상 feature 브랜치에만 쌓인다.
-- **`done-task`**: 쌓인 wip 커밋들을 push하고, PR(코드 합치기 요청)을 만들고, 머지
+- **`done-task`**: 안에서 simplify 판단을 먼저 하고, git 절차는 내부 스킬 ship-task(fork)에 넘긴다 — 네가 부르는 이름은 여전히 done-task뿐이다. 그 절차가 쌓인 wip 커밋들을 push하고, PR(코드 합치기 요청)을 만들고, 머지
   권한이 있으면 CI(자동 검사 — push된 코드가 빌드·린트를 통과하는지 GitHub이 자동으로
   돌려보는 것)가 끝날 때까지 기다렸다가, 통과했을 때만 **뭉쳐서 합치기(squash merge)**
   — PR 안의 여러 커밋을 하나로 뭉쳐서 main에 합치는 방식 — 로 main에 반영해. 그다음

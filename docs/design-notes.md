@@ -44,3 +44,14 @@ SKILL.md에는 규칙 문장(코드에서 상태 변형을 확인한다)만 남�
 
 - **왜 GitHub squash인가 (local squash 아님)** → `payload/docs/git-workflow.md` §2 "왜 뭉쳐서 합치기(squash merge)인가"
 - **왜 리베이스가 아니라 합치기인가 (근거 1·2·3 + 옛 규칙 변천사)** → `payload/docs/git-workflow.md` §8.3 "다른 사람 PR이 먼저 들어갔을 때 — 조건부 합치기(merge)"
+
+---
+
+## done-task를 「판단(메인)」과 「ship(fork)」으로 분리 (2026-09-11)
+
+`done-task`는 원래 본문 전체가 `context: fork`(git-flow 서브에이전트)에서 돌았다. 두 문제가 있었다.
+
+1. fork 안에는 Skill 도구가 없어 `/simplify`를 못 돌린다 — `src/`를 고친 브랜치는 simplify 게이트에서 [결정 필요]로 멈추고, 메인이 `/simplify`를 돌린 뒤 다시 불러야 해서 매번 두 번 왕복이었다.
+2. "보내줘를 들으면 ship 전에 simplify 판단부터"가 스킬 본문의 "권장 순서"로만 있어, 하네스를 받은 다른 프로젝트에서 같은 동작이 보장되지 않았다.
+
+그래서 둘로 나눴다 — 사용자·클로드가 부르는 이름은 `done-task` 그대로 두고(메인 세션에서 도는 얇은 스킬: simplify 판단 → 필요 시 실행·표식 커밋 → 위임), git 절차는 `ship-task`(기존 본문, fork 유지)로 옮겼다. **fork를 걷어내지 않은 이유**: 본문이 2만 토큰이 넘어 메인에서 돌리면 ship 한 번에 3만 토큰가량이 메인 컨텍스트에 쌓이고, CI 대기까지 메인이 떠안는다. ship-task의 simplify 게이트(§1.5)는 지우지 않고 done-task가 판단을 빠뜨렸을 때의 안전망으로 남겼다.

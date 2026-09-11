@@ -53,7 +53,7 @@
 #   빈 문자열이 됐다. 그러면 호출부 루프가 "하네스 산물이네" 하고 더 뒤로 거슬러
 #   올라가 그 전 턴(직전 주제)의 진짜 사람 메시지를 힌트로 집어 갔다. 그 결과
 #   /simplify를 돌린 턴의 커밋 제목에 "simplify"라는 단어가 안 들어가서,
-#   done-task의 simplify 게이트(직전 커밋 제목에 "simplify"가 있는지로 판정)가
+#   ship-task의 simplify 게이트(직전 커밋 제목에 "simplify"가 있는지로 판정)가
 #   이미 실행된 걸 못 알아보고 계속 막아 왕복이 반복되는 사고가 났다.
 #   → 슬래시 명령은 쓰레기가 아니라 사용자가 실제로 친 진짜 의도이므로,
 #     명령 이름(+인자)을 뽑는 extract_slash_command()를 추가하고 후보를 훑는
@@ -64,14 +64,14 @@
 #   "Skill /simplify is already loaded above; instructions unchanged" 같은
 #   하네스 안내문만 온다. 태그 추출이 실패하고 strip_harness_tags()가 이 문장을
 #   그대로 통과시켜서 커밋 제목이 "wip: Skill /simplify is already loaded above;
-#   instructions unchan — …"이 됐고, done-task의 simplify 게이트가 표식을 못
+#   instructions unchan — …"이 됐고, ship-task의 simplify 게이트가 표식을 못
 #   알아봤다. (2026-08-05 항목과 같은 증상의 태그-없는 형태다.)
 #   → extract_slash_command()에 폴백을 넣어, 태그가 없어도 이 안내문 형태면
 #     거기서 스킬 이름을 뽑아 /이름으로 돌려준다.
 #
 # /simplify 빈 표식 자동화 (2026-08-20, 위 항목과 별건):
 #   /simplify가 검토했는데 고칠 게 없으면 변경이 안 생겨서 wip 커밋도 안 남는다.
-#   그러면 done-task의 simplify 게이트가 표식을 못 찾아 막고, 사람이
+#   그러면 ship-task의 simplify 게이트가 표식을 못 찾아 막고, 사람이
 #   `git commit --allow-empty -m "chore: simplify 반영"`을 손으로 쳐야 했다.
 #   → /simplify 턴인데 커밋할 변경이 없으면 훅이 빈 표식 커밋을 자동으로 남긴다.
 #     /simplify 턴에만 좁게 건다 — 모든 턴으로 넓히면 변경 없는 턴마다 빈 커밋이 쌓인다.
@@ -81,7 +81,7 @@
 #   /simplify를 부르면, 그 호출은 assistant 줄의 tool_use 블록으로만 남는다 —
 #   사람이 친 메시지엔 <command-name> 태그가 없다. 위 2026-08-05·08-20 두 수정은 전부
 #   "type: user" 메시지에서 힌트를 뽑는 경로라 이 경우를 못 본다. 그러면 힌트가
-#   "simplify 돌려줘" 평문이 되어 done-task의 simplify 게이트가 표식을 못 알아보고
+#   "simplify 돌려줘" 평문이 되어 ship-task의 simplify 게이트가 표식을 못 알아보고
 #   계속 막는 사고가 났다. (2026-08-05 "슬래시 명령 힌트 살리기", 2026-08-20
 #   "스킬 재호출 힌트 살리기"와 같은 계열의 세 번째 사고.)
 #   → 마지막 사람 메시지 이후의 assistant tool_use 중 Skill simplify 호출이 있으면
@@ -340,7 +340,7 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
 fi
 
 # 6. 커밋할 변경이 없는 경우 — /simplify 턴에만 빈 표식 커밋을 남긴다.
-#    done-task의 simplify 게이트는 브랜치에 표식 커밋이 하나라도 있으면 통과시키는데,
+#    ship-task의 simplify 게이트는 브랜치에 표식 커밋이 하나라도 있으면 통과시키는데,
 #    고칠 게 없던 /simplify 턴은 변경이 없어 표식이 안 남는다. 그 구멍만 메운다.
 #    다른 스킬 턴까지 넓히지 않는 이유 — 변경 없는 턴마다 빈 커밋이 쌓여서 로그가 지저분해진다.
 #    표식으로 인정받는 제목이어야 하므로 `wip: /simplify ` 로 시작하는 문구를 고정으로 쓴다.

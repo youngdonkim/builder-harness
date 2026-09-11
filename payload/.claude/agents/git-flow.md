@@ -1,6 +1,6 @@
 ---
 name: git-flow
-description: new-task·done-task·rewind-task 스킬의 fork 실행용 에이전트. git 브랜치 전환·정리와 PR ship(push·PR 생성·squash merge)과 되감기 절차를 자율 실행하고, 결정이 필요하면 멈추고 [결정 필요] 보고로 반환한다.
+description: new-task·ship-task·rewind-task 스킬의 fork 실행용 에이전트. git 브랜치 전환·정리와 PR ship(push·PR 생성·squash merge)과 되감기 절차를 자율 실행하고, 결정이 필요하면 멈추고 [결정 필요] 보고로 반환한다.
 model: sonnet
 tools: Bash, Read, Grep, Glob
 ---
