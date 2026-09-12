@@ -142,13 +142,14 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · Mockup · MarketResearch · InformationArchitecture · FrontendBuild · BackendBuild · MvpLaunch (통과 기준) |
 | 횡단 스킬 | `project-init` | 프로젝트에 하네스 적용 — `payload/`를 프로젝트 루트에 복사 + 훅 등록 설정 병합 + CLAUDE.md 뼈대 생성. 이미 적용된 프로젝트에서 재실행하면 최신 원본과 비교해 동기화 |
 | 횡단 스킬 | `new-task` | main 최신화 + 머지가 끝난 옛 작업 브랜치 정리 + 새 작업 브랜치 생성 |
-| 횡단 스킬 | `done-task` | 자동 저장 커밋 → 원격 올리기(push) → PR 생성 → (오너면) CI 통과 대기 → 합치기(merge) → 원격·로컬 브랜치 정리(로컬은 main으로 이동) 한 흐름. 팀원은 PR까지, 오너는 로컬 정리까지 |
+| 횡단 스킬 | `done-task` | ship 한 흐름 — 안에서 simplify 판단을 먼저 하고, git 절차는 내부 스킬 ship-task에 넘긴다. 부르는 이름은 done-task 하나다 |
+| 횡단 스킬 | `ship-task` | done-task가 부르는 내부 스킬(fork) — push → PR 생성 → (오너면) CI 대기 → squash 머지 → 브랜치 정리. 직접 부를 일 없음 |
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
 | 횡단 스킬 | `grok-delegation` | 그록(Grok) CLI에 작업을 위임하는 방법 — 부르는 법·읽기/쓰기 모드 고르기·결과 검증 |
 | 횡단 스킬 | `harness-diet` | 지시 문서(CLAUDE.md·AGENTS.md·스킬·에이전트·rules)의 군살·중복·모순 검토 → 보고서 + 사람 결정 목록 (수정은 결정 후 별도) |
 | 횡단 스킬 | `deep-research` | 질문을 여러 각도로 나눠 병렬 조사 → 주장마다 반박 시도 → 깨지지 않은 것만 출처·검증 상태를 달아 보고 |
-| 서브에이전트 | `git-flow` | `new-task`·`done-task`·`rewind-task`의 실제 실행자 |
+| 서브에이전트 | `git-flow` | `new-task`·`ship-task`·`rewind-task`의 실제 실행자 |
 | 서브에이전트 | `harness-auditor` | `harness-diet`의 회차별 감사관 — 지시 문서를 읽기 전용으로 정독해 판정만 반환 |
 | 서브에이전트 | `user-scenario-writer` | 영화 시나리오형 유저 스토리 작성 |
 | 서브에이전트 | `ux-writing-reviewer` | UI 문구를 UX writing 원칙과 대조해 직접 교정 |
