@@ -69,7 +69,7 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 - **서비스 이름과 한 줄 정의** (이름은 repo명과 같아도 됨) — 예시: "밥심 — 혼자 사는 직장인을 위한 저녁 메뉴 추천 앱"
 - **타겟 — 누가, 어떤 상황에서** — 예시: "야근 잦은 자취 직장인이 퇴근길에 '오늘 뭐 먹지' 고민할 때"
-- **이 프로젝트의 소유 — 개인이야 회사야?** — 외부 서비스(GitHub·Supabase·Vercel·OAuth·AI 키)를 어느 계정으로 만들지가 이 답으로 갈린다. 아이디어가 아니라 관리 질문이지만, 계정이 잘못 묶이면 나중에 리소스를 전부 다시 만들게 되어(idea-to-mvp `6-0-backend-prep.md` 실사고) 처음에 받는다. **개인/회사를 구분할 필요가 없는 사용자면**(모든 프로젝트를 같은 계정으로 만들면) **「개인」이다** — 명부도 개인 표만 채워 쓰면 된다고 안내한다.
+- **이 프로젝트의 소유 — 개인이야 회사야?** — 외부 서비스(GitHub·Supabase·Vercel·OAuth·AI 키)를 어느 계정으로 만들지가 이 답으로 갈린다. 아이디어가 아니라 관리 질문이지만, 계정이 잘못 묶이면 나중에 리소스를 전부 다시 만들게 되어(idea-to-mvp `6-0-backend-prep.md` 실사고) 처음에 받는다. **개인/회사를 구분할 필요가 없는 사용자면**(모든 프로젝트를 같은 계정으로 만들면) **「개인」이다**.
 
 앞의 두 답은 idea-to-mvp 1단계(UserStory)의 필수 입력 1·2와 같은 항목이다 — CLAUDE.md에 박혀 1단계가 다시 묻지 않는다. 소유 답은 [3단계](#3-agentsmd-생성)에서 `AGENTS.md`의 「소유와 계정」 표를 채우는 데 쓴다.
 
@@ -82,10 +82,9 @@ git -C <원본경로> rev-parse --short=12 HEAD
 `AGENTS.md`는 클로드뿐 아니라 그록·Codex 같은 다른 AI 도구도 읽는 규칙 파일이다.
 
 - 프로젝트 루트에 `AGENTS.md`가 **없으면** 원본의 `payload/AGENTS.md.template`을 프로젝트 루트에 `AGENTS.md`로 복사하고 `{{...}}` placeholder를 1번 답으로 채운다 (2단계 CLAUDE.md와 같은 방식). 템플릿 구조는 **수정하지 않고 그대로** — 하네스 표준이다.
-- **「소유와 계정」 표는 1번의 소유 답으로 채운다** — 원본의 `docs/accounts.md`(계정 명부)에서 그 소유자(개인/회사) 세트를 읽어 표에 옮긴다. 명부 전체가 아니라 소유자 세트만 프로젝트에 들어간다. 명부에 `(확인 필요)`인 칸은 그대로 `(확인 필요)`로 두고 — 6단계 준비(6-0)에서 확정되면 채운다.
-- **전환형 CLI(gh 같은 Git 호스팅 CLI)의 활성 계정도 표와 맞춘다** — 표의 계정이 이 컴퓨터에 등록돼 있으면 전환하고(로컬 전환이라 되돌리기 쉽다), 등록돼 있지 않으면 등록하라고 사용자에게 안내한다.
+- **「소유와 계정」 표는 1번의 소유 답과 함께 사용자에게 물어 채운다** — 서비스별 계정·이메일을 아는 만큼만 받고, 모르는 칸은 `(확인 필요)`로 둔다 — 6단계 준비(6-0)에서 확정되면 채운다. 계정 값은 이 프로젝트 표에만 남는다 (하네스에는 계정을 적지 않는다).
+- **전환형 CLI(gh 같은 Git 호스팅 CLI)의 활성 계정도 표와 맞춘다** — 표의 계정이 이 컴퓨터에 등록돼 있으면 전환하고(로컬 전환이라 되돌리기 쉽다), 등록돼 있지 않으면 등록하라고 사용자에게 안내한다. 계정 절차·서비스별 함정은 `payload/docs/account-check.md`(프로젝트에 복사되면 `docs/account-check.md`)에 있다.
 - **「커밋 작성자」 행은 표만 채우지 않고 이 저장소의 로컬 git 설정(작성자 이름·이메일)도 같이 맞춘다** — 전역 설정은 건드리지 않는다(같은 컴퓨터에 다른 소유의 프로젝트가 있다). 배포 플랫폼이 커밋 작성자로 팀원 여부를 판단해, 표와 다르면 배포가 조용히 승인 대기로 막힌다 (실사고: 회사 저장소에 개인 작성자 커밋이 들어가 Vercel Pro 배포 BLOCKED).
-- **명부의 그 세트가 아직 `(입력)` 상태거나 파일이 없으면** — 하네스는 범용이라 계정이 미리 적혀 있지 않다. 사용자에게 지금 계정을 물어(아는 만큼만, 모르는 칸은 `(확인 필요)`) 프로젝트 표를 채우고, **다음 프로젝트부터는 안 묻게 하네스 저장소의 `docs/accounts.md`를 채워 두라고 안내한다** — 방금 받은 값을 명부 표 형식 그대로 붙여 넣을 문안으로 함께 준다 (프로젝트에서 하네스 원본을 직접 고치지 않는다 — `CLAUDE.md` 「하네스 수정」).
 - **이미 있으면** 파일을 지우거나 덮어쓰지 않는다. `<!-- BEGIN:project-rules -->` 마커 구역이 없을 때만, 템플릿의 마커 구역(placeholder를 채운 상태)을 파일 맨 끝에 덧붙인다.
 - **다른 도구가 자동으로 만든 구역은 절대 건드리지 않고 그대로 둔다** — 예를 들어 `next dev`가 넣는 `<!-- BEGIN:nextjs-agent-rules -->` 구역. 우리 마커 구역만 우리가 관리하고 나머지는 그 도구 몫이다.
 - 2단계에서 만든 `CLAUDE.md` **맨 끝**에 `@AGENTS.md` 줄이 있는지 확인하고, 없으면 맨 끝에 붙인다. 맨 끝이어야 하는 이유는 Next.js가 이 줄을 자기가 덧붙이는데, 이미 있으면 다시 안 건드려서다.
@@ -96,7 +95,7 @@ git -C <원본경로> rev-parse --short=12 HEAD
 
 ```
 <원본>/payload/.claude/  →  <프로젝트>/.claude/   (skills·agents·hooks·rules·templates)
-<원본>/payload/docs/     →  <프로젝트>/docs/      (git-workflow.md)
+<원본>/payload/docs/     →  <프로젝트>/docs/      (git-workflow.md·account-check.md)
 <원본>/payload/.github/  →  <프로젝트>/.github/   (workflows/ci.yml)
 ```
 
@@ -144,7 +143,7 @@ date=<오늘 날짜 YYYY-MM-DD>
 
 사용자에게 알린다:
 
-- 방금 프로젝트에 들어온 것: `CLAUDE.md`, `AGENTS.md`, `.claude/`(skills·agents·hooks·rules·templates·settings.json·harness-version), `docs/git-workflow.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
+- 방금 프로젝트에 들어온 것: `CLAUDE.md`, `AGENTS.md`, `.claude/`(skills·agents·hooks·rules·templates·settings.json·harness-version), `docs/git-workflow.md`, `docs/account-check.md`, `.github/workflows/ci.yml`. **전부 이 프로젝트 저장소에 커밋할 파일**이다 — 커밋해서 main에 합치면 팀원은 프로젝트를 clone하는 것만으로 하네스를 그대로 받는다. 팀원이 하네스 저장소를 따로 받을 필요는 없다.
 - 훅 2개가 자동 작동: `no-main-push`(main 직접 push 차단), `auto-wip-commit`(응답 끝날 때마다 feature 브랜치에 wip 커밋 — main에서는 자동으로 건너뛴다). 뭔가 잘못돼서 되돌리고 싶으면 `/rewind-task` 스킬을 쓴다.
 - **지금 열린 세션에는 새 스킬·훅이 아직 안 잡힌다** — 새 파일이라서가 아니라 `.claude/` 폴더가 방금 처음 생겨 지금 세션의 감시 대상이 아니라서다. 처음 적용할 때는 **앱을 껐다 켜야** 잡힌다 — 껐다 켜도 대화는 안 날아간다(대화를 버리는 `/clear`와는 다르다). 나중에 하네스를 최신으로 올리는 동기화 때는 `.claude/`가 이미 있어 껐다 켜지 않아도 이 세션에서 바로 잡힌다 — 하네스 원본 저장소에서 `git pull` → 이 프로젝트 세션에서 "하네스 동기화해줘". (스킬이 플러그인이면 그 안 hooks·`.mcp.json`·agents 변경은 `/reload-plugins`가 따로 필요하다(터미널 실행 전용 명령 — 데스크톱 앱엔 없다) — 하네스 자체는 플러그인이 아니다.)
 - 다음 단계: `/idea-to-mvp`로 1단계 UserStory 시작. (idea-to-mvp가 `mvp/` 산출물을 보고 현재 단계를 스스로 판별하니, 이미 진행한 프로젝트면 알아서 이어서 시작한다.)
@@ -180,7 +179,7 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 프로젝트에서 고치지 않는 전제의 파일들이다. 하네스가 관리하니 **원본 내용으로 교체**하는 게 기본이다.
 
 - `payload/.claude/*` ↔ `.claude/*` (skills·agents·hooks·rules·templates)
-- `payload/docs/git-workflow.md` ↔ `docs/git-workflow.md`
+- `payload/docs/*` ↔ `docs/git-workflow.md`·`docs/account-check.md`
 - `payload/.github/workflows/ci.yml` ↔ `.github/workflows/ci.yml`
 - `payload/.claude/settings-hooks.json`의 hooks 블록 ↔ `.claude/settings.json`의 hooks 블록
 
@@ -228,7 +227,8 @@ git status --porcelain -- .claude docs/git-workflow.md .github/workflows/ci.yml
 - **대조 대상** — 템플릿에서 그대로 오는 공용 문구와 섹션 골격.
 - **대조·병합 범위는 `<!-- BEGIN:project-rules -->` 구역 안으로만 한정한다.** 마커 밖과 `<!-- BEGIN:nextjs-agent-rules -->`처럼 다른 도구가 만든 구역은 절대 건드리지 않는다.
 - 마커 구역이 아예 없으면 템플릿의 마커 구역을 파일 맨 끝에 덧붙인다. 파일 자체가 없으면 [3. AGENTS.md 생성](#3-agentsmd-생성)대로 템플릿에서 새로 만든다.
-- 병합으로 「소유와 계정」 표가 **처음 들어오는** 옛 프로젝트면, 소유(개인/회사)를 물어 원본의 `docs/accounts.md`에서 그 세트를 채운다 ([3. AGENTS.md 생성](#3-agentsmd-생성)과 같은 방식).
+- 병합으로 「소유와 계정」 표가 **처음 들어오는** 옛 프로젝트면, 소유(개인/회사)와 서비스별 계정을 사용자에게 물어 채운다 ([3. AGENTS.md 생성](#3-agentsmd-생성)과 같은 방식).
+- 「소유와 계정」 절처럼 **템플릿의 규칙 문단이 크게 줄어든 경우** — 규칙 문단은 템플릿대로 줄이고, 표의 행과 채워진 값은 그대로 둔다.
 - 위 CLAUDE.md 병합 안전 규칙 둘(진짜 충돌은 임의로 정하지 않는다 / 확인 없이 파일에 쓰지 않는다)이 `AGENTS.md`에도 똑같이 적용된다.
 
 `CLAUDE.md` 맨 끝에 `@AGENTS.md` 줄이 있는지도 확인하고, 없으면 맨 끝에 붙인다.

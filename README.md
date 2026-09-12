@@ -60,9 +60,9 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 터미널이면 이 명령을 직접 치고, 데스크톱 앱이면 채팅창에 "이 주소를 `~/dev/builder-harness`에 clone해줘"라고 시키면 된다.
 
-이 저장소는 공개다 — 누구나 내려받을 수 있다. 단 **소유자가 아닌 사람이 독자적으로 쓰려면 그대로 clone하지 말고 fork(자기 계정으로 복제한 저장소)를 만든 뒤 그 주소로 clone한다** — 이유는 [§5.1](#51-하네스-저장소-내려받기).
+이 저장소는 공개다 — 누구나 내려받아 그대로 쓸 수 있다. 하네스 자체를 자기 식으로 고치고 싶을 때만 fork(자기 계정으로 복제한 저장소)를 만든다([§5.1](#51-하네스-저장소-내려받기)).
 
-내려받았으면 그 안의 `docs/accounts.md`(계정 명부)를 **자기 계정으로 채워 둔다** — 프로젝트에 적용할 때 외부 서비스(GitHub·Supabase·Vercel 등)를 어느 계정으로 만들지 여기서 읽어 간다. 개인/회사 구분이 필요 없으면 개인 표만 채우면 된다 (채우는 법은 그 파일 안에 있다).
+계정은 하네스에 적지 않는다 — 프로젝트에 적용할 때 물어보고, **그 프로젝트의 `AGENTS.md` 「소유와 계정」 표가 정본**이 된다.
 
 → 자세히: [§5.1](#51-하네스-저장소-내려받기)
 
@@ -181,7 +181,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 **내려받아야 하는 사람은 하나뿐이다** — 하네스 자체를 프로젝트에 적용·동기화하거나 하네스를 고치는 사람. 하네스가 이미 적용된 프로젝트를 받아서 쓰기만 하는 팀원은 이 저장소가 아예 필요 없다([§5.4](#54-팀원은-무엇을-하나)).
 
-**소유자가 아닌 사람이 독자적으로 자기 프로젝트를 시작하려면, clone이 아니라 fork(자기 계정으로 복제한 저장소)부터 만든다.** 하네스에는 계정 명부(`docs/accounts.md` — 프로젝트마다 어느 계정으로 외부 서비스를 만들지 적어 두는 파일)가 있는데, 각자 **자기 계정으로 채워 자기 저장소에 커밋**해야 작동한다. 남의 원본을 그대로 clone하면 명부를 채워도 올릴 곳이 없고(올리면 남의 저장소에 내 계정이 섞인다), 커밋하지 않은 채 두면 `/project-init`이 "원본이 깨끗해야 한다"는 검사([§6.1](#61-원본-저장소가-깨끗한-main인지-확인하기))에서 멈춘다. fork를 만들어 그 주소로 clone하면 이 문제가 다 사라진다 — 버전 표시 파일의 `repo=`에도 fork 주소가 적힌다([§6.4](#64-적용한-버전이-파일로-남는다)).
+**소유자가 아닌 사람도 그대로 clone해서 쓸 수 있다** — 하네스에는 아무 계정도 적혀 있지 않고, 계정은 프로젝트에 적용할 때 물어봐서 그 프로젝트의 `AGENTS.md` 표에만 남는다. **하네스 자체를 자기 식으로 고치고 싶을 때만 fork를 만든다** — 원본에는 push할 수 없어서다. fork 주소는 버전 표시 파일의 `repo=`에 적힌다([§6.4](#64-적용한-버전이-파일로-남는다)).
 
 ### 5.2 프로젝트에 적용하기
 
@@ -326,7 +326,6 @@ date=<YYYY-MM-DD>
 README.md
 AGENTS.md                             # 어느 AI 도구가 읽어도 지켜야 하는 규칙 (저장소 규칙·글쓰기 원칙)
 CLAUDE.md                             # 클로드만 알면 되는 규칙 (위임 원칙) — 끝의 @AGENTS.md로 위 파일도 함께 읽는다
-docs/accounts.md                      # 계정 명부 — 사용자가 자기 계정으로 채우는 데이터 파일 (프로젝트에 복사되지 않음)
 docs/eval-scenarios.md                # 실사고 재현 색인 — 스킬·에이전트·rules를 크게 고칠 때 되짚는다
 .claude/                              # 이 저장소에 적용된 하네스 — payload/.claude/와 같은 내용
 payload/                              # 프로젝트 루트의 미러 — 이 구조 그대로 프로젝트에 복사된다
@@ -336,6 +335,7 @@ payload/.claude/hooks/                # 훅 스크립트
 payload/.claude/rules/                # 특정 파일을 다룰 때만 적용되는 세부 규칙
 payload/.claude/templates/            # delegation-integrator가 쓰는 sources·status 문서 틀
 payload/docs/git-workflow.md          # 훅·done-task가 참조하는 작업 흐름 문서
+payload/docs/account-check.md         # 계정 검문 절차·서비스별 함정 — 첫 push·첫 배포·6-0 직전에 읽는 온디맨드 문서
 payload/.github/workflows/ci.yml      # done-task가 머지 전 통과를 기다리는 lint + build 검사
 payload/.claude/settings-hooks.json   # (예외) 복사 아님 — 훅 등록 원본, 프로젝트 설정 파일에 합쳐 넣는 내용
 payload/CLAUDE.md.template            # (예외) 복사 아님 — 인터뷰 답을 채워 프로젝트 CLAUDE.md를 만드는 틀
