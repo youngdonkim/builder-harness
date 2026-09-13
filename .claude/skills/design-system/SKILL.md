@@ -81,6 +81,12 @@ git rev-parse --abbrev-ref HEAD
 | 글자 크기를 계속 줄여 위계 표현 (14px 밑으로) | 굵기(`typography/weight`)+명도(`color/text`) 위계로 표현, 가장 옅은 단계도 대비 4.5:1 유지 ([naming-taxonomy.md](references/naming-taxonomy.md)) |
 | 통짜 폰트 파일 로딩 / CDN `<link>`로 웹폰트 불러오기 | 조각화(unicode-range) + 자체 호스팅 ([references/font-loading.md](references/font-loading.md)) |
 | 하단 상시 요소(버튼 막대·입력창·탭바)를 화면에 붙여 띄우고 본문 끝을 어림 여백으로 비우기 | 셸 설계 때 하단 칸을 정하고 거기 흐름대로 — 스크롤은 본문 칸만 ([references/layout-frames.md](references/layout-frames.md) §2.2) |
+| 안내 문구(placeholder)를 라벨 대신 씀 | 이름을 따로 단다 — [common-patterns.md](references/common-patterns.md) §1 (WCAG 3.3.2) |
+| 글 칸 글자가 16px 아래거나 `user-scalable=no`로 확대를 막음 | 16px 이상, 확대 허용 — 같은 문서 §1 (WCAG 1.4.4) |
+| 엔터로 확정하는 칸에 한글 조합 가드가 없음 | 조합 중 엔터는 무시 — 같은 문서 §2 |
+| 제목 칸에서 엔터를 누르면 글이 그대로 올라감 | 본문으로 넘기거나 막는다 — 같은 문서 §2 |
+| 사용자가 쓴 글을 저장 형식으로 변환하고 미리보기로 메움 | 쓴 것이 그대로 올라가게 — 같은 문서 §5 |
+| 댓글·채팅 입력을 한 줄 입력(`<input>`)으로 | 쓰는 만큼 늘어나는 글 칸 — 같은 문서 §4 |
 
 ## 동심원 radius 규칙
 
@@ -91,6 +97,7 @@ git rev-parse --abbrev-ref HEAD
 
 - **값(색·간격·모서리…) 이름을 정하거나 새 토큰을 추가할 때** — [naming-taxonomy.md](references/naming-taxonomy.md) (토큰 명명 문법·유형표 + 새 토큰 추가 절차)
 - **새 UI 컴포넌트를 만들거나 인벤토리에 등록할 때** — [component-taxonomy.md](references/component-taxonomy.md) (컴포넌트 역할·티어·어휘 규칙)
+- **댓글창·게시글 에디터처럼 글을 써서 올리는 칸을 만들 때** — [common-patterns.md](references/common-patterns.md) (접근성 체크 목록 · 컴포저 · 에디터)
 - **새 화면·레이아웃을 설계할 때** — [layout-frames.md](references/layout-frames.md) (frame-first 절차, 셸 분류, 컨테이너 정책)
 - **폰트를 새로 넣거나 바꿀 때** — [font-loading.md](references/font-loading.md) (조각화·자체 호스팅 원리, Next.js 로딩 결정표, 빌드 검증 관문 3종)
 - **새 프로젝트에 도입할 때** — [bootstrap-project.md](references/bootstrap-project.md)를 순서대로 따른다. 이 절차는 도중에 세 문서를 함께 읽는다: 토큰 3층 단계에서 font-loading.md(폰트 선정·로딩 방식을 같이 정한다 — 미루면 foundation을 다시 갈아엎는다), 인벤토리 생성에서 component-taxonomy.md §6(인벤토리 한 줄 형식), 프레임 정의에서 layout-frames.md §4(웹·앱 통합이면 canvas·gutter 플랫폼 차이)
