@@ -139,7 +139,7 @@ Docker Desktop이 꺼진 채로 `npx supabase status`/`start`를 돌리면 **원
 
 ### 3.3 gh CLI
 
-PR을 만들고 머지하는 데 쓴다. 프로젝트가 아니라 깃허브 계정에 붙는 도구라 **전역으로 깔고, 로그인까지 끝내 `gh auth status`가 통과하는 상태로 둔다.** 설치법은 OS마다 달라서 https://cli.github.com 을 따른다.
+PR을 만들고 머지하는 데 쓴다. **깔기는 전역으로 하고, 인증은 프로젝트마다 따로 한다** — 6-0 §3.1대로 소유자 계정의 발급 토큰을 프로젝트의 CLI 전용 깃 미추적 파일에 `GH_TOKEN=...`으로 두고, gh를 부를 때 그 파일을 읽혀 넘긴다. `gh api user --jq .login`이 표의 계정을 답하면 준비된 것이다. 설치법은 OS마다 달라서 https://cli.github.com 을 따른다.
 
 이유: done-task가 위임하는 ship-task가 이 도구로 PR을 만들고 머지한다 — **없으면 ship이 아예 안 돈다.**
 
