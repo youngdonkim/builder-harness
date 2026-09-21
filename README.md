@@ -126,7 +126,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 이 방식의 좋은 점은 세 가지다.
 
-- 프로젝트를 열면 `.claude/` 안의 파일이 세션 시작 때 그대로 읽힌다 — 따로 켜고 끄는 설정이 없다.
+- 프로젝트를 열면 `.claude/` 안의 파일이 세션 시작 때 읽힌다 — 따로 켜고 끄는 설정이 없다. 스킬 본문은 부를 때, 경로 조건이 있는 rules는 그 파일을 만질 때 그때그때 읽혀서, 고치면 바로 반영된다.
 - 하네스 파일도 프로젝트 저장소에 커밋되니, 팀원은 프로젝트만 내려받으면 하네스까지 같이 받는다([§5.4](#54-팀원은-무엇을-하나)).
 - 어느 버전이 적용됐는지가 파일로 남아, 다음에 동기화할 때 무엇이 바뀌었는지 정확히 가려낸다([§6.4](#64-적용한-버전이-파일로-남는다)).
 
@@ -206,12 +206,12 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 `/project-init`이 프로젝트에 만드는 것들이다. 앞의 다섯은 원본 `payload/`에서 같은 경로로 복사돼 오는 것이고, 뒤의 다섯은 스킬이 따로 만든다.
 
-- **`.claude/skills/`·`.claude/agents/`·`.claude/hooks/`** — 세션을 열 때 읽혀서 스킬·서브에이전트·훅이 작동한다.
+- **`.claude/skills/`·`.claude/agents/`·`.claude/hooks/`** — 세션을 열 때 등록돼 스킬·서브에이전트·훅이 작동한다. 스킬 본문은 부를 때마다 읽어서 고치면 다음 호출부터 바로 반영되고, 에이전트 정의는 새 세션부터다.
 - **`.claude/rules/`** — 특정 종류의 파일을 다룰 때만 적용되는 세부 규칙 모음.
 - **`.claude/templates/`** — `delegation-integrator` 에이전트가 다른 AI 도구 연동을 세팅할 때 쓰는 문서 틀(sources·status).
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
-- **`AGENTS.md`** — 그 프로젝트의 **규칙 정본**이다. Claude뿐 아니라 Codex 같은 다른 AI 도구도 읽고, 세션을 열 때마다 자동으로 읽힌다. 이것만은 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 인터뷰 답을 채워 만든다. 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
+- **`AGENTS.md`** — 그 프로젝트의 **규칙 정본**이다. Claude뿐 아니라 Codex 같은 다른 AI 도구도 읽고, 세션을 열 때 자동으로 읽히며 컴팩션(`/compact`·자동) 때 다시 읽힌다 — 세션 중에 고친 건 다음 컴팩션이나 `/clear`부터 반영된다. 이것만은 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 인터뷰 답을 채워 만든다. 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
 - **`CLAUDE.md`** — 내용이 `@AGENTS.md` 한 줄뿐인 포인터 파일. 규칙은 담지 않는다. 클로드 코드가 버전·실행 환경에 따라 `AGENTS.md`를 혼자 읽지 못하는 경우가 있어서, 어디서 열어도 규칙이 읽히도록 이 한 줄을 둔다.
 - **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
 - **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§6.4](#64-적용한-버전이-파일로-남는다)).
