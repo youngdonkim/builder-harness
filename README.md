@@ -146,7 +146,6 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 횡단 스킬 | `ship-task` | done-task가 부르는 내부 스킬(fork) — push → PR 생성 → (오너면) CI 대기 → squash 머지 → 브랜치 정리. 직접 부를 일 없음 |
 | 횡단 스킬 | `rewind-task` | 자동 저장 시점으로 되돌리기 — 후보 표를 보여준 뒤 파일·브랜치·되감기 중 선택 |
 | 횡단 스킬 | `design-system` | 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론 — 화면·컴포넌트·토큰을 만들거나 수정할 때 참조 |
-| 횡단 스킬 | `grok-delegation` | 그록(Grok) CLI에 작업을 위임하는 방법 — 부르는 법·읽기/쓰기 모드 고르기·결과 검증 |
 | 횡단 스킬 | `harness-diet` | 지시 문서(CLAUDE.md·AGENTS.md·스킬·에이전트·rules)의 군살·중복·모순 검토 → 보고서 + 사람 결정 목록 (수정은 결정 후 별도) |
 | 횡단 스킬 | `deep-research` | 질문을 여러 각도로 나눠 병렬 조사 → 주장마다 반박 시도 → 깨지지 않은 것만 출처·검증 상태를 달아 보고 |
 | 서브에이전트 | `git-flow` | `new-task`·`ship-task`·`rewind-task`의 실제 실행자 |
@@ -213,7 +212,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
 - **`CLAUDE.md`** — 그 프로젝트에서 Claude가 항상 지켜야 할 규칙을 적어두는 파일. 세션을 열 때마다 자동으로 읽힌다. 이것만은 그대로 복사되지 않고, 원본의 `CLAUDE.md.template`에 인터뷰 답을 채워 만든다.
-- **`AGENTS.md`** — Claude뿐 아니라 Grok·Codex 같은 다른 AI 도구도 읽는 규칙 파일. 이것도 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 인터뷰 답을 채워 만든다. 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
+- **`AGENTS.md`** — Claude뿐 아니라 Codex 같은 다른 AI 도구도 읽는 규칙 파일. 이것도 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 인터뷰 답을 채워 만든다. 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
 - **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
 - **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§6.4](#64-적용한-버전이-파일로-남는다)).
 - **`mvp/`·`docs/` 폴더** — 단계 산출물과 사람이 읽는 문서가 쌓이는 자리.
