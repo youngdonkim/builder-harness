@@ -267,11 +267,7 @@ description: 프런트엔드 구현 단계 가이드. information-architecture.m
 - **graceful degradation**: 조사가 불확실하면 마지막 known-good 조합으로 진행하고 `추후 결정: [무엇을 재확인]` 마킹.
 - **에스컬레이션**: 고정 스택 자체를 못 쓰는 근본 비호환일 때만 멈추고 사용자에게. 그 외엔 조사·적용 완주.
 
-**⚠️ Next.js 16 — CLAUDE.md를 멋대로 바꿔치기한다.** Next.js 16은 `next dev`나 빌드를 돌릴 때 `generate-agent-files.js`가 AGENTS.md를 자동 생성하는데, 이 과정에서 **프로젝트의 CLAUDE.md를 "@AGENTS.md" 한 줄짜리 파일로 통째로 바꿔치기해 버린다.** 실제 사고 사례가 있다 — 그때는 검증 규칙·디자인 시스템 연결 정보(adapter)까지 전부 CLAUDE.md에 있어서 하네스 지침 전체가 그렇게 날아갔고, 거기다 auto-wip-commit 훅이 그 바뀐 상태를 그대로 커밋해 버려서 git 히스토리를 뒤져 복구해야 했다. 지금은 검증 규칙과 adapter가 AGENTS.md로 옮겨가 있어서 이 사고에서 살아남는다 — CLAUDE.md에 남은 건 위임 원칙뿐이라 날아가도 그것만 날아간다. **그래서 여러 AI 도구가 같이 읽어야 하는 공용 규칙은 CLAUDE.md가 아니라 AGENTS.md에 둔다.**
-
-- **스캐폴딩·첫 빌드 직후엔 CLAUDE.md 내용을 반드시 눈으로 확인한다** — "@AGENTS.md" 한 줄만 남아 있으면 바꿔치기당한 것이다.
-- **예방책**: CLAUDE.md **맨 끝에 `@AGENTS.md` 참조 줄**이 있으면 next dev가 다시 덮어쓰지 않는다. 이 줄은 project-init이 이미 넣어 뒀으니 **있는지 확인만 하고, 없으면 그때 맨 끝에 넣는다.**
-- **AGENTS.md 자체는 지우지 않는다** — Next가 자기 구역(`<!-- BEGIN:nextjs-agent-rules -->`)을 관리하는 정상 파일이라 그대로 둔다. 게다가 이제 이 파일은 Next만의 것이 아니다 — 우리도 `<!-- BEGIN:project-rules -->` 구역을 써서 모든 AI 도구가 읽을 규칙을 담아 두니, 서로의 구역을 건드리지 않고 같이 쓴다.
+**AGENTS.md 자체는 지우지 않는다** — Next가 `next dev`나 빌드에서 자기 구역(`<!-- BEGIN:nextjs-agent-rules -->`)을 관리하는 정상 파일이라 그대로 둔다. **Next 구역과 우리 규칙이 한 파일에 공존한다** — 우리 규칙은 `<!-- BEGIN:project-rules -->` 구역에 들어 있으니, Next 구역은 건드리지 않고 서로의 자리를 그대로 둔 채 같이 쓴다.
 
 #### 2.4.2 Supabase·Vercel — 붙일 자리만 잡아둔다
 

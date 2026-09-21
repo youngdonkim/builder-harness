@@ -173,7 +173,7 @@ gh pr list --head <branch> --state merged --json number,state,url --limit 1
 | 새 기능·추가·신규·페이지·컴포넌트                                                 | `feat`     |
 | 버그·에러·깨짐·안 됨·고치기                                                       | `fix`      |
 | CI·deps·설정·환경·정리                                                            | `chore`    |
-| `CLAUDE.md` · `.claude/**` (rules·skills·agents·hooks) 하네스 파일 변경·생성·갱신 | `harness`  |
+| `AGENTS.md` · `.claude/**` (rules·skills·agents·hooks) 하네스 파일 변경·생성·갱신 | `harness`  |
 | 리팩터·구조 개선·이름 변경·정합                                                   | `refactor` |
 | `src/content/**` 카피·글·콘텐츠 변경                                              | `content`  |
 | `docs/` 사람 읽는 문서 추가·수정                                                  | `docs`     |
