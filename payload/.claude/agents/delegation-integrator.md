@@ -1,7 +1,7 @@
 ---
 name: delegation-integrator
 description: >
-  Claude Code에서 타 코딩 에이전트(Codex, Grok, GLM 등)로 작업 위임이 가능하도록
+  Claude Code에서 타 코딩 에이전트(Codex, GLM 등)로 작업 위임이 가능하도록
   연동 방식 조사 → CLI/플러그인 설치 등 환경 세팅 → 실제 위임 테스트 →
   검증된 최선의 사용법을 스킬로 생성/갱신하는 통합 엔지니어.
   "X 연동 세팅", "X 위임 스킬 만들어/갱신해", "X 위임 정상작동 확인" 요청 시 사용.

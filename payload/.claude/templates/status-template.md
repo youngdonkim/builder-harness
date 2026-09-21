@@ -1,7 +1,7 @@
 # status.md — <대상>-delegation 수명주기 상태 (delegation-integrator가 읽고 씀)
 
 ## 선정된 연동 방식
-- 방식: (예: xai-org/grok-build-plugin-cc 마켓플레이스 플러그인)
+- 방식: (예: 마켓플레이스 플러그인 / CLI 직접 호출)
 - 선정일: YYYY-MM-DD
 - 근거: (공식 지원 / 유지보수 활성도 / 기능 범위 비교 한 줄)
 - 검토했던 대안: (방식명 — 탈락 사유)
