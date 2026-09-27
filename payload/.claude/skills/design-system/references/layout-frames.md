@@ -23,9 +23,9 @@
 | region(영역) | 프레임 안의 이름 붙은 구역 (위치·크기 예산으로 정의, 콘텐츠 무관) | **개념(자리)이지 특정 DOM 요소가 아님** — 보통 div로 구현되나 CSS Grid 영역·부모 padding으로도 표현 |
 | content(콘텐츠) | 영역을 채우는 실제 요소 (리스트·카드·폼…) | |
 | section | 콘텐츠 쪽의 의미 묶음 컨테이너(컴포넌트) | region과 층위 다름 — 아래 `region ≠ section` 참조 |
-| 크기 예산(size budget) | 영역마다 미리 배정해 둔 크기 한도 | 고정 높이(상단 크롬 52px)든 최대 폭(`--app-max-width` 560px)이든. "예산"=돈이 아니라 "쓸 몫을 미리 정해 둔다"는 은유 |
-| gutter | 화면 가장자리와 콘텐츠 사이의 좌우 여백 (예: `--space-screen-x`) | 조판 용어(책 제본 쪽 안쪽 여백 → 칼럼 사이 간격)에서 온 모바일 UI 관행어 |
-| 크롬(chrome) | 콘텐츠를 둘러싸고 탐색·조작을 돕는 **틀 UI** (상하단 바·스텝바·닫기 버튼) | 브라우저 이름 아님 — 자동차 크롬 트림 유래(겉을 두르는 마감) |
+| 크기 예산(size budget) | 영역마다 미리 배정해 둔 크기 한도 | 고정 높이(상단 크롬 52px)든 최대 폭(`--app-max-width` 560px)이든 |
+| gutter | 화면 가장자리와 콘텐츠 사이의 좌우 여백 (예: `--space-screen-x`) | |
+| 크롬(chrome) | 콘텐츠를 둘러싸고 탐색·조작을 돕는 **틀 UI** (상하단 바·스텝바·닫기 버튼) | 브라우저 이름 아님 |
 | canvas | 뷰포트의 배경색 (웹에선 body background) | 프레임이 못 덮은 부분에서 드러남 |
 | pattern | 프레임+컴포넌트를 화면 유형별로 묶은 검증된 템플릿 | 한 프레임 위에 여러 개 가능 |
 
@@ -64,10 +64,7 @@ section은 region 안에서 콘텐츠를 주제별로 묶으며, 컨테이너 �
 - 변형 셸이 뼈대까지 갈라지기 시작하면(영역 추가·삭제) **독립 셸로 승격**한다 —
   modifier에 영역 구조 변경을 계속 쌓으면 base가 사실상 두 개가 된다.
 - 셸 3종 모두 프레임 인벤토리(§6)에 등록 — 새 화면은 인벤토리 검색부터.
-- 변형 셸에서 화면 전체의 토큰을 비례 조정할 땐 자기참조 calc() 패턴을 쓴다:
-  ```css
-  .screen--wizard { --b1-size: calc(var(--b1-size) - 1px); }  /* 상속값 기준 증감 — 순환 참조 아님 */
-  ```
+- 변형 셸에서 화면 전체의 토큰을 비례 조정할 땐 자기참조 calc() 패턴을 쓴다 (문법과 예시는 [naming-taxonomy.md](naming-taxonomy.md) §2).
 
 ### 2.2 하단 고정 요소 — 셸 설계 시점에 자리를 정한다
 
@@ -140,8 +137,8 @@ React + React Native 등으로 웹·앱을 통합 개발할 때. canvas·frame·
 2층에 토큰을 하나 두고 3층이 그것만 쓴다.
 
 ```css
---safe-bottom: env(safe-area-inset-bottom, 0px);
-padding-bottom: calc(var(--space-...) + var(--safe-bottom));
+--space-bottom-safe: env(safe-area-inset-bottom, 0px);
+padding-bottom: calc(var(--space-...) + var(--space-bottom-safe));
 ```
 
 `viewport-fit=cover`만 켜고 이 처리를 안 하는 것이 가장 흔한 실수다 — 데스크톱에서는 끝까지 안 드러난다.
@@ -150,8 +147,7 @@ padding-bottom: calc(var(--space-...) + var(--safe-bottom));
 
 프레임 루트에서 브레이크포인트 동작을 **미리 선언**한다. 영역별 변화가 임기응변이 아니라 계약이 되게.
 
-기준은 뷰포트(화면 전체 폭)가 아니라 **자기가 차지한 공간**이다 — 기본 수단은 컨테이너 쿼리(container query, 화면
-전체 폭이 아니라 그 요소가 실제로 차지한 폭을 보고 규칙을 거는 CSS 기능)다.
+기준은 뷰포트(화면 전체 폭)가 아니라 **자기가 차지한 공간**이다 — 기본 수단은 컨테이너 쿼리(container query)다.
 (예: "사이드 패널은 자기 폭이 좁아지면 오버레이로.")
 
 같은 부품이 폭이 다른 프레임 여러 개(wide 1120 · narrow 720 · form 620)에 조합돼 쓰인다 — 뷰포트 기준으로

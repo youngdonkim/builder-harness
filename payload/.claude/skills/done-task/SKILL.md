@@ -24,6 +24,7 @@ description: 현재 feature 브랜치를 main에 ship. 메인 세션에서 simpl
 3. Skill 도구로 `simplify`를 실행하고 나온 지적을 반영한다. 끝나면 **이 턴 안에서 직접 커밋한다** —
    `git add -A && git commit -m "wip: /simplify — <한 줄 요약>"`.
    고칠 게 없어 변경이 없으면 `git commit --allow-empty -m "wip: /simplify — 변경 없음"`.
+   simplify는 코드만 고치니 시크릿 파일이 새로 생기지 않는다 — `git status`에 `.env*`·키 파일이 보이면 add 전에 멈추고 보고한다.
    (이유: auto-wip-commit 훅은 턴이 끝날 때 커밋한다. 같은 턴에서 바로 ship-task를 부르면 그 시점엔 working tree가 더러워서 ship-task §1 안전 검사에 걸린다. 그리고 표식 제목 형식은 ship-task §1.5 게이트의 정규식과 맞아야 한다.)
 4. Skill 도구로 `ship-task`를 호출한다. args = 이 스킬이 받은 인자 그대로 + (2-c에서 스킵했으면) "스킵".
 5. ship-task가 [결정 필요]를 돌려주면 판단해 결정을 args에 담아 **ship-task를** 재호출한다 (done-task를 다시 부르지 않는다 — simplify 판단은 이미 끝났다). 사실 확인이 필요한 결정(마이그레이션 종류 등)은 지어내지 말고 사용자에게 묻는다.
