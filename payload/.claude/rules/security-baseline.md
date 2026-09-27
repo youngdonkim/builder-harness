@@ -1,12 +1,14 @@
 ---
 name: security-baseline
-description: 외부 도달 위협 모델(preview·공유 링크·봇·검색엔진은 전부 외부 노출) + Supabase 권한 baseline(기본 비공개·grant와 정책 두 겹·정책 모양·금지 목록). auth·API·업로드·supabase 코드를 만지면 로드된다.
+description: 외부 도달 위협 모델(preview·공유 링크·봇·검색엔진은 전부 외부 노출) + Supabase 권한 baseline(기본 비공개·grant와 정책 두 겹·정책 모양·금지 목록). auth·API·업로드·미들웨어(`middleware`·`proxy`)·supabase(`supabase/`·`lib/supabase/`) 코드를 만지면 로드된다.
 paths:
   - '**/api/**/*'
   - '**/auth/**/*'
   - '**/middleware*'
   - '**/upload*'
   - 'supabase/**/*'
+  - '**/proxy*'
+  - '**/lib/supabase/**/*'
 ---
 
 # 보안 baseline
@@ -39,7 +41,7 @@ preview URL·공유 링크·봇 prefetch·검색엔진·우연한 ID 추측 — 
 
 **권한(authz)은 여기 없다 — 2부다.** Supabase에선 endpoint마다 검사하는 게 아니라 **DB 정책이 판정**한다.
 
-영역별 상세 룰이 필요해지면 `.claude/rules/`에 별도 파일로 추가.
+영역별 상세 룰이 필요해지면 하네스 저장소 `payload/.claude/rules/`에 별도 파일로 추가한다 (프로젝트에서는 문안으로 사용자에게 준다).
 
 ## 2부 — Supabase 권한
 

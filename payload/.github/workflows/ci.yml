@@ -36,10 +36,12 @@ jobs:
       - if: steps.node.outputs.present == 'true'
         run: npm run lint
 
-      # Supabase 환경 변수(NEXT_PUBLIC_SUPABASE_URL 등) 없이 확인 완료:
-      # src/lib/supabase.ts는 함수 호출 시점에만 값을 읽고(값이 없으면 빈 문자열로 대체),
-      # 어디서도 import되지 않아 빌드·프리렌더 중에 실행되지 않는다.
-      # 그래서 자리표시자 env 없이도 npm run build가 그대로 통과한다.
+      # Supabase 환경 변수(NEXT_PUBLIC_SUPABASE_URL 등)는 여기 넣지 않았다.
+      # 5단계 코드는 Supabase 클라이언트 초기화 코드를 두지만 데이터는 로컬스토리지로 돌아서,
+      # 그 코드가 빌드·프리렌더 중에 실행되지 않으면 env 없이 빌드가 통과한다.
+      # 실측 당시: src/lib/supabase.ts는 함수 호출 시점에만 값을 읽고(값이 없으면 빈 문자열로 대체),
+      # 어디서도 import되지 않아 자리표시자 env 없이 npm run build가 그대로 통과했다.
+      # 6단계 이후 빌드가 env를 요구하면 자리표시자 env를 여기 추가한다.
       - if: steps.node.outputs.present == 'true'
         run: npm run build
 

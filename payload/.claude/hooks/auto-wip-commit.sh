@@ -7,14 +7,14 @@
 # Skip 조건 (안전 우선):
 #   1. 현재 브랜치 = main   → PR 워크플로 강제, 자동 커밋이 main 오염 금지
 #   2. merge/rebase 진행 중 → conflict marker가 wip 커밋에 섞이는 사고 방지
-#   3. 변경 없음            → 빈 커밋 방지
+#   3. 변경 없음            → `/simplify` 턴이 아니면 커밋 안 함 (6번)
 #
 # 시크릿 파일 처리 (skip이 아니라 제외):
 #   커밋 전체를 포기하지 않는다 — .env 등 시크릿 패턴에 걸리는 파일만 staging에서
 #   빼고 나머지는 그대로 wip 커밋한다. .gitignore 불완전 시 마지막 안전망.
 #   (.env.example/.sample/.template처럼 값 없는 예시 템플릿은 예외 — 정상 커밋 대상)
 #
-# 커밋 메시지: wip: <last user msg 힌트> — <파일1>, <파일2> 외 N개 (+X -Y)
+# 커밋 메시지: wip: <last user msg 힌트> — <파일1>, <파일2> 외 N개 (X files changed, Y insertions(+), Z deletions(-))
 # 푸시: 절대 안 함 (push는 사용자 명시 지시 시에만)
 #
 # 힌트 추출 관련 버그 수정 (2026-07-27):
