@@ -2,7 +2,7 @@
 name: rewind-task
 description: 작업 중 자동으로 쌓인 wip 커밋 하나로 되돌아가기 — 후보 목록을 표로 보여주고 파일 하나만 되살리기·새 브랜치로 살리기·통째로 되감기 중에 고르게 한다. 이미 머지된 PR의 wip도 GitHub에 남은 기록에서 되살린다. "아까 그 상태로 돌려줘", "그거 하기 전으로 되돌리자", "지난 PR 중간 상태 꺼내줘" 등에 사용.
 disable-model-invocation: true
-allowed-tools: Bash(git *) Bash(gh *)
+allowed-tools: Bash(git *) Bash(gh *) Bash(env GH_TOKEN=*)
 context: fork
 agent: git-flow
 ---
@@ -13,7 +13,9 @@ agent: git-flow
 
 이 프로젝트 흐름은 `new-task`(브랜치 생성) → 작업(매 턴 wip 커밋 자동 누적) → `done-task`(PR·squash 머지) 순환이라, main에는 PR당 커밋 1개만 남는다. 그래서 **턴 단위로 돌아가는 길**이 따로 필요하다 — 이 스킬이 그 길이다. 이게 없어서 main을 즉흥적으로 되감으면, 머지된 PR이 main 로그에서 통째로 사라지는 사고로 이어질 수 있다.
 
-이 스킬은 `context: fork`로 git-flow 서브에이전트(sonnet)에서 격리 실행된다 — 메인 세션 토큰 절약 목적. 실행 중 사용자 질문이 불가능하므로 결정 지점은 [결정 필요] 반환 → 메인이 사용자에게 확인 → **사용자가 직접** 결정을 args에 담아 슬래시 명령으로 재호출하는 프로토콜을 쓴다. (`disable-model-invocation: true`라 AI는 이 스킬을 재호출할 수 없다 — 재호출 입력은 반드시 사용자 몫.)
+이 스킬은 `context: fork`로 git-flow 서브에이전트(sonnet)에서 격리 실행된다 — 메인 세션 토큰 절약 목적. 실행 중 사용자 질문이 불가능하므로 결정 지점은 [결정 필요]로 반환한다. [결정 필요]를 반환하면 사용자가 직접 재호출한다 — 클로드 자동 호출 없음(`disable-model-invocation: true`).
+
+**gh 호출은 ship-task §1-0과 같은 토큰 로더를 같은 셸 호출 앞에 단다** — `env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh <명령>` (환경변수는 다음 Bash 호출로 안 넘어간다).
 
 ## 호출 인자
 
@@ -140,7 +142,7 @@ git show --stat --format='' <커밋번호> | tail -1
 
 ```bash
 git log main --format='%h|%ar|%s' -10          # main의 squash 커밋. 제목 끝 (#N)이 PR 번호
-gh pr list --state merged --limit 20 --json number,title,mergedAt
+env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh pr list --state merged --limit 20 --json number,title,mergedAt
 ```
 
   뽑은 목록으로 **[결정 필요] 반환**:
@@ -232,8 +234,8 @@ git tag "rewind-backup/$(git rev-parse --abbrev-ref HEAD)-$(date +%Y%m%d-%H%M%S)
 git checkout <커밋번호> -- <파일경로>
 ```
 
-- 되살린 파일은 **커밋 대기 상태(staged)로 남는다.** 자동 커밋하지 마라 — 사용자가 내용을 보고 결정할 몫이다.
-- 이 상태에서는 auto-wip-commit 훅이 "이미 대기 중인 파일이 있으면 건드리지 않는다"는 규칙 때문에 **다음 턴 자동 저장이 멈춘다.** 완료 보고에 이 점을 꼭 알린다.
+- 되살린 파일은 **스테이징(staged)돼 있고, 커밋은 턴 끝 훅이 한다.** 스킬 안에서 직접 커밋하지 마라.
+- 이 턴이 끝나면 auto-wip-commit 훅이 되살린 파일을 wip 커밋으로 박는다 — 원치 않으면 §4-a 백업 태그로 되돌린다. 완료 보고에 이 점을 꼭 알린다.
 
 **(B) 새 가지로 살리기**
 
@@ -282,8 +284,8 @@ git ls-remote --exit-code --heads origin "$(git rev-parse --abbrev-ref HEAD)"
 ✓ 되살린 PR 기록: recover-<N> 브랜치로 가져옴 (PR #N) — 2-b 경로였을 때만
 
 다음에 할 일:
-- (A였으면) 되살린 파일이 커밋 대기 상태야. 내용 확인하고 커밋해줘 —
-  대기 상태로 두면 다음 턴 자동 임시 저장(wip 커밋)이 건너뛰어져.
+- (A였으면) 되살린 파일이 스테이징돼 있어. 이 턴이 끝나면 auto-wip-commit 훅이 wip 커밋으로 박아 —
+  원치 않으면 위 백업 태그로 되돌리면 돼.
 - (B였으면) 지금 <새이름> 브랜치 위야. 이어서 작업하면 돼.
 - (C였으면) 브랜치가 그 시점으로 돌아갔어. 이어서 작업하면 자동 임시 저장이 다시 쌓여.
 - recover-<N> 브랜치는 다 쓰면 `git branch -D recover-<N>` 로 지워도 돼 (GitHub 원본은 안 지워짐).
@@ -291,7 +293,7 @@ git ls-remote --exit-code --heads origin "$(git rev-parse --abbrev-ref HEAD)"
 
 ## 사용자 응대 톤
 
-톤은 AGENTS.md의 응답·문서 작성 원칙을 따름(친근한 반말, 조어 금지, 전문용어는 `번역(외국어 표기)`로 풀어 쓰기). 이 스킬 고유:
+톤은 `AGENTS.md 응답·문서 작성`을 따름. 이 스킬 고유:
 
 - 결정이 필요하면 진행을 멈추고 [결정 필요] 보고로 반환한다 (fork 실행이라 실행 중 질문 불가).
 - **커밋 목록은 무조건 표로.** 줄글로 나열하면 사용자가 못 고른다.
@@ -302,15 +304,15 @@ git ls-remote --exit-code --heads origin "$(git rev-parse --abbrev-ref HEAD)"
 
 | 상황                                                | 처리                                                                                       |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| 현재 브랜치가 main                                  | §1-c 두 갈래 안내. wip 꺼내기면 §2-b로, main 커밋 무르기면 `git revert` 안내 후 중단        |
+| 현재 브랜치가 main                                  | 두 갈래로 나눔 (§1-c)                                                                       |
 | 브랜치에 wip이 0개 (`origin/main..HEAD`가 비어 있음) | §2-b(PR 기록) 경로로 전환                                                                   |
 | PR을 한 번도 안 거치고 `git branch -D`로 지운 브랜치 | GitHub에 아무것도 없다(`refs/pull`은 PR을 열어야 생김). `git branch -D`는 그 브랜치의 로컬 기록(reflog)까지 지운다 → 못 살린다고 솔직히 알리고 중단 |
 | `recover-<N>` 이름 충돌                             | 뒤에 숫자 붙여 재시도 후 알림                                                               |
-| 되감으려는 브랜치가 이미 GitHub에 올라가 있음       | §4-b (C) [결정 필요]로 멈춤. 강제 밀어넣기 대신 (A)·(B) 권장                                |
+| 되감으려는 브랜치가 이미 GitHub에 올라가 있음       | [결정 필요]로 멈춤 (§4-b (C))                                                               |
 | wip 힌트가 `ㅇㅇ` 같아서 구분 불가                  | 정상. 시각·파일·증감으로 구분하게 표를 준다 (§2-a)                                          |
 | 힌트 한글이 중간에서 깨져 보임                      | 구버전 훅이 만든 옛 커밋에서는 힌트가 깨져 보일 수 있다 — 파일 목록으로 판단하게 한다 |
 | 힌트에 `wip: </task-notification>` 같은 시스템 메시지가 보임 | 구버전 훅이 만든 옛 커밋에 남은 흔적 — 그때는 시스템이 만든 메시지가 힌트로 새어 나왔다. 파일 목록으로 판단하게 한다 |
-| 후보가 20개 넘음                                    | 최근 20개만 + "그 앞은 N개 더 있어" 명시                                                    |
+| 후보가 20개 넘음                                    | 최근 20개만 + 자른 사실 명시 (§2-a)                                                         |
 | wip 커밋이 어느 작업 단위에도 해당하지 않는 어중간한 중간 상태 | 배경에서 서브 에이전트 여러 개가 동시에 파일을 쓸 때, 훅의 스냅샷 시점이 작업 단위 경계와 안 맞을 수 있다 → 한 커밋에 다른 에이전트 작업이 섞이거나 한 에이전트 작업이 여러 커밋으로 쪼개질 수 있다. 되감기 전에 `git show --stat <커밋번호>`로 실제 내용을 확인하게 한다 |
 | GitHub 브랜치 보호 규칙에 기대고 싶을 때            | 저장소가 비공개+무료 플랜이면 보호 규칙을 못 건다(API 403). 서버 안전망이 없으니 §4-a 백업 태그가 유일한 안전장치 — 건너뛰지 마라 |
 
@@ -330,9 +332,8 @@ git ls-remote --exit-code --heads origin "$(git rev-parse --abbrev-ref HEAD)"
 
 - ❌ 강제 밀어넣기(force push) — 어떤 경우에도 안 함. 필요해지는 상황이면 멈추고 다른 방법을 권한다
 - ❌ main 되감기·main 직접 push — main 커밋을 무르는 건 `git revert` 안내만 하고 중단
-- ❌ 자동 커밋 — (A) 방법으로 되살린 파일은 대기 상태로 남긴다. 커밋은 사용자 몫
+- ❌ 스킬 안에서 직접 커밋 — 커밋은 턴 끝 훅 몫
 - ❌ 백업 태그 원격 push — 로컬 태그만. 원격은 사용자가 직접
 - ❌ 기존 태그·브랜치 삭제 — `recover-<N>` 정리도 안내만 하고 사용자가 직접
 - ❌ 되살린 내용 자동 판단 — 어느 wip이 "맞는" 시점인지 AI가 고르지 않는다. 표로 보여주고 사용자가 고른다
-- ❌ Claude 자동 invoke — `disable-model-invocation: true`
 - ❌ 브랜치 생성·PR·머지 — 그건 `new-task`·`done-task` 스킬
