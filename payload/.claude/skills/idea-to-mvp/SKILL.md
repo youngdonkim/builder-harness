@@ -227,7 +227,7 @@ git branch --show-current
 
 산출물 위치: 프로젝트 루트의 `mvp/` — 한 폴더에 문서 산출물 (`user-story.md` · `design-brief.md` · `feature-list.md` · `market-research.md` · `information-architecture.md` · `backend-build.md` · `launch-plan.md` · `launch-retro.md`). 5단계는 md 산출물 없이 루트 앱 코드를 남긴다 — 아래 참조.
 
-**판올림(`-v2`)은 단계를 건너 다시 쓸 때만 한다** — 2단계에서 되돌아와 스토리를 다시 받을 때(`1-user-story.md` §2.6) `user-story-v2.md`·`user-story-v3.md`로 쌓는다. 옛 판본을 지우지 않는 건 무엇이 왜 바뀌었는지가 파일로 남게 하려는 것이고, 최신 번호가 그 산출물의 SoT다. 같은 단계 안에서 다듬는 재위임(리뷰 반영·스토리보드 검토 반복)은 같은 파일에 덮어쓴다(`1-user-story.md` §2.4·§2.5). 어느 쪽이든 저장 경로는 위임 지시서에 적는다. `design-brief.md`는 판올림 대상이 아니라 결정 대장이다 — 아래.
+**판올림(`-v2`)은 단계를 건너 다시 쓸 때만 한다** — 2단계에서 되돌아와 스토리를 다시 받을 때(`1-user-story.md` §2.6) `user-story-v2.md`·`user-story-v3.md`로 쌓는다. 옛 판본을 지우지 않는 건 무엇이 왜 바뀌었는지가 파일로 남게 하려는 것이고, 최신 번호가 그 산출물의 SoT다. 같은 단계 안에서 다듬는 재위임(리뷰 반영·스토리보드 검토 반복)은 같은 파일에 덮어쓴다(`1-user-story.md` §2.4·§2.5). 어느 쪽이든 저장 경로는 위임 지시서에 적는다.
 
 **`design-brief.md`는 판올림하지 않는다.** 이 파일은 다시 쓰이는 산출물이 아니라 **결정 대장(ledger)** 이라, 확정이 나올 때마다 **같은 파일의 해당 칸을 제자리에서 고쳐 누적**한다. `design-brief-v2.md`를 만들지 않는다.
 
