@@ -41,7 +41,7 @@ jobs:
       # 그 코드가 빌드·프리렌더 중에 실행되지 않으면 env 없이 빌드가 통과한다.
       # 실측 당시: src/lib/supabase.ts는 함수 호출 시점에만 값을 읽고(값이 없으면 빈 문자열로 대체),
       # 어디서도 import되지 않아 자리표시자 env 없이 npm run build가 그대로 통과했다.
-      # 6단계 이후 빌드가 env를 요구하면 자리표시자 env를 여기 추가한다.
+      # 6단계 이후 빌드가 env를 요구하면 자리표시자 env를 하네스 원본(payload)의 이 파일에 추가한다 — ci.yml은 하네스 소유물이라 프로젝트에서 고치면 다음 동기화 때 충돌로 잡힌다.
       - if: steps.node.outputs.present == 'true'
         run: npm run build
 

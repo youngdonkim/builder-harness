@@ -1,7 +1,7 @@
 ---
 name: new-task
 description: PR 머지 후 작업 단위 전환 — main 싱크 + 머지 끝난 옛 feature 브랜치 정리(local·remote) + 새 feature 브랜치 자동 생성. 사용자 의도(args 또는 follow-up)에서 type·topic을 Claude가 추론. "다음 작업 시작", "새 브랜치 만들어줘", "PR 머지했어 다음 가자" 등에 사용.
-allowed-tools: Bash(git *) Bash(gh *)
+allowed-tools: Bash(git *) Bash(gh *) Bash(env GH_TOKEN=*)
 context: fork
 agent: git-flow
 ---
@@ -12,7 +12,9 @@ agent: git-flow
 
 이 스킬은 `context: fork`로 git-flow 서브에이전트(sonnet)에서 격리 실행된다 — 메인 세션 토큰 절약 목적. 실행 중 사용자 질문이 불가능하므로 결정 지점은 [결정 필요] 반환 → 결정을 args에 담아 재호출하는 프로토콜을 쓴다.
 
-**호출은 클로드가 직접 한다.** main에 서 있는데 작업 요청이 오면 사용자에게 되묻지 말고 이 스킬을 불러 브랜치를 연다. [결정 필요]가 돌아오면 클로드가 맥락을 보고 판단해 결정을 args에 담아 재호출한다 — 브랜치를 새로 만드는 일이라 되돌리기 쉬워서, 판단을 사람에게 넘길 이유가 없다. 다만 PR 없는 로컬 브랜치 삭제(§3)처럼 되살릴 수 없는 선택은 판단이 애매하면 보존 쪽으로 기울이고 사용자에게 알린다.
+PR 없는 로컬 브랜치 삭제(§3)처럼 되살릴 수 없는 선택은 판단이 애매하면 보존 쪽으로 기울이고 사용자에게 알린다.
+
+**gh 호출은 ship-task §1-0과 같은 토큰 로더를 같은 셸 호출 앞에 단다** — `env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh <명령>` (환경변수는 다음 Bash 호출로 안 넘어간다).
 
 ## 호출 인자
 
@@ -58,14 +60,14 @@ git status --porcelain
 
 ```bash
 # 1-c. 현재 feature 브랜치라면 PR 상태 확인
-gh pr status 2>/dev/null || true
+env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh pr status 2>/dev/null || true
 ```
 
 - 현재 브랜치의 PR이 **미머지**면, 미머지 상태를 물어볼지 그냥 넘어갈지는 **내 권한**에 따라 갈린다. 팀원은 PR 올려두고 팀장 머지를 기다리며 다음 작업으로 넘어가는 게 정상 흐름이라 매번 물으면 마찰만 커서다.
 
   ```bash
   # 1-c-1. 내 권한 확인 (owner/repo는 gh repo view --json nameWithOwner로 구해라)
-  gh api repos/{owner}/{repo} --jq '.permissions'
+  env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh api repos/{owner}/{repo} --jq '.permissions'
   ```
 
   - **`admin`·`maintain` 둘 다 `false` (팀원) 또는 권한 조회 자체가 실패** → 묻지 않고 그냥 진행. 이 판정은 브랜치를 지우는 게 아니라 "물어볼지 말지"만 정하는 거라, 조회가 실패해도 틀려서 잃을 게 없다. 대신 완료 보고(§5)에 다음 줄을 남겨라:
@@ -111,7 +113,7 @@ git branch --format='%(refname:short)' | grep -v '^main$'
 
 ```bash
 # 그 브랜치의 PR 상태 조회
-gh pr list --head <branch> --state merged --json number,state,url --limit 1
+env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh pr list --head <branch> --state merged --json number,state,url --limit 1
 ```
 
 - 응답에 머지된 PR 있으면 → **자동 삭제 대상**. 머지된 PR은 내용이 GitHub에 보존돼 되돌릴 수 있는 안전한 정리 작업이라 args 지시 없이도 바로 진행:
@@ -260,13 +262,13 @@ git ls-remote --heads origin "${type}/${topic}-${n}"
 | 현재 브랜치가 이미 main (첫 사용의 기본 모습)             | §1-c(PR 확인) skip. §2는 pull만, §3·§4는 그대로   |
 | 머지된 local 브랜치 0개                                   | §3은 prune 한 줄만 하고 넘어감                    |
 | working tree 변경이 새 작업과 무관 (예: 환경 설정 잔여물) | stash 옵션 권장                                   |
-| PR이 머지 안 됐는데 새 작업 가야 함 — 나는 팀원(push만)   | 묻지 않고 진행. 완료 보고(§5)에 PR 대기 알림, 브랜치 보존         |
-| PR이 머지 안 됐는데 새 작업 가야 함 — 나는 팀장(admin·maintain) | args에 명시 지시 없으면 [결정 필요] 반환. 이 브랜치 삭제 X (보존) |
-| 권한 조회(`gh api .../permissions`) 실패                  | 팀원 취급 (묻지 않고 진행 + 보고에 남김)          |
-| PR 없는 local 브랜치를 "태그 박고 삭제"로 결정            | `git tag archive/<name>`로 그 지점을 고정해두고 나서 삭제 — 태그는 브랜치 삭제 후에도 남음 |
-| 새 브랜치 이름이 로컬에 이미 있음                         | suffix 숫자를 올려가며 로컬·원격 둘 다 비는 이름 나올 때까지 재시도 후 생성, 완료 보고에 "로컬에서 겹침" 알림 |
-| 새 브랜치 이름이 원격(GitHub)에 이미 있음                 | 위와 동일하게 재시도 후 생성, 완료 보고에 "팀원이 같은 이름을 쓰고 있을 수도" 알림 |
-| suffix 10회(`-2`~`-11`)까지 전부 겹침                     | 자동 재시도 중단, [결정 필요]로 더 구체적인 이름 요청           |
+| PR이 머지 안 됐는데 새 작업 가야 함 — 나는 팀원(push만)   | 묻지 않고 진행 (§1-c)                             |
+| PR이 머지 안 됐는데 새 작업 가야 함 — 나는 팀장(admin·maintain) | 지시 없으면 [결정 필요], 브랜치는 보존 (§1-c·§3) |
+| 권한 조회(`gh api .../permissions`) 실패                  | 팀원 취급 (§1-c)                                  |
+| PR 없는 local 브랜치를 "태그 박고 삭제"로 결정            | 태그 후 삭제 (§3)                                 |
+| 새 브랜치 이름이 로컬에 이미 있음                         | 번호 붙여 재시도 후 생성 (§엣지 — 이름 충돌)      |
+| 새 브랜치 이름이 원격(GitHub)에 이미 있음                 | 번호 붙여 재시도 후 생성 (§엣지 — 이름 충돌)      |
+| suffix 10회(`-2`~`-11`)까지 전부 겹침                     | [결정 필요]로 더 구체적인 이름 요청 (§엣지 — 이름 충돌) |
 
 ## 호출 패턴
 

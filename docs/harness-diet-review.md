@@ -1748,3 +1748,13 @@
 건너뛴 것: 3회차 5번(허브 색인의 bootstrap 참조 — 설계로 봄), 3회차 16·17·20(별 모양 설계라 용어 정의 양쪽 허용), 4회차 6-1-4(사고 기록 붙은 정본이라 6-1 유지, 6-3 쪽만 축약), 2회차 U3(사고 원문).
 
 반영 실행: `payload/`만 고치는 서브 에이전트 5개(opus) 병렬 — A git 흐름+AGENTS·템플릿 / B 운영 스킬·에이전트·rules·account-check·README / C design-system / D idea-to-mvp SKILL·1~4·user-scenario-writer / E 5~7. 이후 메인이 design-notes 추가, 루트 미러 동기화, 잔재 grep.
+
+### 반영 결과 (같은 날)
+
+- 다섯 에이전트 모두 결정 항목을 반영했고, 「보고서 인용이 파일에 없어 건너뛴 항목」은 0건. 헤더 변경은 3-market-research §5.5 하나(목차·외부 참조 0건 확인)뿐이고, 목차 앵커 대조는 전 파일 죽은 링크 0건.
+- 메인 추가 수정: layout-frames 풀이 2건, ship-task 「로컬 전환」 표현과 smoke test 풀이, ci.yml 「여기 추가한다」 주체(하네스 원본), README 265줄 `/clear` 이유·§5.3 「앞의 여섯」, 3-market-research 3-3 문장의 중복 꼬리, 6-1 PITR 풀이.
+- `docs/design-notes.md`에 옮긴 경위 넷 추가(14px 규칙 출처 · 목업/프로토타입 이름 유래(2·5단계) · 시각 다듬기 허용 경위 · 「빌더 가드레일」 옛 이름).
+- 루트 `.claude/`·`docs/` 미러 동기화 완료(`diff -rq` 차이 0).
+- 잔재 grep: 지운 문구·옛 이름 전부 0건. 남은 것은 다른 뜻의 정상 사용(ship-task·idea-to-mvp의 「예외 없이」 2건, 훅·fork 스킬의 `git rev-parse --abbrev-ref HEAD` — detached HEAD 감지용)과 일부러 둔 1-user-story §4.1 선언문의 ledger 풀이.
+- 분량: 보고서 제외 `.md`·`.sh`·`.yml` 합계 main 16,953줄 → 16,945줄. 줄 수는 거의 같다 — 이번 다이어트의 효과는 분량이 아니라 **모순 39건·죽은 참조·낡은 사실 23건 해소**와 규칙 발동 구멍(security-baseline paths, gh 토큰 로더) 메움이다. A(풀이 괄호) 삭제로 줄어든 만큼 포인터·로더·장부 칸이 늘었다.
+- 보류 2건: common-patterns 커뮤니티 표본 18/19곳(사용자 조사 기록 대조), common-patterns 해요체.
