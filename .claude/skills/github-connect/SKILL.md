@@ -17,21 +17,17 @@ description: 이 컴퓨터에서 이 프로젝트가 GitHub에 올라갈 수 있
 - **비밀값은 대화에 남기지 않는다** — 토큰 값을 화면에 출력하지 않고, 셸 안에서 바로 파일로 보낸다. 사용자에게는 "채팅창에 붙여넣지 마 — 대화 기록에 남아"라고 분명히 말한다.
 - **실패 한도** — `docs/account-check.md` 원칙 ⑥을 따른다. 로그인·가입·2FA·인증 코드는 1회 실패면 멈추고 사람에게. 토큰 발급은 2회. 401·403·404는 재시도하지 않고 원인을 바꾼다.
 - **전역 설정은 건드리지 않는다** — `git config --global`, `gh auth switch`를 쓰지 않는다. 같은 컴퓨터에 소유가 다른 프로젝트가 있을 수 있다(`docs/account-check.md` 원칙 ②).
-- **윈도우** — 클로드 코드 윈도우판은 명령을 Git Bash에서 돌린다. 아래 명령(`sed`·`env`·`export` 포함)과 하네스 훅도 Git Bash에서 돌 것으로 보이지만 실측은 아직 없다 — 막히면 그 자리에서 멈추고 보고한다.
+- **윈도우** — 클로드 코드 윈도우판은 명령을 Git Bash에서 돌린다. 아래 명령(`sed`·`env` 포함)과 하네스 훅도 Git Bash에서 돌 것으로 보이지만 실측은 아직 없다 — 막히면 그 자리에서 멈추고 보고한다.
 
-### 토큰 로더 — 두 가지 형태
+### 토큰 로더 — gh 명령에만
 
-토큰은 프로젝트 루트의 깃 미추적 파일 `.env.cli`에 `GH_TOKEN=...` 한 줄로 둔다. 부를 때마다 같은 셸 호출 안에서 읽어 넘긴다(환경변수는 다음 Bash 호출로 안 넘어간다).
+토큰은 프로젝트 루트의 깃 미추적 파일 `.env.cli`에 `GH_TOKEN=...` 한 줄로 둔다. gh 명령은 부를 때마다 같은 셸 호출 안에서 읽어 넘긴다(환경변수는 다음 Bash 호출로 안 넘어간다).
 
 ```bash
-# gh 명령
 env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh <명령>
-
-# 원격과 통신하는 git 명령 (push·pull·fetch·ls-remote)
-export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git <명령>
 ```
 
-*git에 `env` 형태를 쓰지 않는 이유*: `no-main-push` 훅은 명령 조각마다 첫 낱말이 `git`일 때만 검사한다. `env GH_TOKEN=... git push ...`로 쓰면 첫 낱말이 `env`라 훅이 push를 아예 못 보고 지나간다. `export ...; git push ...`는 `;`에서 조각이 나뉘어 훅이 `git push`를 그대로 검사한다. 괄호로 감싸지도 않는다(`(... git push origin main)`은 마지막 낱말이 `main)`이 되어 검사를 빠져나간다).
+**git 명령에는 로더를 달지 않는다** — ⑥에서 등록하는 자격 증명 도우미가 `.env.cli`를 직접 읽는다. `git push`·`git pull`을 맨 형태로 부르면 되고, 사람이 자기 터미널에서 쳐도 똑같이 된다. `env ...`를 git 앞에 붙이지 않는다 — 훅이 명령을 제대로 못 볼 수 있다(옛 `no-main-push` 훅은 그 형태를 통째로 놓쳤다).
 
 ## 진행 순서
 
@@ -174,7 +170,7 @@ env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh api user --jq
 
 SSH 대신 HTTPS + 토큰으로 통일한다. 설정은 **이 저장소의 로컬 git 설정에만** 한다.
 
-**확인** — 아래 출력이 정확히 두 줄(빈 줄, `!gh auth git-credential`)이면 건너뛴다.
+**확인** — 아래 출력이 정확히 두 줄(빈 줄, 그리고 아래 설정의 `!f() { … }; f` 함수 한 줄)이면 건너뛴다.
 
 ```bash
 git config --local --get-all credential.helper
@@ -185,11 +181,12 @@ git config --local --get-all credential.helper
 ```bash
 git config --local --unset-all credential.helper 2>/dev/null
 git config --local credential.helper ''
-git config --local --add credential.helper '!gh auth git-credential'
+git config --local --add credential.helper '!f() { echo username=x-access-token; echo "password=$(sed -n "s/^GH_TOKEN=//p" "$(git rev-parse --show-toplevel)/.env.cli")"; }; f'
 ```
 
 - 빈 값 줄은 「위에서 물려받은 도우미 목록을 여기서 비운다」는 표시다 — 전역에 걸린 맥 키체인·윈도우 자격 증명 관리자가 저장해 둔 다른 계정 비밀번호를 먼저 내밀지 못하게 한다.
-- gh 도우미는 환경변수 `GH_TOKEN`을 읽는다(실측 2026-09-29) — 그래서 push는 늘 위 「토큰 로더」의 git 형태로 부른다.
+- 두 번째 줄은 git이 GitHub 비밀번호를 물을 때마다 이 저장소의 `.env.cli`에서 `GH_TOKEN`을 읽어 건네는 도우미다(사용자명은 `x-access-token`). 토큰을 갈아 끼우면 다음 push부터 바로 새 토큰을 쓴다. 실측 2026-09-29: 임시 저장소에서 `git credential fill`로 가짜 토큰이 password로 그대로 나오는 것을 확인했다.
+- 그래서 git 명령에는 로더가 필요 없다. gh 명령만 위 「토큰 로더」를 단다.
 - **원격 주소가 ssh 형식**(`git@github.com:`·`ssh://`)인 옛 프로젝트면, https로 바꿀지 사용자에게 한 번 묻는다. 바꾸면 `git remote set-url origin https://github.com/<주인>/<저장소>.git`. 안 바꾸면 SSH 검문(`docs/account-check.md` 「GitHub SSH 키」)을 그대로 따른다.
 
 ### ⑦ 원격 저장소
@@ -207,7 +204,7 @@ git config --local --add credential.helper '!gh auth git-credential'
    ```
    주소가 ssh 형식으로 붙었으면(gh 전역 설정의 영향) `git remote set-url origin https://github.com/<주인>/<이름>.git`로 바꾼다.
 4. 같은 이름 저장소가 이미 있다고 실패하면 다시 시도하지 않는다 — 그 저장소에 이을지, 다른 이름으로 만들지 사용자에게 묻는다.
-5. `--push`는 붙이지 않는다 — push는 ⑧에서 훅이 보는 형태로 한다.
+5. `--push`는 붙이지 않는다 — push는 ⑧에서 `no-main-push` 훅이 검사하는 `git push`로 한다.
 
 ### ⑧ 첫 push
 
@@ -215,7 +212,7 @@ git config --local --add credential.helper '!gh auth git-credential'
 
 ```bash
 git rev-parse --verify -q main                    # 비면 로컬 main에 커밋이 없다 → 건너뜀
-export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git ls-remote --heads origin main   # 원격 main의 sha
+git ls-remote --heads origin main                 # 원격 main의 sha
 ```
 
 원격 main sha가 로컬 main과 같으면 건너뛴다.
@@ -224,19 +221,15 @@ export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git ls-remot
 
 - **원격 main 없음** →
   ```bash
-  export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git push -u origin main
+  git push -u origin main
   ```
 - **원격에 GitHub이 만든 첫 커밋이 있음** → 먼저 그 위로 올린 뒤 push한다. 충돌이 나면 `git rebase --abort`로 되돌리고 멈춰 보고한다. 강제 push(force push)는 하지 않는다.
   ```bash
-  export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git pull --rebase origin main
-  export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git push -u origin main
+  git pull --rebase origin main
+  git push -u origin main
   ```
 
-**`no-main-push` 훅에 막히면 우회하지 않는다.** project-init 직후 같은 세션에서는 훅이 아직 안 잡혀 그대로 올라간다. 앱을 껐다 켠 뒤 따로 불렀다면 훅이 이 push를 막는다 — 다른 명령 형태(`env` 앞붙이기, `gh repo create --push` 등)로 피해 가지 말고 [사람]에게 한 줄을 맡긴다: 터미널 앱을 열어 `cd <프로젝트 경로>` 뒤 아래를 붙여넣게 한다. 토큰 값이 화면에 안 나오는 형태라 그대로 붙여넣어도 된다.
-
-```bash
-export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli)"; git push -u origin main
-```
+**`no-main-push` 훅** — 훅은 원격에 main이 아직 없을 때만 이 첫 push를 허용한다(강제 push는 제외). project-init 직후 같은 세션에서는 훅이 아직 안 잡혀 있어, GitHub이 만든 첫 커밋이 있는 경우도 그대로 올라간다. **훅이 잡힌 세션에서 원격 main이 이미 있어 막히면 부트스트랩으로 밀어붙이지 않는다** — 우회하지 말고 브랜치 흐름(`/new-task` → `/done-task`)으로 간다. 다른 명령 형태(`gh repo create --push` 등)로 피해 가지 않는다.
 
 push가 `refusing to allow an OAuth App to create or update workflow` 류로 거부되면 토큰에 `workflow` 스코프가 없는 것이다 — 같은 push를 되풀이하지 말고 ④로 돌아가 스코프를 갖춘 토큰으로 바꾼다.
 
@@ -255,5 +248,5 @@ push가 `refusing to allow an OAuth App to create or update workflow` 류로 거
 - ❌ 토큰 값을 대화·화면에 출력 — 셸 안에서 파일로만 보낸다
 - ❌ 전역 설정 변경 — `git config --global`, `gh auth switch`, 전역 `gh auth setup-git`
 - ❌ 공개 저장소 기본 생성 — 사용자가 말했을 때만 공개
-- ❌ 강제 push, 훅 우회 — 막히면 사람에게 한 줄을 맡긴다
+- ❌ 강제 push, 훅 우회 — 막히면 브랜치 흐름으로
 - ❌ 부트스트랩이 아닌 main push — 원격 main에 작업 이력이 있으면 브랜치 흐름으로

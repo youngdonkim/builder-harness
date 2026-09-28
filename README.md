@@ -55,7 +55,7 @@ Claude Code는 두 가지 방식으로 쓴다 — **데스크톱 앱**(대화 �
 **1. 하네스 저장소 내려받기** — 컴퓨터에 **딱 한 번만**
 
 ```
-git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
+git clone https://github.com/youngdonkim/builder-harness.git ~/dev/builder-harness
 ```
 
 터미널이면 이 명령을 직접 치고, 데스크톱 앱이면 채팅창에 "이 주소를 `~/dev/builder-harness`에 clone해줘"라고 시키면 된다.
@@ -141,6 +141,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 |---|---|---|
 | 단계 스킬 | `idea-to-mvp` | 7단계: UserStory · Mockup · MarketResearch · InformationArchitecture · FrontendBuild · BackendBuild · MvpLaunch (통과 기준) |
 | 횡단 스킬 | `project-init` | 프로젝트에 하네스 적용 — `payload/`를 프로젝트 루트에 복사 + 훅 등록 설정 병합 + AGENTS.md 뼈대 생성. 이미 적용된 프로젝트에서 재실행하면 최신 원본과 비교해 동기화 |
+| 횡단 스킬 | `github-connect` | 이 컴퓨터에서 프로젝트가 GitHub에 올라가게 준비 — git·gh 설치 확인, 토큰(`.env.cli`), 계정 검문, 저장소 생성, 첫 push. 이미 된 단계는 건너뛴다. 하네스 신규 적용 끝에 자동으로 불리고, "깃헙 연결해줘"로 따로 불러도 된다 |
 | 횡단 스킬 | `new-task` | main 최신화 + 머지가 끝난 옛 작업 브랜치 정리 + 새 작업 브랜치 생성 |
 | 횡단 스킬 | `done-task` | ship 한 흐름 — 안에서 simplify 판단을 먼저 하고, git 절차는 내부 스킬 ship-task에 넘긴다. 부르는 이름은 done-task 하나다 |
 | 횡단 스킬 | `ship-task` | done-task가 부르는 내부 스킬(fork) — push → PR 생성 → (오너면) CI 대기 → squash 머지 → 브랜치 정리. 직접 부를 일 없음 |
@@ -154,7 +155,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 | 서브에이전트 | `user-scenario-writer` | 영화 시나리오형 유저 스토리 작성 |
 | 서브에이전트 | `ux-writing-reviewer` | UI 문구를 UX writing 원칙과 대조해 직접 교정 |
 | 서브에이전트 | `delegation-integrator` | 타 코딩 에이전트 연동 조사·설치·테스트·위임 스킬 생성/갱신 |
-| 훅 | `no-main-push` | main 브랜치에 바로 올리는 것을 차단 (PR 검토 흐름 강제) |
+| 훅 | `no-main-push` | main 브랜치에 바로 올리는 것을 차단 (PR 검토 흐름 강제). 예외는 원격에 main이 아직 없을 때의 첫 push 하나 |
 | 훅 | `auto-wip-commit` | 응답이 끝날 때마다 작업 브랜치에 진행 중 커밋(wip)을 자동 생성 |
 
 위 표는 부품(스킬·서브에이전트·훅)만 담았고, 함께 복사되는 규칙·설정 파일은 [§5.3](#53-프로젝트에-무엇이-생기나)에 정리돼 있다.
@@ -170,14 +171,14 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 원본을 자기 컴퓨터에 통째로 내려받는다(clone — 저장소를 그대로 복제해 오는 git 명령). 컴퓨터에 **한 번만** 하면 된다.
 
 ```
-git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
+git clone https://github.com/youngdonkim/builder-harness.git ~/dev/builder-harness
 ```
 
 터미널이면 이 명령을 직접 치면 된다. 데스크톱 앱이면 아무 대화나 열어 "이 주소를 `~/dev/builder-harness`에 clone해줘"라고 시키면 Claude가 대신 실행한다.
 
 `~/dev/builder-harness`가 기본 위치다. 다른 곳에 두고 싶으면 경로만 바꾸면 되는데, 그러면 [§5.5](#55-자주-막히는-두-가지)에서 경로를 알려줄 때 그 경로를 쓴다.
 
-**이 저장소는 공개다** — 누구나 fork·clone할 수 있다. 위 주소는 SSH 방식이라 GitHub 계정에 SSH 키가 등록돼 있어야 하고, 키가 없으면 https 주소로 받아도 된다.
+**이 저장소는 공개다** — 누구나 fork·clone할 수 있다. 위 https 주소면 로그인 없이 받는다. SSH 키를 등록해 둔 사람은 `git@github.com:youngdonkim/builder-harness.git`로 받아도 된다.
 
 **내려받아야 하는 사람은 하나뿐이다** — 하네스 자체를 프로젝트에 적용·동기화하거나 하네스를 고치는 사람. 하네스가 이미 적용된 프로젝트를 받아서 쓰기만 하는 팀원은 이 저장소가 아예 필요 없다([§5.4](#54-팀원은-무엇을-하나)).
 
@@ -201,7 +202,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 
 한 번 적용되고 나면 그다음부터는 "하네스 동기화해줘" 같은 말만으로 스킬이 잡힌다.
 
-**첫 적용 때는 `/new-task`가 아직 안 들어와 있어서 main에서 한다.** 적용이 끝난 뒤에 작업 브랜치를 만들어 커밋하면 된다. 두 번째 동기화부터는 [§6.2](#62-프로젝트에-동기화하기)처럼 작업 브랜치부터 만들고 시작한다.
+**첫 적용은 커밋과 GitHub 올리기까지 자동이다.** 파일을 다 넣으면 main에 첫 커밋을 하고, 이어서 `github-connect`가 git·gh 설치 확인 → GitHub 토큰 → 저장소 만들기 → 첫 push까지 한다. 가입·로그인·권한 창처럼 사람만 되는 일이 나오면 화면 이름·버튼 이름으로 한 단계씩 알려주고 기다린다. 이 첫 커밋·첫 push만 main에 바로 들어가는 예외다(빈 저장소라 리뷰할 화면도 배포도 없다). 끝나면 앱을 한 번 껐다 켜고, 그다음부터는 작업마다 `/new-task` → `/done-task` 흐름이다. 두 번째 동기화부터는 [§6.2](#62-프로젝트에-동기화하기)처럼 작업 브랜치부터 만들고 시작한다.
 
 ### 5.3 프로젝트에 무엇이 생기나
 
@@ -218,7 +219,7 @@ git clone git@github.com:youngdonkim/builder-harness.git ~/dev/builder-harness
 - **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§6.4](#64-적용한-버전이-파일로-남는다)).
 - **`mvp/`·`docs/` 폴더** — 단계 산출물과 사람이 읽는 문서가 쌓이는 자리.
 
-이 파일들은 전부 그 프로젝트 저장소의 일부다. 프로젝트의 git 흐름(작업 브랜치 → PR)으로 커밋하면 된다.
+이 파일들은 전부 그 프로젝트 저장소의 일부다. 신규 적용 때는 첫 커밋으로 main에 들어가고 GitHub에 올라가는 것까지 자동이다([§5.2](#52-프로젝트에-적용하기)). 그다음 바뀌는 것(동기화 등)은 프로젝트의 git 흐름(작업 브랜치 → PR)으로 합친다.
 
 ### 5.4 팀원은 무엇을 하나
 

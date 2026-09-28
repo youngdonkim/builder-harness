@@ -1,7 +1,7 @@
 ---
 name: ship-task
 description: done-task가 부르는 내부 스킬 — 현재 feature 브랜치의 wip 커밋을 push → PR → squash merge → 브랜치 정리. 사람이 직접 칠 일은 없다.
-allowed-tools: Bash(git *) Bash(gh *) Bash(npm run smoke) Bash(env GH_TOKEN=*) Bash(export GH_TOKEN=*)
+allowed-tools: Bash(git *) Bash(gh *) Bash(npm run smoke) Bash(env GH_TOKEN=*)
 context: fork
 agent: git-flow
 ---
@@ -51,7 +51,7 @@ env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh api user --jq
 
 - **`GH_TOKEN`이 있으면 (새 방식)** 위 명령이 답하는 계정이 곧 gh가 쓸 계정이다. 이 값을 표와 대조한다. **전역 활성 계정은 보지 않고 `gh auth switch`도 쓰지 않는다** — 환경변수 토큰이 저장된 자격 증명보다 우선해서 전환이 아무 효과가 없다.
 - **`GH_TOKEN`이 없으면 (이행 폴백)** 옛 방식으로 떨어진다 — `gh auth status`의 활성 계정을 표와 대조하고 아래 하드·소프트 규칙을 그대로 적용한다. 그리고 §4 완료 보고에 이 한 줄을 **반드시** 남긴다: "○ 이 프로젝트는 아직 gh 토큰 방식이 아니야 — `.env.cli`에 `GH_TOKEN`을 넣어 옮기는 게 좋아 (`docs/account-check.md` gh 항목)."
-- **`git push`도 같은 토큰을 탄다** — 기본 통로는 HTTPS + 토큰이다(`github-connect` ⑥: 이 저장소의 로컬 git 설정에 걸린 gh 자격 증명 도우미가 환경변수 `GH_TOKEN`을 읽는다). 그래서 **원격과 통신하는 git 명령(push·fetch·pull·ls-remote)은 전부 로더를 달아 부른다** — 형태는 `export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git <명령>`. git에는 `env ...` 형태를 쓰지 않는다 — `no-main-push` 훅은 첫 낱말이 `git`인 명령 조각만 검사해서, `env`를 앞에 붙이면 훅이 push를 못 본다.
+- **`git push`도 같은 토큰을 탄다** — 기본 통로는 HTTPS + 토큰이다(`github-connect` ⑥: 이 저장소의 로컬 git 설정에 걸린 자격 증명 도우미가 `.env.cli`의 `GH_TOKEN`을 직접 읽는다). 그래서 **git 명령(push·fetch·pull·ls-remote)에는 로더를 달지 않고 맨 형태로 부른다.** `env ...`를 git 앞에 붙이지 않는다 — 훅이 명령을 제대로 봐야 한다.
 - **원격 주소가 ssh 형식(`git@github.com:`·`ssh://`)인 옛 프로젝트만** push가 SSH를 타서 이 토큰과 무관하다 — 그때는 아래 하드 ①(원격 주소의 SSH 호스트 별칭)이 그 통로를 맡고, 두 통로가 다 표의 소유와 맞아야 한다.
 
 검사가 두 축이다.
@@ -71,8 +71,7 @@ git rev-parse --abbrev-ref HEAD
 # 1-b. origin/main 최신화 후, 그 대비 새 commit 있는가
 # (로컬 main이 아니라 origin/main 기준 — 팀 작업이라 로컬 main은 금방 뒤처짐.
 #  여기서 최신화해두면 §1.6 동기화 판단·§2 PR 정보 수집도 같은 fetch 결과를 그대로 씀)
-# 원격 통신 git 명령 — §1-0의 로더를 export 형태로 단다
-export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git fetch origin main
+git fetch origin main
 git log origin/main..HEAD --oneline | head -1
 ```
 
@@ -349,11 +348,7 @@ gh api repos/$REPO --jq '.permissions'
 
 #### 3-a. push
 
-push한다 (tracking 없으면 `-u`). §1-0의 로더를 **export 형태로** 단다 — `env` 형태는 `no-main-push` 훅을 비켜 가서 쓰지 않는다.
-
-```bash
-export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git push -u origin <branch>
-```
+push한다 (tracking 없으면 `-u`).
 
 - push 실패 (force 충돌·권한 등) → 중단 + 사용자에게 stdout 그대로 보고.
 
@@ -416,7 +411,6 @@ gh pr view <N> --json state,mergedAt --jq '.state'
 머지가 확인되면 **원격 브랜치와 로컬 브랜치가 치워졌는지 확인하고, `--delete-branch`가 못 치운 건 여기서 직접 마무리한다.** `--delete-branch`가 대개 여기까지 이미 해놨다 — 아래 확인 명령들의 출력이 비어 있으면 그냥 넘어간다 (없는 걸 지우려 하면 오류가 난다):
 
 ```bash
-# 원격 통신 git 명령(ls-remote·push·pull·fetch)은 §1-0의 로더를 export 형태로 앞에 단다
 git ls-remote --heads origin <branch>        # 출력이 있으면 원격에 아직 살아있다
 git push origin --delete <branch>            # 살아있을 때만
 

@@ -27,6 +27,19 @@
 #   - force push 전면 차단 (대상 브랜치 무관)
 #       -f, --force, --force-with-lease(=값 포함), --force-if-includes,
 #       또는 +로 시작하는 강제 refspec (예: git push origin +feature:main)
+#   - 환경변수 접두로 검사를 우회하는 경우 (2026-09-29 추가)
+#       (예: env GH_TOKEN=... git push origin main, env -u X git push,
+#       FOO=1 git push origin main) — 명령 조각이 env 또는 NAME=value로
+#       시작하면 그 뒤에서 첫 git 토큰을 찾아 거기서부터 판정한다.
+#       (값에 공백이 든 접두 "$(sed ... )"도 있어서 인자를 하나씩 건너뛰지
+#       않고 첫 git 토큰을 찾는다 — 오탐은 차단 쪽이라 안전하다)
+#
+# 허용 예외 — 부트스트랩 첫 push (2026-09-29 추가):
+#   main을 겨냥한 push라도 강제 push가 아니고, 그 원격에 main 브랜치가 아직
+#   없으면(git ls-remote --exit-code --heads <원격> refs/heads/main 이 "없음"
+#   으로 끝나면) 허용한다 — 하네스 첫 적용의 첫 push(github-connect ⑧).
+#   원격에 main이 있거나 조회가 실패하면(네트워크·인증 등) 지금처럼 차단한다.
+#   main push 조각이 한 명령에 둘 이상이면 예외 없이 차단한다.
 #
 # 정밀화: shell separator(&&, ||, ;, |, &)로 sub-command 분리 후
 # 각 sub-command의 첫 토큰이 git일 때만 검사.
@@ -73,25 +86,41 @@ is_force_token() {
 }
 
 block_reason=""
+main_push_count=0
+main_push_dir=""
+main_push_remote=""
 while IFS= read -r sub; do
   # leading/trailing 공백 제거
   sub_trimmed=$(printf '%s' "$sub" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
   [ -z "$sub_trimmed" ] && continue
-
-  # 첫 토큰
-  first=$(printf '%s' "$sub_trimmed" | awk '{print $1}')
-
-  [ "$first" != "git" ] && continue
 
   # 공백 기준 토큰화 (glob 확장 방지 위해 read -a 사용)
   tokens=()
   IFS=$' \t' read -r -a tokens <<< "$sub_trimmed"
   n=${#tokens[@]}
 
+  # git 토큰 위치 찾기. 첫 토큰이 git이면 0.
+  # env 또는 NAME=value 접두로 시작하면 그 뒤의 첫 git 토큰 (우회 봉쇄).
+  first="${tokens[0]:-}"
+  git_idx=-1
+  if [ "$first" = "git" ]; then
+    git_idx=0
+  elif [ "$first" = "env" ] || [[ "$first" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+    k=1
+    while [ "$k" -lt "$n" ]; do
+      if [ "${tokens[$k]}" = "git" ]; then
+        git_idx=$k
+        break
+      fi
+      k=$((k + 1))
+    done
+  fi
+  [ "$git_idx" -lt 0 ] && continue
+
   # git 전역 옵션(과 그 값)을 건너뛰고 서브커맨드 탐색
   # -C / --git-dir / --work-tree 의 값은 버리지 않고 target_dir에 기억해 둔다.
   # (뒤의 refspec 미지정 폴백에서 이 폴더의 브랜치를 봐야 하므로)
-  i=1
+  i=$((git_idx + 1))
   subcmd=""
   target_dir=""
   while [ "$i" -lt "$n" ]; do
@@ -137,21 +166,25 @@ while IFS= read -r sub; do
   non_dash_count=0
   refspec_count=0
   last_refspec=""
+  push_remote=""
+  main_hit=0
   while [ "$j" -lt "$n" ]; do
     arg="${tokens[$j]}"
     if is_force_token "$arg"; then
       block_reason="force-push"
       break 2
     fi
+    # main 겨냥은 기록만 하고 끝까지 훑는다 — 뒤에 붙은 force 토큰도 잡기 위해
     if is_main_target "$arg"; then
-      block_reason="main-push"
-      break 2
+      main_hit=1
     fi
     case "$arg" in
       -*) : ;; # 옵션 토큰은 remote/refspec 계산에서 제외
       *)
         non_dash_count=$((non_dash_count + 1))
-        if [ "$non_dash_count" -ge 2 ]; then
+        if [ "$non_dash_count" -eq 1 ]; then
+          push_remote="$arg"
+        else
           refspec_count=$((refspec_count + 1))
           last_refspec="$arg"
         fi
@@ -160,29 +193,52 @@ while IFS= read -r sub; do
     j=$((j + 1))
   done
 
-  # refspec 미지정(0개) 또는 refspec이 정확히 HEAD 하나뿐인 경우에만
-  # 현재 브랜치가 main인지 확인해서 차단 (gap 봉쇄). 다른 브랜치를
-  # 명시한 refspec이 있으면 이 폴백은 건너뜀.
   # 검사 대상 폴더: -C / --git-dir / --work-tree 로 지목한 폴더가 있으면 그쪽,
   # 없으면 명령이 실행될 폴더(BASE_DIR = stdin cwd). 상대 경로도 BASE_DIR 기준으로
   # 푼다 — Bash 도구가 세션 cwd에서 명령을 돌리므로 상대 -C 경로는 거기서 풀린다.
+  check_dir="$BASE_DIR"
+  if [ -n "$target_dir" ]; then
+    case "$target_dir" in
+      /*) check_dir="$target_dir" ;;
+      *)  check_dir="$BASE_DIR/$target_dir" ;;
+    esac
+  fi
+
+  if [ "$main_hit" -eq 1 ]; then
+    main_push_count=$((main_push_count + 1))
+    main_push_dir="$check_dir"
+    main_push_remote="${push_remote:-origin}"
+    continue
+  fi
+
+  # refspec 미지정(0개) 또는 refspec이 정확히 HEAD 하나뿐인 경우에만
+  # 현재 브랜치가 main인지 확인해서 차단 (gap 봉쇄). 다른 브랜치를
+  # 명시한 refspec이 있으면 이 폴백은 건너뜀.
   if [ "$refspec_count" -eq 0 ] || { [ "$refspec_count" -eq 1 ] && [ "$last_refspec" = "HEAD" ]; }; then
-    check_dir="$BASE_DIR"
-    if [ -n "$target_dir" ]; then
-      case "$target_dir" in
-        /*) check_dir="$target_dir" ;;
-        *)  check_dir="$BASE_DIR/$target_dir" ;;
-      esac
-    fi
     current_branch=$(git -C "$check_dir" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
     if [ "$current_branch" = "main" ]; then
-      block_reason="main-push"
-      break
+      main_push_count=$((main_push_count + 1))
+      main_push_dir="$check_dir"
+      main_push_remote="${push_remote:-origin}"
     fi
   fi
 done <<EOF
 $NORMALIZED
 EOF
+
+# main push 판정 — force가 아니고 조각이 하나뿐이면 부트스트랩 예외를 본다.
+# 원격에 main이 없을 때(ls-remote --exit-code가 2)만 허용. 있으면(0)·조회 실패(그 밖)는 차단.
+if [ -z "$block_reason" ] && [ "$main_push_count" -gt 0 ]; then
+  block_reason="main-push"
+  if [ "$main_push_count" -eq 1 ]; then
+    rc=0
+    GIT_TERMINAL_PROMPT=0 git -C "$main_push_dir" ls-remote --exit-code --heads "$main_push_remote" refs/heads/main >/dev/null 2>&1 || rc=$?
+    if [ "$rc" -eq 2 ]; then
+      echo "no-main-push: 원격 main이 없어 첫 push를 허용 (부트스트랩 — 원격 ${main_push_remote})" >&2
+      exit 0
+    fi
+  fi
+fi
 
 if [ "$block_reason" = "force-push" ]; then
   cat >&2 <<'MSG'

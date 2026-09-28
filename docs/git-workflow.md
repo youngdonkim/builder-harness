@@ -108,7 +108,8 @@ main 위에 다시 쌓는 방식이라 wip 커밋 하나하나가 main 로그에
 
 이 저장소는 모든 변경이 PR을 거쳐야 해. `.claude/hooks/no-main-push.sh` 훅이 이걸 막아줘 —
 main에 직접 push하는 `git push` 명령을 감지하면 실행을 차단해. 예외는 맨 처음 저장소를
-만들 때의 첫 push 하나뿐이야(§1.1).
+만들 때의 첫 push 하나뿐이야(§1.1) — 훅은 원격에 main이 아직 없고 강제 push가 아닐 때만
+그 push를 통과시켜. `env X=1 git push ...`처럼 앞에 환경변수를 붙여도 똑같이 검사해.
 
 **단, 이 훅이 막는 건 Claude가 이 저장소 안에서 Bash로 실행하는 push뿐이야.** 사용자가
 자기 터미널에서 직접 `git push origin main`을 치는 건 이 훅이 관여할 수 없어 — 훅은
