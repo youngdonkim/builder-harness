@@ -1,7 +1,7 @@
 ---
 name: ship-task
 description: done-task가 부르는 내부 스킬 — 현재 feature 브랜치의 wip 커밋을 push → PR → squash merge → 브랜치 정리. 사람이 직접 칠 일은 없다.
-allowed-tools: Bash(git *) Bash(gh *) Bash(npm run smoke) Bash(env GH_TOKEN=*)
+allowed-tools: Bash(git *) Bash(gh *) Bash(npm run smoke) Bash(env GH_TOKEN=*) Bash(export GH_TOKEN=*)
 context: fork
 agent: git-flow
 ---
@@ -41,7 +41,7 @@ agent: git-flow
 
 ### 1. 안전 검사 (실패 시 사용자 안내 후 중단)
 
-**1-0. 계정 검문** (프로젝트 `AGENTS.md`에 「소유와 계정」 표가 있을 때만 — 없으면 건너뛴다) — 절차·서비스별 함정은 `docs/account-check.md`를 읽는다. 특히 원격 저장소가 아직 없어 첫 push로 생기는 경우가 이 문서의 검문 대상이다.
+**1-0. 계정 검문** (프로젝트 `AGENTS.md`에 「소유와 계정」 표가 있을 때만 — 없으면 건너뛴다) — 절차·서비스별 함정은 `docs/account-check.md`를 읽는다. 원격 저장소를 처음 만드는 일은 이 스킬이 아니라 `github-connect` 몫이다(아래 하드 ②).
 
 **먼저 gh가 어느 계정으로 도는지 정한다.** gh 인증은 프로젝트의 CLI 전용 깃 미추적 파일(`.env.cli`)에 든 `GH_TOKEN`으로 한다 — **이 스킬의 모든 `gh` 명령은 아래 로더 줄을 같은 셸 호출 앞에 달아 부른다** (환경변수는 다음 Bash 호출로 안 넘어간다).
 
@@ -51,11 +51,12 @@ env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh api user --jq
 
 - **`GH_TOKEN`이 있으면 (새 방식)** 위 명령이 답하는 계정이 곧 gh가 쓸 계정이다. 이 값을 표와 대조한다. **전역 활성 계정은 보지 않고 `gh auth switch`도 쓰지 않는다** — 환경변수 토큰이 저장된 자격 증명보다 우선해서 전환이 아무 효과가 없다.
 - **`GH_TOKEN`이 없으면 (이행 폴백)** 옛 방식으로 떨어진다 — `gh auth status`의 활성 계정을 표와 대조하고 아래 하드·소프트 규칙을 그대로 적용한다. 그리고 §4 완료 보고에 이 한 줄을 **반드시** 남긴다: "○ 이 프로젝트는 아직 gh 토큰 방식이 아니야 — `.env.cli`에 `GH_TOKEN`을 넣어 옮기는 게 좋아 (`docs/account-check.md` gh 항목)."
-- **`git push`는 SSH를 타서 이 토큰과 무관하다** — 그쪽은 아래 하드 ①(원격 주소의 SSH 호스트 별칭)이 맡는다. 두 통로가 다 표의 소유와 맞아야 한다.
+- **`git push`도 같은 토큰을 탄다** — 기본 통로는 HTTPS + 토큰이다(`github-connect` ⑥: 이 저장소의 로컬 git 설정에 걸린 gh 자격 증명 도우미가 환경변수 `GH_TOKEN`을 읽는다). 그래서 **원격과 통신하는 git 명령(push·fetch·pull·ls-remote)은 전부 로더를 달아 부른다** — 형태는 `export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git <명령>`. git에는 `env ...` 형태를 쓰지 않는다 — `no-main-push` 훅은 첫 낱말이 `git`인 명령 조각만 검사해서, `env`를 앞에 붙이면 훅이 push를 못 본다.
+- **원격 주소가 ssh 형식(`git@github.com:`·`ssh://`)인 옛 프로젝트만** push가 SSH를 타서 이 토큰과 무관하다 — 그때는 아래 하드 ①(원격 주소의 SSH 호스트 별칭)이 그 통로를 맡고, 두 통로가 다 표의 소유와 맞아야 한다.
 
 검사가 두 축이다.
 
-- **하드 (다르면 멈춤)**: ① 원격 주소(SSH 호스트 별칭 포함)가 표 소유자의 저장소를 가리키는가. ② 원격이 아직 없어 새로 만들 때는, **위에서 정한 gh 계정**이 표의 GitHub 계정인가 — 원격 생성이 저장소가 계정에 묶이는 순간이라, 다르면 **만들지 않고 [결정 필요]로 멈춘다.** (근거: 첫 push 때 gh에 로그인된 개인 계정이 조용히 회사 프로젝트 저장소의 소유자가 된 실사고 — 토큰을 안 걸면 CLI 활성 계정은 전역이라 다른 소유의 프로젝트를 오가면 바뀌어 있다.)
+- **하드 (다르면 멈춤)**: ① 원격 주소(SSH 호스트 별칭 포함)가 표 소유자의 저장소를 가리키는가. ② 원격이 아직 없으면(`git remote get-url origin` 실패) **만들지 않고 멈춘다** — "먼저 `github-connect`로 GitHub 저장소를 이어야 해 ('깃헙 연결해줘'라고 하면 돼)"로 안내한다. 원격 생성은 저장소가 계정에 묶이는 순간이라, 표 대조 뒤에 만드는 `github-connect` ⑤·⑦ 몫이다. (근거: 첫 push 때 gh에 로그인된 개인 계정이 조용히 회사 프로젝트 저장소의 소유자가 된 실사고 — 토큰을 안 걸면 CLI 활성 계정은 전역이라 다른 소유의 프로젝트를 오가면 바뀌어 있다.)
 - **소프트 (원격이 이미 있을 때)**: **위에서 정한 gh 계정**이 표와 다를 때 — **`GH_TOKEN`으로 돌고 있으면 토큰 자체가 다른 계정 것이다.** 계정 전환으로는 못 고치니(토큰이 우선한다) 막지 말고 §4 완료 보고에 한 줄 남긴다 — "⚠ `.env.cli`의 `GH_TOKEN`이 표와 다른 계정(<계정>) 것이야. 표의 계정 토큰으로 갈아 끼워줘." **폴백(토큰 없음)으로 돌고 있고 표의 계정이 이 컴퓨터에 등록돼 있으면, 경고에 그치지 말고 표의 계정으로 전환한 뒤 진행한다** — 다시 전환하면 되돌릴 수 있고(전역 설정이라 다른 프로젝트에도 걸린다), §4 완료 보고에 전환 사실을 한 줄 남긴다. 표의 계정이 등록돼 있지 않거나(팀원이 자기 계정으로 일하는 정상 경우) 이 저장소의 커밋 작성자가 표와 다르면, 막지 않고 진행하되 §4 완료 보고에 한 줄 남긴다 — "⚠ 표의 소유자와 다른 계정(<계정>)으로 작업 중이야. 팀원이면 정상이고, 소유자 본인이면 계정을 확인해." 하드로 막으면 팀원의 모든 ship이 오탐으로 멈추고, 잘못된 계정의 push는 어차피 GitHub이 권한 오류로 거부한다 (§3-a가 처리).
 
 ```bash
@@ -70,7 +71,8 @@ git rev-parse --abbrev-ref HEAD
 # 1-b. origin/main 최신화 후, 그 대비 새 commit 있는가
 # (로컬 main이 아니라 origin/main 기준 — 팀 작업이라 로컬 main은 금방 뒤처짐.
 #  여기서 최신화해두면 §1.6 동기화 판단·§2 PR 정보 수집도 같은 fetch 결과를 그대로 씀)
-git fetch origin main
+# 원격 통신 git 명령 — §1-0의 로더를 export 형태로 단다
+export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git fetch origin main
 git log origin/main..HEAD --oneline | head -1
 ```
 
@@ -347,7 +349,11 @@ gh api repos/$REPO --jq '.permissions'
 
 #### 3-a. push
 
-push한다 (tracking 없으면 `-u`).
+push한다 (tracking 없으면 `-u`). §1-0의 로더를 **export 형태로** 단다 — `env` 형태는 `no-main-push` 훅을 비켜 가서 쓰지 않는다.
+
+```bash
+export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git push -u origin <branch>
+```
 
 - push 실패 (force 충돌·권한 등) → 중단 + 사용자에게 stdout 그대로 보고.
 
@@ -410,6 +416,7 @@ gh pr view <N> --json state,mergedAt --jq '.state'
 머지가 확인되면 **원격 브랜치와 로컬 브랜치가 치워졌는지 확인하고, `--delete-branch`가 못 치운 건 여기서 직접 마무리한다.** `--delete-branch`가 대개 여기까지 이미 해놨다 — 아래 확인 명령들의 출력이 비어 있으면 그냥 넘어간다 (없는 걸 지우려 하면 오류가 난다):
 
 ```bash
+# 원격 통신 git 명령(ls-remote·push·pull·fetch)은 §1-0의 로더를 export 형태로 앞에 단다
 git ls-remote --heads origin <branch>        # 출력이 있으면 원격에 아직 살아있다
 git push origin --delete <branch>            # 살아있을 때만
 
@@ -510,6 +517,7 @@ CI의 밀림 감지는 다음 main push 때나 돌아서, 그때까진 DB에 안
 
 | 상황                                                    | 처리                                                                     |
 | ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 원격(origin)이 없음                                     | 멈추고 `github-connect`부터 안내 — 이 스킬은 저장소를 만들지 않는다 (§1-0 하드 ②) |
 | `gh pr merge`가 0이 아닌 코드로 끝남                    | 종료코드로 판정하지 않는다. `gh pr view --json state`가 `MERGED`면 성공으로 보고 그대로 진행 (§3-d) |
 | 머지는 됐는데 원격·로컬 브랜치가 안 지워짐              | §3-d에서 직접 확인 후 원격 삭제 → main 이동 → 로컬 삭제까지 마무리. 그래도 실패하면 사유를 §4 보고에 남김 |
 | 로컬 main이 origin/main과 갈라져 `--ff-only` pull 실패  | 억지로 진행하지 않고 실패 사유를 §4 보고에 남긴다 (§3-d)                  |

@@ -1,7 +1,7 @@
 ---
 name: new-task
 description: PR 머지 후 작업 단위 전환 — main 싱크 + 머지 끝난 옛 feature 브랜치 정리(local·remote) + 새 feature 브랜치 자동 생성. 사용자 의도(args 또는 follow-up)에서 type·topic을 Claude가 추론. "다음 작업 시작", "새 브랜치 만들어줘", "PR 머지했어 다음 가자" 등에 사용.
-allowed-tools: Bash(git *) Bash(gh *) Bash(env GH_TOKEN=*)
+allowed-tools: Bash(git *) Bash(gh *) Bash(env GH_TOKEN=*) Bash(export GH_TOKEN=*)
 context: fork
 agent: git-flow
 ---
@@ -14,7 +14,7 @@ agent: git-flow
 
 PR 없는 로컬 브랜치 삭제(§3)처럼 되살릴 수 없는 선택은 판단이 애매하면 보존 쪽으로 기울이고 사용자에게 알린다.
 
-**gh 호출은 ship-task §1-0과 같은 토큰 로더를 같은 셸 호출 앞에 단다** — `env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh <명령>` (환경변수는 다음 Bash 호출로 안 넘어간다).
+**gh 호출은 ship-task §1-0과 같은 토큰 로더를 같은 셸 호출 앞에 단다** — `env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh <명령>` (환경변수는 다음 Bash 호출로 안 넘어간다). **원격과 통신하는 git 명령(pull·fetch·push·ls-remote·remote prune)도 같은 토큰을 탄다** — `export GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)"; git <명령>` 형태로 부른다 (`env` 형태는 `no-main-push` 훅을 비켜 가서 git에는 쓰지 않는다 — ship-task §1-0).
 
 ## 호출 인자
 
@@ -32,6 +32,13 @@ PR 없는 로컬 브랜치 삭제(§3)처럼 되살릴 수 없는 선택은 판�
 ## 실행 흐름
 
 ### 1. 안전 검사 (실패 시 사용자 안내 후 중단)
+
+```bash
+# 1-0. 원격(origin)이 있는가
+git remote get-url origin
+```
+
+- **실패하면** ([결정 필요] 없이) 중단하고 안내: "아직 GitHub 저장소에 안 이어져 있어. 먼저 `github-connect`를 돌려야 해 — '깃헙 연결해줘'라고 하면 돼."
 
 ```bash
 # 1-a. 현재 브랜치 확인
