@@ -36,13 +36,26 @@ jobs:
       - if: steps.node.outputs.present == 'true'
         run: npm run lint
 
-      # Supabase 환경 변수(NEXT_PUBLIC_SUPABASE_URL 등)는 여기 넣지 않았다.
-      # 5단계 코드는 Supabase 클라이언트 초기화 코드를 두지만 데이터는 로컬스토리지로 돌아서,
-      # 그 코드가 빌드·프리렌더 중에 실행되지 않으면 env 없이 빌드가 통과한다.
-      # 실측 당시: src/lib/supabase.ts는 함수 호출 시점에만 값을 읽고(값이 없으면 빈 문자열로 대체),
-      # 어디서도 import되지 않아 자리표시자 env 없이 npm run build가 그대로 통과했다.
-      # 6단계 이후 빌드가 env를 요구하면 자리표시자 env를 하네스 원본(payload)의 이 파일에 추가한다 — ci.yml은 하네스 소유물이라 프로젝트에서 고치면 다음 동기화 때 충돌로 잡힌다.
+      # 라우트 정적 검사·순수 함수 단위 검사 — 화면도 DB도 안 열어서 CI에서 그대로 돈다.
+      # 스크립트가 package.json에 있을 때만 돈다 (5단계 이전 프로젝트는 없다).
+      # 스모크 테스트(npm run smoke)는 여기 넣지 않는다 — 도는 서버와 로컬 Supabase가
+      # 있어야 하는데 CI에는 DB가 없다. 안 도는 검사를 넣으면 있다고 믿게 돼서 더 위험하다.
+      # 대신 done-task가 머지 직전에 로컬에서 돌린다.
       - if: steps.node.outputs.present == 'true'
+        run: |
+          for s in check:routes test:unit; do
+            if npm run | grep -q "^  $s$"; then npm run "$s"; else echo "$s 스크립트 없음 — 건너뜀"; fi
+          done
+
+      # 빌드에는 Supabase 주소·키가 **모양만** 있으면 된다.
+      # 프리렌더 중에 AppProvider가 브라우저 클라이언트를 만드는데(@supabase/ssr은
+      # 값이 비면 그 자리에서 예외를 던진다), 만들기만 할 뿐 요청은 하지 않기 때문이다.
+      # 그래서 여기서는 자리표시자를 넣는다 — 진짜 값은 Vercel 환경변수에 있다.
+      # (자리표시자를 진짜처럼 보이게 짓지 않는다. 실수로 붙여 쓰면 바로 티가 나야 한다.)
+      - if: steps.node.outputs.present == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://ci-placeholder.invalid
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
         run: npm run build
 
       # 마이그레이션이 든 PR을 머지해도 클라우드 DB는 자동으로 안 바뀐다 —
