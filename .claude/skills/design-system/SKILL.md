@@ -98,7 +98,7 @@ git branch --show-current
 
 - **값(색·간격·모서리…) 이름을 정하거나 새 토큰을 추가할 때** — [naming-taxonomy.md](references/naming-taxonomy.md) (토큰 명명 문법·유형표 + 새 토큰 추가 절차)
 - **새 UI 컴포넌트를 만들거나 인벤토리에 등록할 때** — [component-taxonomy.md](references/component-taxonomy.md) (컴포넌트 역할·티어·어휘 규칙)
-- **홈 첫 화면에 무엇을 먼저 둘지 정할 때** — [common-patterns.md](references/common-patterns.md) §1 (서비스 유형별 최상단 차례 · 관찰 37곳)
+- **홈 첫 화면에 무엇을 먼저 둘지 정할 때** — [common-patterns.md](references/common-patterns.md) §1 (SaaS / 커머스 / 마켓플레이스·O2O / 커뮤니티·SNS 네 유형의 최상단 차례와 로그인 전후 갈래 · 관찰 37곳+51곳 · 관례는 기본값이고 사용자 결정이 우선, 다르게 정하면 이유와 함께 기록)
 - **댓글창·게시글 에디터처럼 글을 써서 올리는 칸을 만들 때** — [common-patterns.md](references/common-patterns.md) §2~§7 (접근성 체크 목록 · 컴포저 · 에디터)
 - **새 화면·레이아웃을 설계할 때** — [layout-frames.md](references/layout-frames.md) (frame-first 절차, 셸 분류, 컨테이너 정책)
 - **폰트를 새로 넣거나 바꿀 때** — [font-loading.md](references/font-loading.md) (조각화·자체 호스팅 원리, Next.js 로딩 결정표, 빌드 검증 관문 3종)
