@@ -192,7 +192,7 @@ git clone https://github.com/youngdonkim/builder-harness.git ~/dev/builder-harne
 하네스 적용해줘
 ```
 
-그러면 `/project-init` 스킬이 돌면서 [§5.3](#53-프로젝트에-무엇이-생기나)의 파일들을 만든다. 도중에 서비스 이름·한 줄 정의·타겟, 그리고 **프로젝트 소유(개인/회사)**를 물어본다. 앞의 답은 그 프로젝트의 `AGENTS.md` 상단에 들어가고, 소유 답과 함께 서비스별 계정을 물어 같은 파일의 「소유와 계정」 표를 채운다 (모르는 칸은 `(확인 필요)`) — 이후 저장소·배포·DB가 전부 그 표의 계정으로만 만들어지도록 검문이 걸린다.
+그러면 `/project-init` 스킬이 돌면서 [§5.3](#53-프로젝트에-무엇이-생기나)의 파일들을 만든다. 도중에 **프로젝트 소유(개인/회사)** 하나만 물어본다. 소유 답과 함께 서비스별 계정을 물어 같은 파일의 「소유와 계정」 표를 채운다 (모르는 칸은 `(확인 필요)`) — 이후 저장소·배포·DB가 전부 그 표의 계정으로만 만들어지도록 검문이 걸린다. 서비스 이름·한 줄 정의·타겟은 여기서 묻지 않는다 — `/idea-to-mvp` 1단계가 물어 함께 다듬은 뒤 `AGENTS.md` 상단에 써넣는다(설치 때 대충 한 답이 그대로 굳지 않게).
 
 **첫 적용 때는 이 말이 안 먹을 수 있다.** 아직 그 프로젝트에 스킬 파일이 없어서 Claude가 무슨 말인지 모르기 때문이다. 그럴 땐 원본 경로를 직접 알려주면 된다.
 
@@ -213,7 +213,7 @@ git clone https://github.com/youngdonkim/builder-harness.git ~/dev/builder-harne
 - **`.claude/templates/`** — `delegation-integrator` 에이전트가 다른 AI 도구 연동을 세팅할 때 쓰는 문서 틀(sources·status).
 - **`docs/git-workflow.md`** — 훅과 작업 스킬들이 따르는 git 작업 흐름을 사람이 읽으라고 정리해둔 문서.
 - **`.github/workflows/ci.yml`** — `done-task`가 머지 전에 통과를 기다리는 lint + build 검사.
-- **`AGENTS.md`** — 그 프로젝트의 **규칙 정본**이다. Claude뿐 아니라 Codex 같은 다른 AI 도구도 읽고, 세션을 열 때 자동으로 읽히며 컴팩션(`/compact`·자동) 때 다시 읽힌다 — 세션 중에 고친 건 다음 컴팩션이나 `/clear`부터 반영된다. 이것만은 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 인터뷰 답을 채워 만든다. 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
+- **`AGENTS.md`** — 그 프로젝트의 **규칙 정본**이다. Claude뿐 아니라 Codex 같은 다른 AI 도구도 읽고, 세션을 열 때 자동으로 읽히며 컴팩션(`/compact`·자동) 때 다시 읽힌다 — 세션 중에 고친 건 다음 컴팩션이나 `/clear`부터 반영된다. 이것만은 그대로 복사되지 않고, 원본의 `AGENTS.md.template`에 소유·계정 답을 채워 만든다(서비스 정의 줄은 1단계가 채운다). 내용은 `<!-- BEGIN:project-rules -->` 마커 구역 안에 들어가고, 빈 자리는 프로젝트가 채워 나간다. 이미 있으면 덮어쓰지 않고 우리 구역만 덧붙인다.
 - **`CLAUDE.md`** — 내용이 `@AGENTS.md` 한 줄뿐인 포인터 파일. 규칙은 담지 않는다. 클로드 코드가 버전·실행 환경에 따라 `AGENTS.md`를 혼자 읽지 못하는 경우가 있어서, 어디서 열어도 규칙이 읽히도록 이 한 줄을 둔다.
 - **`.claude/settings.json`** — 원본의 `settings-hooks.json`에 적힌 훅 등록 내용이 이 파일에 합쳐진다. 이미 있던 다른 설정은 그대로 둔다.
 - **`.claude/harness-version`** — 지금 적용한 하네스가 어느 버전인지 적어두는 표시 파일이다([§6.4](#64-적용한-버전이-파일로-남는다)).
@@ -344,7 +344,7 @@ payload/docs/git-workflow.md          # 훅·done-task가 참조하는 작업 �
 payload/docs/account-check.md         # 계정 검문 절차·서비스별 함정 — 첫 push·첫 배포·6-0 직전에 읽는 온디맨드 문서
 payload/.github/workflows/ci.yml      # done-task가 머지 전 통과를 기다리는 lint + build 검사
 payload/.claude/settings-hooks.json   # (예외) 복사 아님 — 훅 등록 원본, 프로젝트 설정 파일에 합쳐 넣는 내용
-payload/AGENTS.md.template            # (예외) 복사 아님 — 인터뷰 답을 채워 프로젝트 AGENTS.md를 만드는 틀
+payload/AGENTS.md.template            # (예외) 복사 아님 — 소유·계정 답을 채워 프로젝트 AGENTS.md를 만드는 틀
 ```
 
 `payload/` 아래 구조가 곧 프로젝트 루트에 놓일 모양이다. 여기에 파일을 더하면 그게 그대로 프로젝트로 간다. **예외는 끝의 두 파일뿐**이다 — 그대로 놓이는 파일이 아니라서 복사에서 빠지고, 하나는 병합 원본으로 나머지 하나는 가공할 틀로 쓰인다. 그래서 이 둘만 `payload/` 안에서 자리가 특별하다(템플릿은 payload 루트에).
