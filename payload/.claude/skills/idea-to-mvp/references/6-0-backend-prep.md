@@ -74,7 +74,7 @@ description: 6단계(BackendBuild)에 들어가기 전에 사람이 미리 갖�
 ### 3.1 GitHub
 
 - **[Aside]** 저장소가 소유자 계정·조직 아래에 있는지 확인한다. 아니면 저장소 설정의 Transfer(소유권 이전) 기능으로 지금 옮긴다 — 지금은 싸지만, 배포·CI를 다 붙인 뒤에 옮기면 웹훅·Secret을 전부 다시 연결해야 한다.
-- **[Aside]** gh CLI 인증은 **발급 토큰으로 한다** — 소유자 계정으로 개인 접근 토큰을 만들어 프로젝트의 CLI 전용 깃 미추적 파일에 `GH_TOKEN=...`으로 둔다(§3.2 Supabase와 같은 방식). 필요한 권한(스코프)은 발급할 때 공식 문서로 확인한다 — 하네스가 gh로 하는 일은 PR 생성·머지·저장소 조회·Actions Secret 설정·저장소 이전이다. **토큰이 걸리면 활성 계정 전환은 효과가 없다** (`docs/account-check.md` gh 항목). 아직 토큰이 없는 옛 프로젝트는 활성 계정을 표와 맞춰 임시로 진행하되, 이 단계에서 토큰으로 옮긴다.
+- **[AI]** gh CLI 인증(`.env.cli`의 발급 토큰 `GH_TOKEN`)은 `github-connect` ④에서 이미 끝나 있다 — 여기서는 토큰이 살아 있고 표의 계정 것인지 `env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh api user --jq .login`으로 확인만 한다. 없거나 죽었으면 `github-connect`를 돌린다(발급 길·권한·파일 규칙은 거기에). **토큰이 걸리면 활성 계정 전환은 효과가 없다** (`docs/account-check.md` gh 항목).
 - **[AI]** 깃허브 Secret 3종(`SUPABASE_ACCESS_TOKEN`·`SUPABASE_PROJECT_REF`·`SUPABASE_DB_PASSWORD`)은 Supabase 프로젝트를 만든 뒤 AI가 `gh secret set`으로 넣는다 — 사람이 미리 할 일은 없다. 실제로 넣는 절차는 6-1에서 한다.
 
 ### 3.2 Supabase

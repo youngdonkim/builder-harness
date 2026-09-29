@@ -43,6 +43,21 @@ main에 머지되면 Vercel이 그 커밋을 자동으로 배포해. 즉 **main�
 여기까지는 혼자 작업하는 걸 전제로 한 흐름이야. 여러 명이 같이 작업할 땐 몇 가지가
 달라지는데, §8에 정리해뒀어.
 
+### 1.1 처음 시작 — 저장소 만들기는 한 번만
+
+새 폴더에서 "하네스 적용해줘"라고 하면 첫 커밋과 첫 push는 자동이야. `project-init`이
+하네스 파일을 main에 첫 커밋으로 넣고, 이어서 `github-connect`가 GitHub 저장소를 만들고
+main을 올려. git·gh 설치나 GitHub 로그인처럼 사람만 할 수 있는 일이 나오면 한 단계씩
+화면 이름·버튼 이름으로 알려줄 거야.
+
+이 첫 커밋·첫 push만 main에 직접 들어가 — §3 "main 직접 push 금지"의 유일한 예외야. 빈
+저장소라 리뷰할 화면도 배포도 없거든. 그다음부터는 위 흐름대로 `new-task` → 작업 →
+`done-task`야.
+
+push는 HTTPS + 토큰으로 해. 토큰은 프로젝트의 `.env.cli`(git에 안 올라가는 파일)에 있고,
+자세한 건 `docs/account-check.md` gh 항목에 있어. GitHub 연결을 미뤘다면 나중에 "깃헙
+연결해줘"라고 하면 돼 — 그 전엔 원격 저장소가 없어서 `new-task`·`done-task`가 안 돌아.
+
 ## 2. 왜 뭉쳐서 합치기(squash merge)인가
 
 두 가지를 동시에 얻고 싶어서야.
@@ -92,7 +107,9 @@ main 위에 다시 쌓는 방식이라 wip 커밋 하나하나가 main 로그에
 ## 3. main 직접 push 금지
 
 이 저장소는 모든 변경이 PR을 거쳐야 해. `.claude/hooks/no-main-push.sh` 훅이 이걸 막아줘 —
-main에 직접 push하는 `git push` 명령을 감지하면 실행을 차단해.
+main에 직접 push하는 `git push` 명령을 감지하면 실행을 차단해. 예외는 맨 처음 저장소를
+만들 때의 첫 push 하나뿐이야(§1.1) — 훅은 원격에 main이 아직 없고 강제 push가 아닐 때만
+그 push를 통과시켜. `env X=1 git push ...`처럼 앞에 환경변수를 붙여도 똑같이 검사해.
 
 **단, 이 훅이 막는 건 Claude가 이 저장소 안에서 Bash로 실행하는 push뿐이야.** 사용자가
 자기 터미널에서 직접 `git push origin main`을 치는 건 이 훅이 관여할 수 없어 — 훅은
