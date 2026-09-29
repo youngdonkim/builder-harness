@@ -82,6 +82,8 @@ create policy ..._read_public on 새표 for select to anon, authenticated using 
 | ④ | `for all` 금지 — SELECT·INSERT·UPDATE·DELETE 4개로 쪼갠다 (SELECT는 `using`만, INSERT는 `with check`만) | 불필요한 검사 제거 |
 | ⑤ | 권한 표 조회는 `security definer` 함수로 감싼다 | 178,000ms → 12ms |
 
+**①에는 단서가 있다 — 인자가 그 행의 컬럼이면 감싸도 소용이 없다.** `(select ...)`로 감싸는 이득은 결과가 행마다 같아서 한 번만 계산하고 재사용할 수 있을 때 생긴다. `(select checklist_is_visible(checklist_id))`처럼 인자가 행의 값이면 행마다 답이 달라 어차피 행마다 계산된다. 그러니 ①은 **인자가 없는 함수**(`auth.uid()`, `authorize('...')` 같은 상수 취급 호출)에만 적용한다.
+
 ### 정책은 신분이 아니라 권한 이름으로 묻는다 **[우리 결정]**
 
 ```sql
