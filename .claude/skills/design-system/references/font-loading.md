@@ -2,8 +2,8 @@
 
 한글 폰트를 웹에서 빠르고 안전하게 띄우는 방법. 실제 프로젝트에서 겪고 검증한 내용이다.
 
-**어디까지 프레임워크와 무관한가**: §1 원리, §2 개념 구분, §3 토큰 계층에서의 자리는
-어떤 프레임워크를 쓰든 그대로 통한다. §4 로딩 방법부터 §6 산출물 경로까지는 **Next.js 기준**이다.
+**어디까지 프레임워크와 무관한가**: §1 원리, §2 개념 구분은 어떤 프레임워크를 쓰든 그대로 통한다.
+§3 토큰 계층에서의 자리는 Tailwind 기준, §4 로딩 방법부터 §6 산출물 경로까지는 **Next.js 기준**이다.
 다른 프레임워크라면 **"조각화된 폰트를 자체 호스팅(self-hosting)한다"**
 는 원칙만 가져가고, 도구별 방법은 그 프레임워크 문서에서 찾으면 된다.
 
@@ -45,8 +45,13 @@
 ## 3. 토큰 계층에서의 자리
 
 - 폰트 패밀리(글꼴 이름)는 **foundation(1층) 원료**다. 색 팔레트 램프와 같은 자리다.
-- 제품 코드는 semantic 별칭(`--font-family-base` 등)만 참조한다. 그래서 폰트를 통째로 갈아끼워도
-  foundation만 바뀌고 화면 코드는 한 줄도 안 바뀐다.
+  - 구글 폰트: `next/font`의 `variable` 옵션이 내보내는 CSS 변수(예: `--font-base`)가 원료다.
+    `next/font`가 이 변수를 `<html>`에 붙인다.
+  - npm 폰트: 1층 `:root`에 적은 패밀리 이름 변수(예: `--font-pretendard: "Pretendard Variable"`)가 원료다.
+- **2층 다리 블록의 `--font-sans`만 이 원료들을 합친다** (예: `--font-sans: var(--font-base), var(--font-pretendard), "Apple SD Gothic Neo", sans-serif`).
+  다리 블록이 `@theme inline`이어야 `<html>`에 붙는 `--font-base`를 제자리에서 찾는다.
+- 제품 코드는 `font-sans` 클래스만 쓴다. 그래서 폰트를 통째로 갈아끼워도 foundation만 바뀌고 화면 코드는
+  한 줄도 안 바뀐다.
 - **로딩 방식은 토큰이 아니다.** 어떤 파일을 어떻게 받아올지는 빌드 인프라의 일이라 3층 밖에 있다.
   토큰 파일에 로딩 설정을 섞지 마라.
 
@@ -54,8 +59,8 @@
 
 | 폰트가 어디 있나 | 방법 | 핵심 설정 |
 |---|---|---|
-| 구글 폰트 | `next/font/google` | 조각화·자체 호스팅·자리 보정을 전부 알아서 해준다. 한국어 폰트는 `subsets: ["latin"]` + `preload: false` — 라틴 조각을 미리 받아 봐야 한글 화면에서는 안 쓰이고 자리만 차지한다 |
-| npm 패키지 (Pretendard 등) | 패키지에 같이 들어 있는 dynamic-subset(조각화된) CSS를 `globals.css` **맨 위**에서 `@import` | 번들러가 조각 woff2를 산출물로 복사해 주니 자체 호스팅이 된다. **`next/font/local`은 쓰지 마라** — `unicode-range`를 지원하지 않아서 MB급 통짜 파일이 모든 화면에 미리 받기(preload)로 걸린다. 실제로 밟은 함정이다 |
+| 구글 폰트 | `next/font/google` | 조각화·자체 호스팅·자리 보정을 전부 알아서 해준다. 한국어 폰트는 `subsets: ["latin"]` + `preload: false` — 라틴 조각을 미리 받아 봐야 한글 화면에서는 안 쓰이고 자리만 차지한다. `variable: "--font-base"`처럼 변수로 내보내 `<html>`의 `className`에 붙이고, 2층 `--font-sans`가 그 변수를 가리킨다(§3) |
+| npm 패키지 (Pretendard 등) | 패키지에 같이 들어 있는 dynamic-subset(조각화된) CSS를 진입 CSS(`globals.css`)의 **import 줄**에서 `@import` (`tailwindcss` 다음, 1층 앞) — 패밀리 이름은 2층 `--font-sans`에서 합친다(§3) | 번들러가 조각 woff2를 산출물로 복사해 주니 자체 호스팅이 된다. **`next/font/local`은 쓰지 마라** — `unicode-range`를 지원하지 않아서 MB급 통짜 파일이 모든 화면에 미리 받기(preload)로 걸린다. 실제로 밟은 함정이다 |
 | CDN `<link>` | 쓰지 않는다 | 외부 서버까지 왕복이 한 번 더 생기고, 캐시 상태에 따라 깜빡임이 가장 심해지는 방식이다 |
 
 ## 5. 마무리 체크 3가지

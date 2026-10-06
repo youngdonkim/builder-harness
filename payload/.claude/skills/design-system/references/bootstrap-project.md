@@ -2,17 +2,22 @@
 
 이 스킬은 builder-harness 하네스에 들어 있어서, 하네스를 적용한 프로젝트에서는 따로
 복사할 필요 없이 바로 쓸 수 있다. 새 프로젝트에 이 디자인 시스템을 도입할 때는 아래
-순서를 따른다.
+순서를 따른다. 스택은 Tailwind + shadcn 고정이다.
+
+CSS 3층만으로(`3-components.css`가 부품 몸통인 구조) 이미 지은 프로젝트는 그대로 둔다 —
+이 절차는 새 프로젝트에 적용한다.
 
 ## 목차
 
 0. [목업 반입(intake) — 무대 장치 제거](#0-목업-반입intake--무대-장치-제거)
-1. [토큰 3층 구축](#1-토큰-3층-구축)
-2. [범용 컴포넌트 이사](#2-범용-컴포넌트-이사)
-3. [컴포넌트 인벤토리(사전) 생성](#3-컴포넌트-인벤토리사전-생성)
-4. [프레임 정의](#4-프레임-정의)
-5. [AGENTS.md에 프로젝트 연결 정보(adapter) 기록](#5-agentsmd에-프로젝트-연결-정보adapter-기록)
-6. [다크모드 대비 노트](#6-다크모드-대비-노트)
+1. [토큰 3층 구축 — shadcn 위에](#1-토큰-3층-구축--shadcn-위에)
+   - [1.1 순서](#11-순서)
+   - [1.2 2층 파일의 모양](#12-2층-파일의-모양)
+   - [1.3 진입 CSS](#13-진입-css)
+2. [컴포넌트 인벤토리(사전) 생성](#2-컴포넌트-인벤토리사전-생성)
+3. [프레임 정의](#3-프레임-정의)
+4. [AGENTS.md에 프로젝트 연결 정보(adapter) 기록](#4-agentsmd에-프로젝트-연결-정보adapter-기록)
+5. [다크모드 대비 노트](#5-다크모드-대비-노트)
 
 ---
 
@@ -40,46 +45,136 @@
   `display: none`이어도 삭제한다. 그 공간 예약값(상단 고정 px, 하단 고정 px)도 함께 삭제하고,
   실기기 안전영역은 `env(safe-area-inset-*)` 토큰으로 대체한다.
 - **`display: none` 전수 수색**: 마크업은 죽었는데 예약 공간·상자만 남은 것들을 찾는다.
-- **번들 자산**: 목업에 통째로 박힌 폰트(수 MB)는 CDN이 아니라 **조각화된 자체 호스팅**으로 옮긴다
-  ([font-loading.md](font-loading.md)). 이미지는 최적화된 경로로 옮긴다.
+- **번들 자산**: 목업에 통째로 박힌 폰트(수 MB)는 CDN이 아니라 `next/font`(구글 폰트) 또는
+  조각화 CSS(npm 폰트)로 옮긴다 ([font-loading.md](font-loading.md) §4). 이미지는 최적화된 경로로 옮긴다.
 - **고정 무대 크기**(예: 430×884)를 반응형 계약으로 전환한다.
 - **인라인 스타일의 혈통 인지**: 생성 목업은 반복 요소와 1회성 요소를 구분하지 않고 전부
   인라인으로 찍어낸다. "변장한 반복"(같은 버튼이 여러 화면에 복붙된 경우)이 많으므로,
-  이후 3에서 부품 승격 감사를 전제로 진행한다.
+  이후 2에서 부품 승격 감사를 전제로 진행한다.
 - 목업 원본 파일은 정본 참조용으로 로컬에는 보관하되 레포 추적은 해제한다.
 
 이 단계가 끝나면 1로 진행한다.
 
-## 1. 토큰 3층 구축
+## 1. 토큰 3층 구축 — shadcn 위에
 
 ```
+src/app/globals.css     ← 진입 CSS: import 줄만 (§1.3)
 src/styles/
-  1-foundation/   ← 원시 토큰: 브랜드 팔레트 램프, 타입 스케일, 그리드, 그림자
-  2-semantic.css  ← 의미 별칭: 값은 전부 1층 변수 참조
-  3-components.css← 컴포넌트 클래스: 값은 전부 2층 토큰 참조
+  1-foundation/         ← 원시 토큰: 색 램프(oklch), 타입 스케일 원본, 그리드, 그림자 — :root에
+  2-semantic.css        ← shadcn 이름 + .dark + 다리 블록(@theme inline). 값은 전부 1층 변수 참조
+  3-components.css      ← 보조: 클래스로 못 푸는 전용 스타일, body 기본 스타일
+src/components/ui/      ← 3층 몸통(범용): shadcn이 복사해 준 부품
+src/components/         ← 3층 몸통(전용): 이 서비스만 쓰는 부품
 ```
 
-- **foundation**: 채택한 디자인 시스템(또는 자체 브랜드)의 원시 값을 채운다.
-  이 층은 read-only 취급 — 이후 브랜드가 바뀌면 이 층을 통째로 교체한다.
-- **semantic**: 이전 프로젝트의 골격(토큰 이름 세트)을 복사하고 **배선만 수정**
-  (`--color-primary`가 가리키는 램프만 새 브랜드로). 토큰 이름을 유지해야 범용 컴포넌트가 그대로 돈다.
+### 1.1 순서
+
+1. **`npx shadcn init`** — `components.json`·`lib/utils.ts`(`cn()`)·진입 CSS의 변수 블록이 생긴다.
+   `components.json`의 CSS 경로(`tailwind.css` 칸)는 진입 CSS(`globals.css`)로 둔다. init이 진입 CSS에
+   써 넣은 `:root`·`.dark`·`@theme inline` 블록은 2층 파일로 옮기고, 이후 부품을 받을 때 진입 CSS에
+   덧붙는 변수(예: sidebar·chart 부품의 변수)도 2층으로 옮긴다 — 도입 때 실측으로 확정한다.
+2. **1층 램프** — 채택한 디자인 시스템(또는 자체 브랜드)의 원시 값을 oklch(색을 밝기·채도·색상각으로 적는
+   CSS 색 형식)로 채운다. `:root`에 둔다 — `@theme`에 두면 `bg-brand-600` 같은 램프 클래스가 생겨 2층을
+   건너뛰는 길이 열린다. 이 층은 read-only 취급 — 이후 브랜드가 바뀌면 이 층을 통째로 교체한다.
+3. **2층을 shadcn 이름으로 다시 잇기** — init이 넣은 이름 세트(`--background`·`--card`·`--popover`·`--primary`·
+   `--secondary`·`--muted`·`--accent`·`--destructive`·`--border`·`--input`·`--ring`·`--chart-*`·`--sidebar-*` …와
+   각자의 `-foreground` 짝)를 지우지 말고 전부 1층 변수로 다시 잇는다(§1.2). 이름 세트를 shadcn이 정해 주니
+   받은 부품이 그대로 돈다.
+4. **진입 CSS의 import 순서를 고정한다** (§1.3).
+5. **필요한 부품을 받는다** — `npx shadcn add <이름>`. 받은 부품은 2층 값만으로 브랜드 옷을 입는다 — 수정 0줄이
+   정상이다. 파일을 고쳐야 하면 먼저 2층 값으로 풀 수 있는지 보고, 그래도 고쳤으면 adapter의 「고친 shadcn 부품
+   목록」(§4)에 파일과 이유를 한 줄 적는다.
+
 - **폰트 선정 + 로딩 방식 결정도 이 단계에서 함께** 한다. 색 팔레트만 정하고 폰트를 뒤로 미루면
   나중에 foundation을 다시 갈아엎게 된다 ([font-loading.md](font-loading.md)).
-- 로딩 순서 1→2→3을 진입점 CSS의 @import로 고정한다.
 
-## 2. 범용 컴포넌트 이사
+### 1.2 2층 파일의 모양
 
-이전 프로젝트에서 **semantic 토큰 계약을 지킨** 범용 컴포넌트(button, field, dialog, sheet…)는
-코드째 복사한다. foundation이 바뀌었으므로 자동으로 새 브랜드 옷을 입는다. 수정 0줄이 정상 —
-수정이 필요하다면 그 컴포넌트에 하드코딩이 숨어 있다는 신호다 (찾아서 토큰화).
+값은 자리표시자다. 1층 이름(`--gray-*`·`--brand-*`·`--b1-base` 등)은 1층이 정한다.
 
-## 3. 컴포넌트 인벤토리(사전) 생성
+```css
+/* src/styles/2-semantic.css — 의미 이름. 값은 전부 1층 변수만 가리킨다 */
+:root {
+  --background: var(--gray-0);
+  --foreground: var(--gray-900);
+  --primary: var(--brand-600);
+  --primary-foreground: var(--gray-0);
+  --muted-foreground: var(--gray-600);   /* 가장 옅은 글자 — 배경과 4.5:1 이상 */
+  --destructive: var(--red-600);         /* 상태 의미 전용, 장식 금지 */
+  --border: var(--gray-200);
+  --radius: var(--radius-base);          /* 하나에서 sm~xl을 파생 */
+}
+.dark {                                  /* 다크 모드 교체점 — 전환 장치는 아직 두지 않는다 */
+  --background: var(--gray-950);
+  --foreground: var(--gray-50);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--gray-950);
+}
+@theme inline {                          /* 다리 블록 — 여기 적은 이름만 클래스가 된다 */
+  --color-*: initial;                    /* Tailwind 기본 팔레트를 끈다 — bg-blue-500 같은 클래스가 아예 안 생긴다 */
+  --color-white: oklch(1 0 0);           /* shadcn 복사본의 text-white·bg-black/50이 안 깨지게 둘만 남긴다 */
+  --color-black: oklch(0 0 0);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-control: calc(var(--radius) - 2px);   /* 용도 이름 — rounded-control. 제품 코드는 이쪽을 먼저 */
+  --radius-card: var(--radius);                  /* rounded-card */
+
+  --font-sans: var(--font-base), var(--font-pretendard), "Apple SD Gothic Neo", sans-serif;
+                                         /* 구글 폰트(next/font 변수)와 npm 폰트(패밀리 이름)를 여기서만 합친다 */
+
+  --text-b1: var(--b1-base);             /* 우리 글 스케일 — text-b1. 제품 코드는 이 이름을 먼저 */
+  --text-b1--line-height: var(--b1-line);
+  --text-sm: var(--b2-base);             /* Tailwind 기본 이름을 우리 값으로 다시 정의 — 복사본의 text-sm이 우리 스케일을 쓴다 */
+  --text-sm--line-height: var(--b2-line);
+  --text-xs: var(--b2-base);             /* 복사본의 text-xs도 글자 바닥선(14px) 아래로 내려가지 않게 */
+  --text-xs--line-height: var(--b2-line);
+}
+```
+
+- **1층 램프는 `@theme`이 아니라 `:root`에 둔다.** 그래야 램프 이름 클래스가 아예 생기지 않는다.
+- **다리 블록이 `inline`이어야 하는 이유**: `--font-base`는 `next/font`가 `<html>`에 붙이는 변수라 `:root`
+  시점엔 없다. `inline`이면 클래스가 그 자리에서 값을 찾는다.
+- **기본 팔레트를 끄는 줄(`--color-*: initial`)은 빼지 않는다.** 빠지면 `bg-blue-500` 같은 팔레트 클래스가
+  다시 살아나 2층을 건너뛰는 길이 열린다. 5단계 관문 ①이 이 줄이 있는지 확인한다.
+- **글 스케일은 우리 이름(`text-b1` 등)을 먼저 쓴다.** Tailwind 기본 이름(`text-sm`·`text-xs`)은 막지 않고
+  우리 값으로 다시 정의해 둔다 — 막으면 shadcn 복사본의 `text-sm`이 사라져 부품이 깨진다. 복사본이 쓰는
+  기본 이름이 더 있으면 같은 식으로 다시 정의한다.
+- **둥글기는 용도 이름(`rounded-card`)을 먼저 쓴다.** 크기 이름(`rounded-md`)도 허용한다 — shadcn 복사본이
+  쓰는 이름이다.
+
+### 1.3 진입 CSS
+
+진입 CSS(`globals.css`)는 import 줄만 둔다:
+
+```css
+@import "tailwindcss";
+@import "tw-animate-css";                /* shadcn init이 넣는 줄 — 받은 그대로 둔다 */
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+                                         /* npm 폰트를 쓸 때만 — 조각화 CSS (font-loading.md §4) */
+@import "../styles/1-foundation/index.css";
+@import "../styles/2-semantic.css";
+@import "../styles/3-components.css";
+
+@custom-variant dark (&:is(.dark *));    /* shadcn init이 넣는 줄 — import 줄 뒤에 둔다 */
+```
+
+- `body`의 `bg-background text-foreground` 같은 기본 스타일은 `3-components.css` 맨 위로 옮긴다.
+- 로딩 순서 `tailwindcss` → 1 → 2 → 3은 바꾸지 않는다.
+
+## 2. 컴포넌트 인벤토리(사전) 생성
 
 프로젝트 문서(예: `docs/components.md`)에 새로 작성:
-- §2에서 이사 온 범용 컴포넌트를 등록하고, 앞으로 생길 전용 컴포넌트는 만들 때마다 등록한다
+- 등록 단위는 **부품 파일**이다. 칸은 둘 — `components/ui/`(범용, shadcn에서 받은 것)와 `components/`(전용)
+- §1.1에서 받은 범용 부품을 등록하고, 앞으로 받거나 만드는 부품은 그때마다 등록한다
 - 형식·규칙은 [component-taxonomy.md](component-taxonomy.md) §6
 
-## 4. 프레임 정의
+## 3. 프레임 정의
 
 frame-first로 셸·영역·크기 예산을 먼저 정하고, 예산은 layout/frame-budget 토큰으로 박는다.
 웹·앱 통합 개발이면 canvas·gutter의 플랫폼별 차이까지 이때 결정한다
@@ -88,19 +183,24 @@ frame-first로 셸·영역·크기 예산을 먼저 정하고, 예산은 layout/
 공통 셸은 하단 고정 요소가 아직 없어도 헤더/본문/하단 세 칸으로 시작한다
 ([layout-frames.md](layout-frames.md) §2.2).
 
-## 5. AGENTS.md에 프로젝트 연결 정보(adapter) 기록
+## 4. AGENTS.md에 프로젝트 연결 정보(adapter) 기록
 
 스킬은 범용, 프로젝트는 제각각 — 둘을 이어주는 **이 프로젝트만의 연결 정보**를 AGENTS.md에 기록한다:
-- 층별 파일 경로와 import 순서
-- 컴포넌트 인벤토리 위치
+- 진입 CSS와 세 층 파일 경로, import 순서
+- `components.json` 위치와 경로 별칭(예: `@/components/ui`)
+- 컴포넌트 인벤토리 위치 (두 칸 — `components/ui/`·`components/`)
 - 프레임 인벤토리·화면 패턴 목록 위치
-- 프로젝트 고유 예외·함정 토큰
+- **고친 shadcn 부품 목록** — 받은 뒤 직접 고친 `components/ui/` 파일과 고친 이유 한 줄씩. 부품을 다시 받을 때
+  `--diff`로 비교하고 이 목록대로 다시 고친다(`--overwrite` 금지). 목록이 없으면 다시 받는 순간 우리 수정이
+  조용히 사라진다
+- 관문 ① 예외 줄 (5단계 감사 grep에 걸리지만 남길 값 — 예: `1px` 테두리)과 프로젝트 고유 함정 토큰
 - 철칙 요약 (짧게 — 항상 컨텍스트에 있어야 하는 안전벨트)
 - **적용 규칙 요약** — 부품 값을 고를 때 매번 필요한 규칙을 구조 규칙 옆에 몇 줄로 요약한다. 항목은 스킬이 정하고, 값은 프로젝트가 채운다: ① 글자 크기 바닥선과 예외 자리 ② 역할 한정 토큰 목록(어느 토큰이 어느 자리 전용인지). 왜 여기 두나 — 스킬 본문은 자동 주입이 아니라서, 지시서만 받는 서브 에이전트는 AGENTS.md에 없는 적용 규칙을 알 길이 없다. (실사고: 글자 크기 바닥 규칙이 스킬에만 있어 본문 한 줄이 캡션용 토큰으로 들어갔는데, 토큰을 썼다는 이유로 구조 검사는 통과했다.)
 
-## 6. 다크모드 대비 노트
+## 5. 다크모드 대비 노트
 
-지금 다크모드를 만들지 않더라도, **semantic 층이 교체점이 되도록** 설계해 둔다:
-- 색은 반드시 semantic 별칭을 거치게 (제품 코드에 램프 직접 참조 금지 — 철칙 1·2가 곧 다크모드 대비다)
-- 색 배경 위 글자는 `on-` 토큰으로 분리
-- 이후 다크모드 = semantic 값을 CSS `light-dark()` 쌍으로 바꾸거나 다크용 foundation 램프를 추가하는 작업으로 끝난다
+지금 다크모드를 만들지 않더라도, **2층의 `.dark` 블록이 교체점이 되도록** 설계해 둔다:
+- 색은 반드시 semantic 이름 클래스를 거치게 (제품 코드에 램프 직접 참조 금지 — 철칙 1·2가 곧 다크모드 대비다)
+- 색 배경 위 글자는 `-foreground` 짝으로 분리
+- 이후 다크모드 = `.dark` 블록의 값을 다크용 램프 단계로 채우는 작업으로 끝난다. 전환 장치(예: `next-themes`)는
+  다크모드를 실제로 만들 때 붙인다
