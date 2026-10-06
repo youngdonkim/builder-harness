@@ -109,15 +109,14 @@ Tailwind 기본 글자 이름(`text-sm`·`text-xs` 등)은 shadcn 복사본이 �
 대신 그 부품을 **다른 이유로 손댈 때마다** 그 김에 `typography/component` 토큰으로 옮긴다.
 새로 만드는 부품 텍스트만 처음부터 토큰으로 — 그러면 시간이 지나며 자연스럽게 정리된다.
 
-**화면/섹션 단위로 토큰을 비례 조정할 때:** `:root`를 덮어쓰지 말고 그 스코프의 클래스(`3-components.css`)
-안에서 **1층 원본 변수 기준 calc()**로 증감폭만 적는다 (타입스케일뿐 아니라 spacing·radius 등 다른 유형에도
-적용 가능):
+**화면/섹션 단위로 토큰을 비례 조정할 때:** `:root`를 덮어쓰지 말고 그 스코프의 클래스 안에서
+**1층 원본 변수 기준 calc()**로 증감폭만 적는다 (타입스케일뿐 아니라 spacing·radius 등 다른 유형에도
+적용 가능). 1층 변수와 px 증감을 쓰는 자리라 이 스코프 클래스도 `2-semantic.css`에 둔다 — 3층에 두면 5단계
+관문 ①의 하드코딩·램프 직접 참조 검사에 걸린다:
 ```css
-/* 2층 — 조정할 스케일만 중간 변수를 둔다 */
-:root        { --b1-size: var(--b1-base); }
+/* 2-semantic.css — 조정할 스케일만 중간 변수를 두고, 스코프 클래스에서 1층 원본 기준으로 증감 */
+:root         { --b1-size: var(--b1-base); }
 @theme inline { --text-b1: var(--b1-size); }
-
-/* 3-components.css — 스코프 안에서 1층 원본 기준으로 증감 */
 .screen--dense {
   --b1-size: calc(var(--b1-base) - 1px);
 }
