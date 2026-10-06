@@ -241,12 +241,15 @@ description: 프런트엔드 구현 단계 가이드. information-architecture.m
 | 프레임워크 | Next.js (App Router) |
 | 언어 | TypeScript |
 | UI | React |
+| 스타일링·부품 | Tailwind CSS + shadcn/ui |
 | DB·Auth | Supabase (`@supabase/ssr` + `@supabase/supabase-js`) |
 | 호스팅 | Vercel |
 | lint | eslint-config-next |
 | 패키지 매니저 | npm |
 
-**왜 고정** (매 프로젝트 재결정 안 함): 캔버스 아트보드가 HTML·CSS라 Next 이식이 자연스럽고, Supabase는 DB+Auth+소셜 로그인이 붙으면 바로 되는 최단 경로, Vercel은 main 머지→자동 배포+프리뷰. 빌드가 싼 시대엔 *뭘 쓸지*를 매번 고르는 ceremony를 없애고 *뭘 만들지*에 집중한다.
+**왜 고정** (매 프로젝트 재결정 안 함): 캔버스 아트보드가 HTML·CSS라 Next 이식이 자연스럽고, Tailwind + shadcn은 범용 부품(버튼·입력·대화 창 등)을 프로젝트마다 새로 짓지 않고 받아 쓰게 해 준다. Supabase는 DB+Auth+소셜 로그인이 붙으면 바로 되는 최단 경로, Vercel은 main 머지→자동 배포+프리뷰. 빌드가 싼 시대엔 *뭘 쓸지*를 매번 고르는 ceremony를 없애고 *뭘 만들지*에 집중한다.
+
+CSS 3층(`3-components.css`가 부품 몸통인 구조)으로 이미 지은 프로젝트는 그대로 둔다 — 스타일링 행은 새 프로젝트부터 적용한다.
 
 **mandated core 밖**은 프로젝트별 추가 (지도=leaflet, 아이콘=lucide 등) — 검증 가설에 필요할 때만. core에서 빼거나 다른 것으로 갈아타는 건 하지 않는다. (결제 PG는 6단계 — 이 단계엔 결제가 없다.)
 
@@ -255,8 +258,9 @@ description: 프런트엔드 구현 단계 가이드. information-architecture.m
 1. Next.js 최신 stable 확인 → 그것이 요구하는 React·Node 버전(peer deps) 파악.
 2. TypeScript·eslint-config-next를 그 Next와 호환되는 최신으로.
 3. Supabase(`@supabase/ssr`·`@supabase/supabase-js`) 최신.
-4. **조합 설치 검증** — `npm install`이 peer-dep 충돌(`ERESOLVE`) 없이 통과하는지. 충돌 시 마지막 호환 조합으로 한 칸 물러선다 (`--force`·`--legacy-peer-deps`로 덮지 말 것).
-5. 해소된 정확한 버전을 `package.json`에 핀 + ADR에 조합 기록. 6단계는 이 기록을 참조만 하고 다시 고르지 않는다.
+4. Tailwind CSS 최신 stable과 그 Next 버전과의 연결 방식(PostCSS 플러그인 등). shadcn은 npm 패키지가 아니라 CLI가 부품 파일을 프로젝트에 복사해 주는 방식이라 버전을 핀하지 않는다 — 대신 고른 style 이름과 `components.json` 내용을 ADR에 적는다. 이 값이 같아야 나중에 부품을 다시 받아도 같은 모양이 나온다.
+5. **조합 설치 검증** — `npm install`이 peer-dep 충돌(`ERESOLVE`) 없이 통과하는지. 충돌 시 마지막 호환 조합으로 한 칸 물러선다 (`--force`·`--legacy-peer-deps`로 덮지 말 것).
+6. 해소된 정확한 버전을 `package.json`에 핀 + ADR에 조합 기록. 6단계는 이 기록을 참조만 하고 다시 고르지 않는다.
 
 - **조사 소스**: 공식 docs·npm registry·context7 (최신 버전·peer 요구). LLM 학습 시점 이후 버전은 반드시 조사로 확인 — 기억으로 박지 말 것.
 - **graceful degradation**: 조사가 불확실하면 마지막 known-good 조합으로 진행하고 `추후 결정: [무엇을 재확인]` 마킹.
