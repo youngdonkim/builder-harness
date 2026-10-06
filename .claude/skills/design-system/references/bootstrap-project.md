@@ -14,6 +14,7 @@ CSS 3층만으로(`3-components.css`가 부품 몸통인 구조) 이미 지은 �
    - [1.1 순서](#11-순서)
    - [1.2 2층 파일의 모양](#12-2층-파일의-모양)
    - [1.3 진입 CSS](#13-진입-css)
+   - [1.4 모션 토큰과 동작 줄이기 규칙](#14-모션-토큰과-동작-줄이기-규칙)
 2. [컴포넌트 인벤토리(사전) 생성](#2-컴포넌트-인벤토리사전-생성)
 3. [프레임 정의](#3-프레임-정의)
 4. [AGENTS.md에 프로젝트 연결 정보(adapter) 기록](#4-agentsmd에-프로젝트-연결-정보adapter-기록)
@@ -60,7 +61,7 @@ CSS 3층만으로(`3-components.css`가 부품 몸통인 구조) 이미 지은 �
 ```
 src/app/globals.css     ← 진입 CSS: import 줄만 (§1.3)
 src/styles/
-  1-foundation/         ← 원시 토큰: 색 램프(oklch), 타입 스케일 원본, 그리드, 그림자 — :root에
+  1-foundation/         ← 원시 토큰: 색 램프(oklch), 타입 스케일 원본, 그리드, 그림자, 모션(길이·곡선) — :root에
   2-semantic.css        ← shadcn 이름 + .dark + 다리 블록(@theme inline). 값은 전부 1층 변수 참조
   3-components.css      ← 보조: 클래스로 못 푸는 전용 스타일, body 기본 스타일
 src/components/ui/      ← 3층 몸통(범용): shadcn이 복사해 준 부품
@@ -76,6 +77,7 @@ src/components/         ← 3층 몸통(전용): 이 서비스만 쓰는 부품
 2. **1층 램프** — 채택한 디자인 시스템(또는 자체 브랜드)의 원시 값을 oklch(색을 밝기·채도·색상각으로 적는
    CSS 색 형식)로 채운다. `:root`에 둔다 — `@theme`에 두면 `bg-brand-600` 같은 램프 클래스가 생겨 2층을
    건너뛰는 길이 열린다. 이 층은 read-only 취급 — 이후 브랜드가 바뀌면 이 층을 통째로 교체한다.
+   모션 원료(길이 세 단계·가속 곡선 두세 개)도 이때 1층에 자리를 잡는다 (§1.4).
 3. **2층을 shadcn 이름으로 다시 잇기** — init이 넣은 이름 세트(`--background`·`--card`·`--popover`·`--primary`·
    `--secondary`·`--muted`·`--accent`·`--destructive`·`--border`·`--input`·`--ring`·`--chart-*`·`--sidebar-*` …와
    각자의 `-foreground` 짝)를 지우지 말고 전부 1층 변수로 다시 잇는다(§1.2). 이름 세트를 shadcn이 정해 주니
@@ -166,6 +168,58 @@ src/components/         ← 3층 몸통(전용): 이 서비스만 쓰는 부품
 
 - `body`의 `bg-background text-foreground` 같은 기본 스타일은 `3-components.css` 맨 위로 옮긴다.
 - 로딩 순서 `tailwindcss` → 1 → 2 → 3은 바꾸지 않는다.
+
+### 1.4 모션 토큰과 동작 줄이기 규칙
+
+움직임 값도 색처럼 1층 원료 → 2층 이름으로 흐른다. 길이 세 단계(빠름·보통·느림)와 가속 곡선(easing — 움직임이
+처음과 끝에서 빨라지고 느려지는 모양) 두세 개면 충분하다. 값 몇 개만 바꾸면 앱 전체 움직임의 느낌이 같이 바뀌게
+하려는 것이다. 이름은 [naming-taxonomy.md](naming-taxonomy.md) 유형표 motion 행을 따른다. 값은 자리표시자다 —
+idea-to-mvp 5단계면 `mvp/design-brief.md` 「8. 모션·인터랙션 방향」의 분석 결과로 채운다.
+
+```css
+/* 1층 — src/styles/1-foundation/motion.css */
+:root {
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --curve-out: cubic-bezier(0.2, 0, 0, 1);            /* 끝에서 부드럽게 멈춤 */
+  --curve-spring: cubic-bezier(0.34, 1.56, 0.64, 1);  /* 끝에서 살짝 튐 — 생동감이 필요할 때만 */
+}
+
+/* 2층 — src/styles/2-semantic.css */
+:root {
+  --duration-fast: var(--motion-fast);
+  --duration-base: var(--motion-base);
+  --duration-slow: var(--motion-slow);
+}
+@theme inline {
+  --ease-standard: var(--curve-out);                  /* → ease-standard */
+  --ease-emphasis: var(--curve-spring);               /* → ease-emphasis */
+  --default-transition-duration: var(--duration-fast);       /* transition-colors 같은 클래스의 기본 길이 */
+  --default-transition-timing-function: var(--curve-out);
+}
+
+/* 전역 — src/styles/3-components.css 맨 위, body 기본 스타일 옆. 예외 없음 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+- **길이 클래스(`duration-fast` 등)는 따로 만든다.** 곡선은 다리 블록의 `--ease-*` 이름이 바로 클래스가 되지만,
+  길이는 Tailwind에 이름 자리가 없을 수 있다. 없으면 2층 파일에 `@utility duration-fast { … }`로 한 단계씩 만든다.
+  안에 쓸 속성은 빌드 결과 CSS에서 Tailwind의 `duration-150`이 내는 것을 보고 똑같이 따라 한다 — 그래야 CSS 전환과
+  tw-animate-css 등장 효과 둘 다에 길이가 먹는다. 버전마다 다를 수 있어 도입 때 실측으로 확정한다.
+- **동작 줄이기(prefers-reduced-motion)** — 운영체제 설정에서 움직임을 줄여 달라고 켜 둔 사람에게는 움직임을 끈다.
+  화면마다 분기하지 않고 위 전역 규칙 한 번으로 처리한다. 값을 `0s`로 적는 건 5단계 관문 ①의 ms 하드코딩 검사에
+  걸리지 않게 하려는 것이다. JS로 돌리는 움직임(예: `motion` 라이브러리)은 이 규칙이 못 끄니, 들였으면 그
+  라이브러리의 전역 동작 줄이기 설정을 앱 맨 바깥에 한 번 건다.
+- **3층·제품 코드에는 ms 값과 곡선을 적지 않는다** — `duration-300`·`duration-[250ms]`·`cubic-bezier(…)` 대신
+  `duration-base`·`ease-standard`. 5단계 관문 ① 11번 grep이 잡는다.
 
 ## 2. 컴포넌트 인벤토리(사전) 생성
 

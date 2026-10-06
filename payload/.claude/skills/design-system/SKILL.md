@@ -75,6 +75,7 @@ git branch --show-current
 | hex/rgb 하드코딩 (`bg-[#333]`, `style={{ color: "#fff" }}`) | semantic 이름 클래스 (`bg-primary`·`text-primary-foreground`) |
 | px 매직넘버 간격 (`p-[13px]`) | theme 스케일 클래스 (`p-3`) |
 | px 매직넘버 글자크기 (`text-[15px]`) | 글 스케일 클래스(`text-b1`), 안 맞으면 `typography/component` 토큰 새로 만들기 (naming-taxonomy.md §2) |
+| 3층·제품 코드에 모션 값(ms·곡선) 직접 쓰기 (`duration-300`, `duration-[250ms]`, `cubic-bezier(…)`) | 1층 모션 토큰을 2층 이름 클래스로 (`duration-base`·`ease-standard`), 동작 줄이기는 전역 규칙 한 번 — [bootstrap-project.md](references/bootstrap-project.md) §1.4 |
 | Tailwind 팔레트 이름 (`bg-blue-500`) | semantic 이름 클래스 — 기본 팔레트는 2층에서 꺼 둔다 ([bootstrap-project.md](references/bootstrap-project.md) §1.2) |
 | 괄호 변수로 이름 클래스 건너뛰기 (`bg-(--primary)`, `bg-[var(--x)]`) | 다리 블록에 이름을 올려 클래스로 (`bg-primary`) — naming-taxonomy.md §5.3 |
 | 색 있는 배경 위 글자색 하드코딩 | `-foreground` 짝 (`bg-primary text-primary-foreground`) — 배경이 바뀌면 글자도 따라가야 함 |
