@@ -84,7 +84,7 @@ Tailwind는 이름 묶음(namespace)마다 클래스를 만든다 — `--radius-
 | space | 콘텐츠 간격·여백 | 4px 그리드 스칼라 (요소 간 gap, 카드 패딩) | Tailwind 간격 스케일 그대로 → `p-4`·`gap-2` | 스케일 밖 간격이 정말 필요할 때만 `--spacing-{용도}` |
 | layout/frame-budget | 프레임 계약 값 | 영역 치수: `--app-max-width` · `--nav-height` / 거터·안전영역: `--space-screen-x` · `--space-bottom-safe` | `:root`. 클래스가 필요하면 다리 블록에 (`--spacing-screen-x: var(--space-screen-x)` → `px-screen-x`) | `--{영역}-{치수}` — 거터·안전영역은 레거시로 `--space-` 접두 유지 |
 | shadow | 용도별 | `--shadow-fab/cta/sheet/card` | 다리 블록 → `shadow-card` | `--shadow-{용도}` |
-| motion | 이징·시간 | `--ease-standard` · `--duration-fast/base/slow` | 다리 블록 → `ease-standard` | `--ease-{느낌}` / `--duration-{속도}` |
+| motion | 가속 곡선·길이 | `--ease-standard` · `--duration-fast/base/slow` | 곡선: 다리 블록 → `ease-standard` / 길이: `:root`에 `--duration-*`, 다리 블록에 `--transition-duration-*`로 올림 → `duration-base` ([bootstrap-project.md](bootstrap-project.md) §1.4) | `--ease-{느낌}` / `--duration-{속도}` |
 | typography/family | 글꼴 자체 | `--font-sans`(본문 기본) · 필요시 `--font-brand`·`--font-mono` | 다리 블록 → `font-sans` | `--font-{역할}` — 값은 1층 폰트 변수를 합친 것 ([font-loading.md](font-loading.md) §3) |
 | typography/weight | 글자 굵기 | 400 · 500 · 700 | Tailwind 기본 → `font-normal`·`font-medium`·`font-bold` | 역할 이름이 필요하면 `--font-weight-{역할}` → `font-{역할}` |
 | typography/scale | 글(prose) 전용 — 제목·본문·캡션 | `t1~t4`(제목) `h1~h2` `b1~b2` `c1~c2`·`label` | 다리 블록 `--text-b1` + `--text-b1--line-height` → `text-b1` | 스케일 이름은 시스템 규약으로 고정, 크기 값만 프로젝트별 교체. 11단계에 안 맞는 크기는 typography/component으로 |

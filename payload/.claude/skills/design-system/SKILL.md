@@ -13,7 +13,7 @@ description: Tailwind + shadcn 위의 3단 토큰 계층(foundation→semantic�
 
 1. **foundation** (`1-foundation/`) — 원료: 색 램프(oklch)·타입 스케일 원본·그리드. `@theme`이 아니라 `:root`에 둔다 — 그래야 램프 이름이 클래스(`bg-brand-600`)로 새지 않는다. 교체 가능 (브랜드/DS 변경 = 이 층 교체)
 2. **semantic** (`2-semantic.css`) — 의미: shadcn 변수 이름(`--background`·`--primary`·`--primary-foreground`·`--radius` …)으로 1층을 다시 잇는다. 같은 파일에 `.dark` 블록과 다리 블록(`@theme inline` — 여기 적은 이름만 Tailwind 클래스가 된다)을 둔다. Tailwind 기본 팔레트는 여기서 끈다. **화면·컴포넌트 코드가 참조하는 유일한 층**
-3. **component** — 부품: 몸통은 `components/ui/*.tsx`(shadcn 복사본, 범용)와 `components/*.tsx`(전용). `3-components.css`는 클래스로 못 푸는 전용 스타일만 담는 보조 파일
+3. **component** — 부품: 몸통은 `components/ui/*.tsx`(shadcn 복사본, 범용)와 `components/*.tsx`(전용). `3-components.css`는 클래스로 못 푸는 전용 스타일과 전역 기본 규칙(body 기본 스타일·동작 줄이기 — [references/bootstrap-project.md](references/bootstrap-project.md) §1.4)만 담는 보조 파일
 
 **조립 계층 (방법론 — 파일 없음):**
 
@@ -55,7 +55,7 @@ git branch --show-current
 
 **새 UI 요소가 필요하다** (component-first)
 1. 컴포넌트 인벤토리 검색 — 동의어로도 (예: "모달?" → Dialog 항목)
-2. 있다 → 재사용. 살짝 다르면 그 부품의 cva(class-variance-authority — 부품의 변형을 `variant`·`size` 같은 이름으로 묶는 작은 라이브러리)에 `variant`를 더한다 (새 부품 금지). 모양이 기본과 다를 때 고치는 차례는 [references/component-taxonomy.md](references/component-taxonomy.md) §4
+2. 있다 → 재사용. 살짝 다르면 그 부품의 cva(class-variance-authority)에 `variant`를 더한다 (새 부품 금지). 모양이 기본과 다를 때 고치는 차례는 [references/component-taxonomy.md](references/component-taxonomy.md) §4
 3. 없다 → shadcn 부품 목록에서 찾아 `npx shadcn add <이름>`으로 받는다. 같은 파일이 이미 있으면 `--diff`로 먼저 비교하고, `--overwrite`는 쓰지 않는다
 4. shadcn에도 없다 → 역할 분류 + 범용/전용 판정 후 `components/`에 전용 부품 신규 생성 → [references/component-taxonomy.md](references/component-taxonomy.md)
 5. 인벤토리에 등록 — 적기 전에 한 줄 색인 형식([references/component-taxonomy.md](references/component-taxonomy.md) §6)인지 확인. 값·사용법·변경 이력은 인벤토리가 아니라 부품 파일 머리 주석·git log 몫이다
@@ -75,6 +75,7 @@ git branch --show-current
 | hex/rgb 하드코딩 (`bg-[#333]`, `style={{ color: "#fff" }}`) | semantic 이름 클래스 (`bg-primary`·`text-primary-foreground`) |
 | px 매직넘버 간격 (`p-[13px]`) | theme 스케일 클래스 (`p-3`) |
 | px 매직넘버 글자크기 (`text-[15px]`) | 글 스케일 클래스(`text-b1`), 안 맞으면 `typography/component` 토큰 새로 만들기 (naming-taxonomy.md §2) |
+| 3층·제품 코드에 모션 값(ms·곡선) 직접 쓰기 (`duration-300`, `duration-[250ms]`, `cubic-bezier(…)`, `ease-out`) | 1층 모션 토큰을 2층 이름 클래스로 (`duration-base`·`ease-standard`). Tailwind 기본 곡선 이름(`ease-out` 등)은 끄지 않지만 제품 코드에서 쓰지 않는다 — `ease-standard` 같은 우리 이름만. 동작 줄이기는 전역 규칙 한 번 — [bootstrap-project.md](references/bootstrap-project.md) §1.4 |
 | Tailwind 팔레트 이름 (`bg-blue-500`) | semantic 이름 클래스 — 기본 팔레트는 2층에서 꺼 둔다 ([bootstrap-project.md](references/bootstrap-project.md) §1.2) |
 | 괄호 변수로 이름 클래스 건너뛰기 (`bg-(--primary)`, `bg-[var(--x)]`) | 다리 블록에 이름을 올려 클래스로 (`bg-primary`) — naming-taxonomy.md §5.3 |
 | 색 있는 배경 위 글자색 하드코딩 | `-foreground` 짝 (`bg-primary text-primary-foreground`) — 배경이 바뀌면 글자도 따라가야 함 |
