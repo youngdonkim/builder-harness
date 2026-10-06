@@ -125,7 +125,7 @@ src/components/         ← 3층 몸통(전용): 이 서비스만 쓰는 부품
   --radius-control: calc(var(--radius) - 2px);   /* 용도 이름 — rounded-control. 제품 코드는 이쪽을 먼저 */
   --radius-card: var(--radius);                  /* rounded-card */
 
-  --font-sans: var(--font-base), "Pretendard Variable", "Apple SD Gothic Neo", sans-serif;
+  --font-sans: var(--font-base), var(--font-pretendard), "Apple SD Gothic Neo", sans-serif;
                                          /* 구글 폰트(next/font 변수)와 npm 폰트(패밀리 이름)를 여기서만 합친다 */
 
   --text-b1: var(--b1-base);             /* 우리 글 스케일 — text-b1. 제품 코드는 이 이름을 먼저 */
