@@ -2,7 +2,8 @@
 name: design-system
 description: Tailwind + shadcn 위의 3단 토큰 계층(foundation→semantic→component) + 조립 계층(frame·pattern) 디자인 시스템 방법론.
   화면·컴포넌트에 색/간격/글자/그림자를 적용할 때, Tailwind 클래스를 고를 때, CSS·토큰 파일을 만들거나 수정할 때,
-  shadcn 부품을 추가·수정할 때, 새 컴포넌트·화면을 만들 때, 새 프로젝트에 토큰 시스템을 도입할 때, 새 토큰을 추가할 때 사용.
+  shadcn 부품을 추가·수정할 때, 새 컴포넌트·화면을 만들 때, 새 프로젝트에 토큰 시스템을 도입할 때, 새 토큰을 추가할 때,
+  참고 디자인(사이트·스크린샷·색 값·프리셋)에서 색·서체를 뽑을 때 사용.
 ---
 
 # 디자인 시스템 — 계층 아키텍처
@@ -109,5 +110,6 @@ shadcn이 `--radius` 하나에서 `calc(var(--radius) - 2px)`처럼 sm~xl을 파
 - **홈 첫 화면에 무엇을 먼저 둘지 정할 때** — [common-patterns.md](references/common-patterns.md) §1 (SaaS / 커머스 / 마켓플레이스·O2O / 커뮤니티·SNS 네 유형의 최상단 차례와 로그인 전후 갈래 · 관찰 37곳+51곳 · 관례는 기본값이고 사용자 결정이 우선, 다르게 정하면 이유와 함께 기록)
 - **댓글창·게시글 에디터처럼 글을 써서 올리는 칸을 만들 때** — [common-patterns.md](references/common-patterns.md) §2~§7 (접근성 체크 목록 · 컴포저 · 에디터)
 - **새 화면·레이아웃을 설계할 때** — [layout-frames.md](references/layout-frames.md) (frame-first 절차, 셸 분류, 컨테이너 정책)
+- **참고 사이트·스크린샷에서 스타일 값을 뽑을 때, 또는 그렇게 뽑아 브리프에 적어 둔 값을 토큰으로 옮길 때** — [reference-analysis.md](references/reference-analysis.md) (고르는 법·갤러리 · 입력 네 종류와 값 뽑는 법 · 분석 항목표 · 분석값 → 1층 램프·2층 shadcn 변수 · 금지)
 - **폰트를 새로 넣거나 바꿀 때** — [font-loading.md](references/font-loading.md) (조각화·자체 호스팅 원리, Next.js 로딩 결정표 — 구글 폰트·npm 폰트 갈래, `--font-sans`에서 합치기, 빌드 검증 관문 3종)
 - **새 프로젝트에 도입할 때** — [bootstrap-project.md](references/bootstrap-project.md)를 순서대로 따른다. 이 절차는 도중에 세 문서를 함께 읽는다: 토큰 3층 단계에서 font-loading.md(폰트 선정·로딩 방식을 같이 정한다 — 미루면 foundation을 다시 갈아엎는다), 인벤토리 생성에서 component-taxonomy.md §6(인벤토리 한 줄 형식), 프레임 정의에서 layout-frames.md §4(웹·앱 통합이면 canvas·gutter 플랫폼 차이)
