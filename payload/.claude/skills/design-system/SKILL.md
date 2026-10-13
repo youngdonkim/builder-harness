@@ -87,13 +87,13 @@ git branch --show-current
 | 상태색(danger/success)을 장식용으로 사용 | 상태색은 의미 전달에만 |
 | 글자 크기를 계속 줄여 위계 표현 (14px 밑으로) | 굵기(`font-medium` 등)+명도(`text-muted-foreground` 등) 위계로 표현, 가장 옅은 단계도 대비 4.5:1 유지 ([naming-taxonomy.md](references/naming-taxonomy.md)) |
 | 통짜 폰트 파일 로딩 / CDN `<link>`로 웹폰트 불러오기 | 구글 폰트는 `next/font/google`, npm 폰트는 조각화 CSS `@import` ([references/font-loading.md](references/font-loading.md) §4) |
-| 하단 상시 요소(버튼 막대·입력창·탭바)를 화면에 붙여 띄우고 본문 끝을 어림 여백으로 비우기 | 셸 설계 때 하단 칸을 정하고 거기 흐름대로 — 스크롤은 본문 칸만 ([references/layout-frames.md](references/layout-frames.md) §2.2) |
+| 하단 상시 요소(버튼 막대·입력창·탭바)를 화면에 붙여 띄우고 본문 끝을 어림 여백으로 비우기 | 셸 설계 때 하단 영역을 정하고 거기 흐름대로 — 스크롤은 본문 영역만 ([references/layout-frames.md](references/layout-frames.md) §2.2) |
 | 안내 문구(placeholder)를 라벨 대신 씀 | 이름을 따로 단다 — [common-patterns.md](references/common-patterns.md) §2 (WCAG 3.3.2) |
-| 글 칸 글자가 16px 아래거나 `user-scalable=no`로 확대를 막음 | 16px 이상, 확대 허용 — 같은 문서 §2 (WCAG 1.4.4) |
-| 엔터로 확정하는 칸에 한글 조합 가드가 없음 | 조합 중 엔터는 무시 — 같은 문서 §3 |
-| 제목 칸에서 엔터를 누르면 글이 그대로 올라감 | 본문으로 넘기거나 막는다 — 같은 문서 §3 |
+| 글 입력란 글자가 16px 아래거나 `user-scalable=no`로 확대를 막음 | 16px 이상, 확대 허용 — 같은 문서 §2 (WCAG 1.4.4) |
+| 엔터로 확정하는 입력란에 한글 조합 가드가 없음 | 조합 중 엔터는 무시 — 같은 문서 §3 |
+| 제목 입력란에서 엔터를 누르면 글이 그대로 올라감 | 본문으로 넘기거나 막는다 — 같은 문서 §3 |
 | 사용자가 쓴 글을 저장 형식으로 변환하고 미리보기로 메움 | 쓴 것이 그대로 올라가게 — 같은 문서 §6 |
-| 댓글·채팅 입력을 한 줄 입력(`<input>`)으로 | 쓰는 만큼 늘어나는 글 칸 — 같은 문서 §5 |
+| 댓글·채팅 입력을 한 줄 입력(`<input>`)으로 | 쓰는 만큼 늘어나는 글 입력란 — 같은 문서 §5 |
 | 홈 최상단을 추천 슬라이드·기획전 배너로 연다 | 검색·카테고리 같은 탐색 진입점을 먼저 — 같은 문서 §1 (관찰 37곳 중 0곳) |
 | 게시판 커뮤니티 홈에 자동으로 도는 배너를 넣는다 | 커뮤니티엔 두지 않는다 — 같은 문서 §1 (관찰 18곳 중 0곳) |
 
@@ -108,7 +108,7 @@ shadcn이 `--radius` 하나에서 `calc(var(--radius) - 2px)`처럼 sm~xl을 파
 - **값(색·간격·모서리…) 이름을 정하거나 새 토큰을 추가할 때** — [naming-taxonomy.md](references/naming-taxonomy.md) (shadcn 이름 문법·유형표 + 새 토큰을 `:root`·`.dark`·`@theme inline`에 잇는 절차)
 - **새 UI 컴포넌트를 받거나 만들거나 인벤토리에 등록할 때** — [component-taxonomy.md](references/component-taxonomy.md) (컴포넌트 역할·범용/전용·shadcn 이름 규칙·cva variant 작성·고치는 차례)
 - **홈 첫 화면에 무엇을 먼저 둘지 정할 때** — [common-patterns.md](references/common-patterns.md) §1 (SaaS / 커머스 / 마켓플레이스·O2O / 커뮤니티·SNS 네 유형의 최상단 차례와 로그인 전후 갈래 · 관찰 37곳+51곳 · 관례는 기본값이고 사용자 결정이 우선, 다르게 정하면 이유와 함께 기록)
-- **댓글창·게시글 에디터처럼 글을 써서 올리는 칸을 만들 때** — [common-patterns.md](references/common-patterns.md) §2~§7 (접근성 체크 목록 · 컴포저 · 에디터)
+- **댓글창·게시글 에디터처럼 글을 써서 올리는 입력란을 만들 때** — [common-patterns.md](references/common-patterns.md) §2~§7 (접근성 체크 목록 · 컴포저 · 에디터)
 - **새 화면·레이아웃을 설계할 때** — [layout-frames.md](references/layout-frames.md) (frame-first 절차, 셸 분류, 컨테이너 정책)
 - **참고 사이트·스크린샷에서 스타일 값을 뽑을 때, 또는 그렇게 뽑아 브리프에 적어 둔 값을 토큰으로 옮길 때** — [reference-analysis.md](references/reference-analysis.md) (고르는 법·갤러리 · 입력 네 종류와 값 뽑는 법 · 분석 항목표 · 분석값 → 1층 램프·2층 shadcn 변수 · 금지)
 - **폰트를 새로 넣거나 바꿀 때** — [font-loading.md](references/font-loading.md) (조각화·자체 호스팅 원리, Next.js 로딩 결정표 — 구글 폰트·npm 폰트 갈래, `--font-sans`에서 합치기, 빌드 검증 관문 3종)

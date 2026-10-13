@@ -58,7 +58,7 @@
   - Aside에 로그인하지 않은 프로필("Local Account, signed out")의 금고는 이 기기에만 남는다. 사이트 로그인·비번 저장은 그래도 정상 동작한다 — 브라우저 자체 로그인과 사이트 로그인은 별개다.
   - **이미 비번이 든 프로필의 Aside 계정을 바꾸지 않는다** — "This device holds another account's vault … items saved only on this device will be permanently deleted" 경고가 뜨면 중단한다. 기기 전용 항목이 삭제된다.
   - `aside repl`에서 파일 쓰기(`fs`)는 세션 폴더에만 된다(`/private/tmp`는 거부). `getByPlaceholder` 같은 이름 로케이터는 없다 — CSS 로케이터(`page.locator('input[placeholder="…"]')`)와 `console.log` 출력만 쓴다(최신 확인 — 쓴 시점 기준). `openTab`으로 연 탭은 호출이 끝나면 닫혀서 다음 호출에서 다시 못 읽는다.
-  - 한 번만 보여주는 값(발급 토큰 등)은 접근성 트리 스냅샷에 안 잡힌다 — 생성 직후 `page.evaluate(() => document.body.innerText)`에서 정규식으로 읽어 같은 호출 안에서 출력한다. 스코프처럼 다단계로 고르는 선택 UI는 마지막 단계까지 고른 값이 입력칸에 표시된 것을 스냅샷으로 확인한 뒤 만든다.
+  - 한 번만 보여주는 값(발급 토큰 등)은 접근성 트리 스냅샷에 안 잡힌다 — 생성 직후 `page.evaluate(() => document.body.innerText)`에서 정규식으로 읽어 같은 호출 안에서 출력한다. 스코프처럼 다단계로 고르는 선택 UI는 마지막 단계까지 고른 값이 입력란에 표시된 것을 스냅샷으로 확인한 뒤 만든다.
   - 로그아웃 확인은 로그인 폼이 스냅샷에 보이는 것으로 한다. 구글 로그인을 누르면 프로필에 든 구글 계정 전부가 선택 화면에 나오므로 이메일로 고른다.
   - 2FA 화면이 뜨면 거기서 멈춘다. 패스키 버튼은 사람이 컴퓨터 앞에 없거나 이 브라우저에 패스키가 없으면 아무 반응이 없다. 로그인 폼에 뜨는 Aside의 「Save credential」 창은 금고 저장 제안이라 무시해도 된다.
   - Aside는 사용자가 실제로 쓰는 브라우저다. 열려 있는 다른 탭을 닫거나 건드리지 않는다.

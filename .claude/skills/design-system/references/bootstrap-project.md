@@ -71,7 +71,7 @@ src/components/         ← 3층 몸통(전용): 이 서비스만 쓰는 부품
 ### 1.1 순서
 
 1. **`npx shadcn init`** — `components.json`·`lib/utils.ts`(`cn()`)·진입 CSS의 변수 블록이 생긴다.
-   `components.json`의 CSS 경로(`tailwind.css` 칸)는 진입 CSS(`globals.css`)로 둔다. init이 진입 CSS에
+   `components.json`의 CSS 경로(`tailwind.css` 항목)는 진입 CSS(`globals.css`)로 둔다. init이 진입 CSS에
    써 넣은 `:root`·`.dark`·`@theme inline` 블록은 2층 파일로 옮기고, 이후 부품을 받을 때 진입 CSS에
    덧붙는 변수(예: sidebar·chart 부품의 변수)도 2층으로 옮긴다 — 도입 때 실측으로 확정한다.
 2. **1층 램프** — 채택한 디자인 시스템(또는 자체 브랜드)의 원시 값을 oklch로 채운다. `:root`에 둔다 —
@@ -232,7 +232,7 @@ idea-to-mvp 5단계면 `mvp/design-brief.md` 「8. 모션·인터랙션 방향�
 ## 2. 컴포넌트 인벤토리(사전) 생성
 
 프로젝트 문서(예: `docs/components.md`)에 새로 작성:
-- 등록 단위는 **부품 파일**이다. 칸은 둘 — `components/ui/`(범용, shadcn에서 받은 것)와 `components/`(전용)
+- 등록 단위는 **부품 파일**이다. 구분은 둘 — `components/ui/`(범용, shadcn에서 받은 것)와 `components/`(전용)
 - §1.1에서 받은 범용 부품을 등록하고, 앞으로 받거나 만드는 부품은 그때마다 등록한다
 - 형식·규칙은 [component-taxonomy.md](component-taxonomy.md) §6
 
@@ -242,7 +242,7 @@ frame-first로 셸·영역·크기 예산을 먼저 정하고, 예산은 layout/
 웹·앱 통합 개발이면 canvas·gutter의 플랫폼별 차이까지 이때 결정한다
 ([layout-frames.md](layout-frames.md) §4).
 화면 아래에 늘 보여야 하는 요소(주 동작 버튼 막대·탭바 등)의 자리도 이때 정한다 —
-공통 셸은 하단 고정 요소가 아직 없어도 헤더/본문/하단 세 칸으로 시작한다
+공통 셸은 하단 고정 요소가 아직 없어도 헤더/본문/하단 세 영역으로 시작한다
 ([layout-frames.md](layout-frames.md) §2.2).
 
 ## 4. AGENTS.md에 프로젝트 연결 정보(adapter) 기록
@@ -250,7 +250,7 @@ frame-first로 셸·영역·크기 예산을 먼저 정하고, 예산은 layout/
 스킬은 범용, 프로젝트는 제각각 — 둘을 이어주는 **이 프로젝트만의 연결 정보**를 AGENTS.md에 기록한다:
 - 진입 CSS와 세 층 파일 경로, import 순서
 - `components.json` 위치와 경로 별칭(예: `@/components/ui`)
-- 컴포넌트 인벤토리 위치 (두 칸 — `components/ui/`·`components/`)
+- 컴포넌트 인벤토리 위치 (두 곳 — `components/ui/`·`components/`)
 - 프레임 인벤토리·화면 패턴 목록 위치
 - **고친 shadcn 부품 목록** — 받은 뒤 직접 고친 `components/ui/` 파일과 고친 이유 한 줄씩. 부품을 다시 받을 때
   `--diff`로 비교하고 이 목록대로 다시 고친다(`--overwrite` 금지). 목록이 없으면 다시 받는 순간 우리 수정이
