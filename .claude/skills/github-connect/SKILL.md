@@ -145,9 +145,9 @@ Aside가 없으면 "브라우저 에이전트(Aside)를 설치해도 될까?" �
    ```
 2. [사람] 순서대로 안내한다 (한 번에 한 화면씩):
    1. 브라우저에서 `https://github.com/settings/tokens/new` 를 연다(로그인 화면이 나오면 로그인).
-   2. 「Note」 칸에 `gh-cli-<기기 이름>`.
+   2. 「Note」 입력란에 `gh-cli-<기기 이름>`.
    3. 「Expiration」에서 기간을 고른다.
-   4. 「Select scopes」에서 `repo`, `workflow`, `read:org` 세 칸을 체크.
+   4. 「Select scopes」에서 `repo`, `workflow`, `read:org` 세 항목을 체크.
    5. 맨 아래 「Generate token」.
    6. 초록 상자에 뜬 `ghp_`로 시작하는 값을 복사 — 이 화면을 벗어나면 다시 안 보여준다.
 3. [AI] 편집기로 파일을 열어 준다 — 맥 `open -e .env.cli`, 윈도우 `notepad .env.cli`.
