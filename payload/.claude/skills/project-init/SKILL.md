@@ -20,7 +20,7 @@ description: 프로젝트에 builder-harness 하네스를 파일 복사로 적�
 복사해 올 원본은 **로컬에 clone된 builder-harness 저장소**다. 순서대로 찾는다.
 
 1. **기본 위치 `~/dev/builder-harness`** 를 먼저 본다. `payload/`가 있으면 그게 원본이다.
-2. 없으면 사용자에게 경로를 묻는다 — "하네스 저장소를 어디에 받아뒀어?"
+2. 없으면 사용자에게 경로를 묻는다 — "하네스 저장소를 어디에 받아 두셨습니까?"
 3. 아직 안 받았다면 clone을 제안한다:
 
    ```bash
@@ -163,15 +163,17 @@ date=<오늘 날짜 YYYY-MM-DD>
    ```
    **main에 바로 커밋한다 — 부트스트랩 예외다.** 프로젝트 `AGENTS.md` 브랜치 절에 적힌 "main에서 직접 작업하지 않는다"의 유일한 예외(하네스 첫 적용 커밋과 그 첫 push)다. 이번 세션엔 `/new-task`도 훅도 아직 안 잡혀 있고, 빈 저장소라 리뷰할 화면도 배포도 없다.
 
-   **예외에 안 드는 경우** — 원격 main에 이미 작업 이력이 있는 저장소(원래 쓰던 저장소에 하네스를 처음 얹는 경우)는 main이 곧 실서비스라 예외가 아니다. 원격이 있으면(`git remote get-url origin` 성공) 로컬의 `origin/main`을 본다 — `git rev-list --count origin/main`이 1이고 `git ls-tree --name-only origin/main`이 `README.md`·`.gitignore`·`LICENSE` 안에 드는 경우(GitHub에서 저장소를 만들 때 생긴 첫 커밋뿐)만 예외에 든다. 그 밖이면 `git switch -c chore/harness-apply`로 작업 브랜치를 열어 거기에 같은 커밋을 하고, 마무리 안내에서 "앱을 껐다 켠 뒤 화면 확인하고 '보내줘'라고 하면 `/done-task`로 합친다"고 알린다.
+   **예외에 안 드는 경우** — 원격 main에 이미 작업 이력이 있는 저장소(원래 쓰던 저장소에 하네스를 처음 얹는 경우)는 main이 곧 실서비스라 예외가 아니다. 원격이 있으면(`git remote get-url origin` 성공) 로컬의 `origin/main`을 본다 — `git rev-list --count origin/main`이 1이고 `git ls-tree --name-only origin/main`이 `README.md`·`.gitignore`·`LICENSE` 안에 드는 경우(GitHub에서 저장소를 만들 때 생긴 첫 커밋뿐)만 예외에 든다. 그 밖이면 `git switch -c chore/harness-apply`로 작업 브랜치를 열어 거기에 같은 커밋을 하고, 마무리 안내에서 "앱을 껐다 켠 뒤 화면을 확인하시고 '보내줘'라고 말씀하시면 `/done-task`로 합치겠습니다"라고 알린다.
 
 ### 9. 원격 토막 — `github-connect` 호출
 
 `github-connect`를 Skill 도구로 호출한다. 이번 세션에 스킬이 안 잡혀 있으면(방금 복사한 `.claude/`라 목록에 없을 수 있다) 원본의 `payload/.claude/skills/github-connect/SKILL.md`를 읽고 그대로 실행한다. git·gh 설치, GitHub 계정·토큰(`.env.cli`), 계정 검문, HTTPS push 통로, 저장소 생성, 첫 push까지 거기서 끝난다. 사람 몫(가입·로그인·권한 창)이 나오면 `github-connect`가 한 단계씩 안내하고 멈췄다가 이어간다.
 
-사용자가 GitHub 연결을 지금은 미루자고 하면 억지로 하지 않는다 — 마무리 안내에 "나중에 '깃헙 연결해줘'라고 하면 이어서 한다, 그 전엔 `/new-task`·`/done-task`가 안 돈다"고 남긴다.
+사용자가 GitHub 연결을 지금은 미루자고 하면 억지로 하지 않는다 — 마무리 안내에 "나중에 '깃헙 연결해줘'라고 말씀하시면 이어서 진행합니다. 그 전에는 `/new-task`·`/done-task`가 동작하지 않습니다"라고 남긴다.
 
 ### 10. 마무리 안내
+
+보고·안내는 ~입니다 체로 쓴다.
 
 `github-connect`의 마무리 보고와 합쳐 **한 번에** 알린다(재시작 안내는 한 번만):
 
@@ -286,6 +288,8 @@ git status --porcelain -- .claude docs/git-workflow.md docs/account-check.md .gi
 **사용자가 로컬 수정을 유지하기로 골라서 원본과 다른 파일이 남았어도 스탬프는 갱신한다** — 스탬프는 "언제 기준 원본과 맞춰봤나"를 가리키는 값이지 "모든 파일이 원본과 똑같다"는 보증이 아니다. 다만 남은 차이는 마무리 보고에 반드시 적는다.
 
 ### 7. 마무리 보고
+
+보고·안내는 ~입니다 체로 쓴다.
 
 **두 갈래가 드러나게** 나눠 보고한다.
 
