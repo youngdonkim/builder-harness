@@ -78,7 +78,7 @@ npm install server-only   # 이미 있으면 건너뛴다
 ```
 
 - `issue.ts`가 `server-only`라 react-server 조건으로 불러온다. 시험이 `.ts`를 바로 import하므로 **Node 22.18 이상**이어야 한다(타입 지우기). 프로젝트에 vitest 등이 이미 있으면 그 틀로 옮겨도 된다.
-- 하네스 CI(`.github/workflows/ci.yml`)는 하네스 소유 파일이라 고치지 않는다 — 이 시험은 스킬 단계 3에서 AI가 돌린다.
+- 하네스 CI(`.github/workflows/ci.yml`)는 하네스 소유 파일이라 고치지 않는다 — 이 시험은 SKILL.md 4.3에서 AI가 돌린다.
 
 ## 5. .env.example — 이름만
 
@@ -132,6 +132,7 @@ GITHUB_QA_LABEL=
 | 쓰는 곳 | 알려 준 앱 문제를 찾아 고치는 데만 쓴다 | |
 | 보관 기간 | 앱 문제 신고(한 줄·화면 사진)는 서비스를 정식으로 공개하기 전에 모두 지운다 | |
 | 맡기는 곳 | GitHub: 앱 문제 신고 보관 (미국 서버) | 「이 밖의 다른 곳에 주지 않는다」 같은 문장이 있으면 이 줄이 없을 때 사실과 어긋난다 |
+| 맡기는 곳(야간 자가 수정) | Anthropic: 앱 문제 신고(글·화면 사진)를 AI로 읽어 고치는 데 씀 (미국) | 필요한지 사람이 정한다 |
 
 **처리방침 화면이 아직 없는 프로젝트(대개 idea-to-mvp 5단계)** — 창 안 안내 줄(`help`)과 테스터 사전 안내(`human-setup.md` 「테스터 안내」)로 대신하고, `docs/qa-feedback.md`에 「처리방침이 생기면 4줄 넣기」를 남긴다. 6단계에서 처리방침 페이지를 만들 때(`6-2-backend-auth.md` §9) 같이 넣는다.
 
@@ -143,7 +144,7 @@ GITHUB_QA_LABEL=
 |---|---|---|---|---|---|
 | QA 이슈용 GitHub 토큰 `GITHUB_QA_ISSUE_TOKEN` (토큰 이름) | GitHub (발급 계정) → Fine-grained tokens (Resource owner, 코드 저장소 하나, Issues 쓰기) — (발급일, 승인자) | Vercel env Production·Preview(Secret) + 비밀 보관처 | 아니요 — 재발급만 | (발급 때 정한 날) | Vercel env Production·Preview ↔ 비밀 보관처 (로컬 실측 때만 `.env.local`) |
 | QA 캡처용 GitHub 토큰 `GITHUB_QA_SHOTS_TOKEN` (토큰 이름) | 같은 화면 (캡처 저장소 하나, Contents 쓰기) — (발급일, 승인자) | 위와 같음 | 아니요 — 재발급만 | (발급 때 정한 날) | 위와 같음 |
-| QA 피드백 설정값 `QA_FEEDBACK`·`GITHUB_QA_REPO`·`GITHUB_QA_SHOTS_REPO`(·`GITHUB_QA_LABEL`) | 사람이 정함 — 비밀 아님 | Vercel env (넣은 환경) | (넣은 Type에 따라 — 확인해 적는다) | 없음 — **정식 공개 전 Production의 `QA_FEEDBACK`을 지우고 다시 배포** | Vercel env |
+| QA 피드백 설정값 `QA_FEEDBACK`·`GITHUB_QA_REPO`·`GITHUB_QA_SHOTS_REPO`(·`GITHUB_QA_LABEL`) | 사람이 정함 — 비밀 아님 | Vercel env Production·Preview | (넣은 Type에 따라 — CLI로 넣으면 다시 못 봄) | 없음 — **정식 공개 전 `QA_FEEDBACK`을 지우고 다시 배포** | Vercel env |
 
 ## 10. 프로젝트 기록 docs/qa-feedback.md
 
@@ -156,11 +157,19 @@ GITHUB_QA_LABEL=
 
 ## 지금 상태
 - 방식: 로그인 없는 방식(anon) / 로그인 방식(auth) — (깐 날짜, 전환한 날짜)
-- 켜진 환경: Preview · Production (`QA_FEEDBACK=on`)
-- 이슈 저장소: owner/repo · 캡처 저장소: owner/repo-qa-shots (비공개) · 라벨: qa
+- 켜진 환경: Production · Preview (`QA_FEEDBACK=on`)
+- 이슈 저장소: owner/repo · 캡처 저장소: owner/repo-qa-shots (비공개) · 라벨: qa · qa-fixed · qa-blocked
+
+## 실측 결과
+(날짜 — 아이폰 스크롤 안 함/중간/맨 아래 · PC · GitHub 웹/모바일 앱에서 그림 · 아직 안 본 것)
+
+## 야간 자가 수정
+- 루틴: (이름) · id (비밀 아닌 식별자) · 상태 켜짐/꺼짐(날짜)
+- 실행 시각: (cron, UTC) = (현지 시각·요일) · 리뷰어: (GitHub 계정)
+- 아침 미리보기: alias(고정 미리보기 주소) / PR 미리보기 그대로 · DB 줄: 있음/없음
 
 ## 끄는 법
-Vercel의 Production(필요하면 Preview도)에서 `QA_FEEDBACK`을 지우고 다시 배포합니다. 화면 감지와 서버 주소가 함께 꺼집니다. 정리까지 하려면 `/qa-to-issue`를 불러 「끄기」를 고릅니다.
+`/qa-to-issue`를 불러 「끄기」라고 하면 야간 루틴과 `QA_FEEDBACK`(Production·Preview)을 끄고 정리까지 안내합니다. 정식 공개(광고) 전에 끕니다.
 
 ## 어댑터 결정
 (adapters.md 표를 채운 결과 — 아이디 · 이 프로젝트에서 정한 값)
