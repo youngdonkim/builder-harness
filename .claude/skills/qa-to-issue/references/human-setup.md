@@ -115,16 +115,17 @@ SKILL.md 단계 2와 단계 5에서 읽는다. **한 번에 한 단계만** 안�
 
 | 이름 | 값 | Type | 언제 넣나 |
 |---|---|---|---|
-| `QA_FEEDBACK` | `on` | Config 권장(값을 다시 볼 수 있게) | 단계 2 — Preview. Production은 단계 5에서 정한 뒤 |
-| `GITHUB_QA_REPO` | 코드 저장소 `owner/repo` | Config 권장 | 단계 2 |
-| `GITHUB_QA_SHOTS_REPO` | 캡처 저장소 `owner/repo` | Config 권장 | 단계 2 |
-| `GITHUB_QA_LABEL` | (`qa`가 아닐 때만) 라벨 이름 | Config | 단계 2 |
-| `GITHUB_QA_ISSUE_TOKEN` | 이슈용 토큰 | **Secret** | 단계 5 직전(1차 실측 뒤) |
-| `GITHUB_QA_SHOTS_TOKEN` | 캡처용 토큰 | **Secret** | 단계 5 직전 |
+| `QA_FEEDBACK` | `on` | Config 권장(값을 다시 볼 수 있게) | 단계 2 — **Preview만**. Production은 단계 5에서 이슈가 제대로 생기는 걸 확인한 뒤 |
+| `GITHUB_QA_REPO` | 코드 저장소 `owner/repo` | Config 권장 | 단계 2 — **Production·Preview 둘 다** |
+| `GITHUB_QA_SHOTS_REPO` | 캡처 저장소 `owner/repo` | Config 권장 | 단계 2 — **Production·Preview 둘 다** |
+| `GITHUB_QA_LABEL` | (`qa`가 아닐 때만) 라벨 이름 | Config | 단계 2 — **Production·Preview 둘 다** |
+| `GITHUB_QA_ISSUE_TOKEN` | 이슈용 토큰 | **Secret** | 단계 5 직전(1차 실측 뒤) — **Production·Preview 둘 다** |
+| `GITHUB_QA_SHOTS_TOKEN` | 캡처용 토큰 | **Secret** | 단계 5 직전 — **Production·Preview 둘 다** |
 
+- **켜고 끄는 건 `QA_FEEDBACK` 하나다** — 토큰·저장소 이름이 Production에 들어 있어도 Production에 이 스위치가 없으면 기능은 꺼진 채다(3번 터치해도 창이 안 뜨고, 서버 주소는 404). 그래서 스위치 말고는 처음부터 **Environments에서 Production·Preview를 둘 다 체크해** 넣는다. Preview에만 넣으면 테스터용으로 Production을 켤 때 토큰을 다시 넣어야 하는데, Secret은 다시 볼 수 없어 토큰을 재발급해야 할 수도 있다. 스위치만 Preview에서 먼저 켜는 이유는, 확인이 끝나기 전에 실서비스 주소(링크만 있으면 누구나 연다)에서 기능이 켜지지 않게 하려는 것이다.
 - 비밀 아닌 설정값 넷은 AI가 `vercel env add`로 넣을 수 있다(SKILL.md 단계 3 — 묻고 나서, 실패 2회면 사람 몫).
 - **Config 타입의 뜻(다시 볼 수 있는지, 빌드 때 읽히는지)은 실측 필요** — `QA_FEEDBACK`을 Config로 넣었는데 단계 4에서 3번 터치로 창이 안 뜨면, 넣은 값이 빌드에 안 들어간 것이다. Secret으로 다시 넣어 본다.
-- 터미널이 편하면 **사용자 자신의 터미널에서** `npx vercel env add GITHUB_QA_ISSUE_TOKEN production`처럼 치면 값을 묻는 칸이 나온다 — 대화창이 아니라 그 칸에 붙여 넣는다.
+- 터미널이 편하면 **사용자 자신의 터미널에서** `npx vercel env add GITHUB_QA_ISSUE_TOKEN preview`처럼 치면 값을 묻는 칸이 나온다 — 대화창이 아니라 그 칸에 붙여 넣는다. 토큰·저장소 이름은 `preview` 대신 `production`으로 한 번씩 더 친다(`QA_FEEDBACK`만 빼고).
 - **넣은 뒤 다시 배포해야 적용된다** — 브랜치에 푸시하면 미리보기가 새로 만들어진다. `QA_FEEDBACK`은 빌드 때 화면 코드에 박히는 값이라 특히 그렇다.
 
 [AI] 확인: `vercel env ls`로 **이름만** 본다(값은 출력하지 않는다).
