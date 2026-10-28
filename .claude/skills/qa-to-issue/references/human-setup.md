@@ -83,7 +83,12 @@ SKILL.md 4.2에서 읽는다. 점검표에서 ❌인 것만, **한 번에 한 �
 
 야간 루틴은 이 허락(Claude GitHub 앱)으로만 저장소에 들어온다 — 사람 컴퓨터의 `gh` 로그인은 클라우드에서 못 쓴다.
 
-> 브라우저에서 `https://github.com/apps/claude` → **Install**(이미 있으면 **Configure**) → 설치할 곳: 저장소 주인(조직이면 조직) → **Only select repositories** → 코드 저장소와 캡처 저장소 **두 개만** → **Install**(조직 일반 멤버면 **Authorize & Request**).
+**먼저 AI가 루틴을 꺼진 채(`enabled: false`)로 만들어 본다** (`nightly.md` 3절 3번). 사람에게 「앱에 저장소가 들어 있나요?」라고 묻지 않는다.
+- 만들어지면 → 허락이 이미 된 것이다. 이 절(5.1 포함)을 통째로 건너뛴다. 조직이 앱을 **All repositories**로 깔아 뒀으면 새로 만든 캡처 저장소도 저절로 들어가 여기서 바로 통과한다.
+- 403 `repo_access_denied`면 → 아래 사람 몫을 안내한다. 사람이 「승인됨」이라고 하면 **한 번만** 다시 만들어 본다.
+- 조직 일반 멤버는 앱 설정 화면(**Configure**, 설치 목록)을 보지도 바꾸지도 못한다(「This action must be performed by an organization owner」). 앱 권한 목록(**Permissions**)도 어떤 저장소가 들어 있는지는 알려 주지 않는다. 그래서 확인은 위 만들어 보기로만 한다.
+
+> (403일 때만) 브라우저에서 `https://github.com/apps/claude` → **Install** → 설치할 곳: 저장소 주인(조직이면 조직) → **Only select repositories** → 코드 저장소와 캡처 저장소 **두 개만** → **Install**(조직 일반 멤버면 **Authorize & Request**). 이미 설치돼 있고 저장소만 빠진 거라면 소유자가 **Configure**에서 두 저장소를 추가한다 — 멤버는 5.1 글을 소유자에게 보낸다.
 
 > 미리 알려 드립니다: 이 허락에는 GitHub Actions·워크플로·웹훅을 바꿀 권한이 함께 묶여 있고 뺄 수 없습니다. 그래서 밤 작업 지시문에 「`.github/` 폴더는 고치지 않는다」를 넣어 막습니다. AI는 PR까지만 하고 머지·배포는 사람이 승인합니다.
 
@@ -151,4 +156,4 @@ SKILL.md 4.2에서 읽는다. 점검표에서 ❌인 것만, **한 번에 한 �
 | `shot.state: "upload-failed"` | 캡처 저장만 실패 | 캡처용 토큰·캡처 저장소 기본 브랜치 |
 | 로그 없음 + 화면 403 | 같은 출처 검사(anon은 Origin 머리글 필수) | 어느 브라우저·주소였는지 묻는다 |
 | 창이 안 뜸 | `QA_FEEDBACK`이 빌드에 안 들어감(재배포 안 함, 또는 Config 타입) | 재배포 → 안 되면 Secret으로 다시 |
-| 야간 루틴 403 `repo_access_denied` | Claude 앱 설치·승인 전 | 반복 말고 5절 → 승인 뒤 한 번만 |
+| 야간 루틴 403 `repo_access_denied` | Claude 앱 설치·승인 전, 또는 두 저장소가 앱에 안 들어 있음 | 반복 말고 5절 → 승인 뒤 한 번만 |
