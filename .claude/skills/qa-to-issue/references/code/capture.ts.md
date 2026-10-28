@@ -3,7 +3,7 @@
 - 놓을 곳: `src/lib/qa-feedback/capture.ts` (`src/` 없이 `app/`이 루트에 있는 프로젝트면 `src/`를 빼고 같은 경로)
 - 방식: 두 방식 공통
 - 출처: sangsiki-quiugi@5e9aa46 `src/lib/qa-feedback/capture.ts`
-- 참고 구현에서 바꾼 점: 빼는 요소 목록(EXCLUDE)의 창·토스트 선택자만 shadcn 기본값으로, 머리 주석 일반화. **그 밖의 코드는 한 글자도 바꾸지 않았다**
+- 참고 구현에서 바꾼 점: 빼는 요소 목록(EXCLUDE)의 창·토스트 선택자만 shadcn 기본값으로, 머리 주석 일반화, **안쪽 스크롤 칸 처리 추가**(`markScrolls`·`applyScrolls` — 본문 칸만 스크롤되는 셸에서 캡처가 칸 맨 위로 찍히던 문제, 이벤트 알리미 PC 크롬 실측 2026-10-28. 아이폰 실기기는 아직 — why.md 10절). 그 밖의 코드는 바꾸지 않았다
 - 어댑터: `exclude-selectors` — 뜻과 채우는 법은 `../adapters.md`
 - 손대지 않는 곳: EXCLUDE 한 줄 밖 전부 — 줄마다 아이폰 실측이 걸려 있다(why.md 「캡처」)
 - 의존: `modern-screenshot` (^4.7.0)
@@ -21,11 +21,18 @@
  *    우리 캔버스에서 보이던 구간만 잘라 낸다. 아이폰(WebKit)은 옮긴 복제본의 원래 상자 밖을 안 그려서 아래가 검게 나왔다.
  *    잘라 낸 캔버스는 먼저 페이지 바탕색으로 칠한다 — 라이브러리가 사파리용으로 캔버스를 지웠다 다시 그리며 바탕을 지워서,
  *    빈 곳이 JPEG에서 검게 나왔다(왼쪽 검은 세로 띠).
+ *  - 안쪽 스크롤 칸(창은 그대로고 본문 칸 같은 상자만 스크롤되는 셸): 복제본은 스크롤이 0으로 돌아가 칸 맨 위가 찍힌다.
+ *    그 순간 scrollTop·scrollLeft가 0이 아닌 칸을 계산으로 찾아 두고(클래스 이름에 기대지 않는다), 복제본에서 칸은 원래 크기에
+ *    overflow hidden으로 두고 안의 내용만 **여백(margin)으로** 스크롤만큼 당긴다 — 흐름 방향은 맨 앞에 넣은 빈 칸의 음수 여백 하나로
+ *    뒤 내용 전체를, 옆 방향은 자식마다 음수 여백으로. transform·relative로 옮기지 않는 이유는 위와 같다(WebKit은 옮긴 상자의
+ *    원래 자리 밖을 안 그린다 — 라이브러리의 restoreScrollPosition 기능도 transform이라 쓰지 않는다). 여백은 그리기 단계가 아니라
+ *    배치 자체를 바꿔서 이 함정을 비켜 간다. 격자(grid) 칸은 여백으로 옮기면 줄 크기가 바뀌어 건드리지 않는다(맨 위로 찍힌다).
  *  - 복제본 맨 바깥(body): 바깥 여백 0·relative·overflow visible로 둔다. 창이 열리며 body에 건 스크롤 잠금(overflow hidden)이
  *    복제본에 따라 들어가지 않게, 그림 안 기본 여백(8px)이 왼쪽 띠로 나오지 않게.
  *  - 붙어 있는 칸(sticky — 헤더·탭바)·화면에 고정된 칸(fixed): 그 순간 보이던 자리를 재 두고, 복제본에서 그 자리에
  *    absolute로 못 박는다(sticky는 빈 자리 지킴이를 남겨 흐름을 그대로 둔다). 원본에 잠깐 data-qa-pin 표시를 달아 복제본과 짝짓는다.
- *    특정 클래스 이름을 적지 않고 계산된 position으로 찾는다.
+ *    특정 클래스 이름을 적지 않고 계산된 position으로 찾는다. 안쪽 스크롤 칸 안의 sticky도 같다 — 자리를 그 순간의 기준 상자에서
+ *    재고, 기준 상자가 칸 안에 있으면 그 상자도 여백으로 같이 당겨지고, 칸 밖이나 칸 자신이면 원래 그 자리라 따로 손대지 않는다.
  *  - 고리 그림자(`0 0 0 Npx 색` — 흐림·옮김 없는 spread만): WebKit이 그림 안에서 옆으로 어긋나(반달처럼) 그려서, 복제본에서만
  *    맨 위 고리를 outline으로 바꾼다. 흐림 있는 그림자·나머지 층은 그대로.
  *  - 글꼴: 조각(unicode-range) 글꼴은 라이브러리에 맡기면 조각 수백 개를 다 받아 넣는다.
@@ -42,6 +49,8 @@ import { domToCanvas } from "modern-screenshot";
 const EXCLUDE = '[role=dialog], [data-slot$="-overlay"], [data-radix-popper-content-wrapper], [data-sonner-toaster], nextjs-portal, [data-qa-ignore], iframe[id^="__SANDBOX__"]'; // [ADAPTER:exclude-selectors] 열린 창·토스트 선택자. 기본값은 shadcn(Radix 창·sonner 토스트) 후보 — 실측 필요
 /** 원본·복제본 짝짓기 표시 (찍는 동안만 원본에 붙는다) */
 const PIN_ATTR = "data-qa-pin";
+/** 원본·복제본 안쪽 스크롤 칸 짝짓기 표시 (찍는 동안만 원본에 붙는다) */
+const SCROLL_ATTR = "data-qa-scroll";
 const JPEG_QUALITY = 0.8;
 /** 배율 상한 — 아이폰 캔버스 넓이 한도 안에 두려고 */
 const SCALE_MAX = 2;
@@ -93,8 +102,12 @@ function markPins(): Pin[] {
   return pins;
 }
 
-function unmarkPins() {
-  document.body.querySelectorAll(`[${PIN_ATTR}]`).forEach((el) => el.removeAttribute(PIN_ATTR));
+/** 찍는 동안 원본에 단 짝 표시(못 박기·스크롤 칸)를 모두 뗀다 */
+function unmarkAll() {
+  document.body.querySelectorAll(`[${PIN_ATTR}], [${SCROLL_ATTR}]`).forEach((el) => {
+    el.removeAttribute(PIN_ATTR);
+    el.removeAttribute(SCROLL_ATTR);
+  });
 }
 
 /** absolute로 바꿀 때 지울 논리 방향 값 — 물리 값(top·left·margin)과 겹치면 나중 것이 이겨서 */
@@ -125,6 +138,67 @@ function applyPins(clone: Node, pins: Pin[]) {
     el.style.right = "auto";
     el.style.bottom = "auto";
     el.style.margin = "0";
+  });
+}
+
+/* ── 안쪽 스크롤 칸 (창이 아니라 상자가 스크롤되는 셸) ── */
+
+/** flow: 내용이 쌓이는 방향 — 블록 흐름·세로 flex는 column, 가로 flex는 row. gap: 그 방향 flex 간격(블록은 0) */
+type Scroll = { top: number; left: number; flow: "row" | "column"; gap: number };
+
+/** 지금 스크롤된 안쪽 칸을 찾아 스크롤 양을 재고 원본에 짝 표시를 단다 — 창 스크롤은 captureViewport의 잘라 내기가 맡는다 */
+function markScrolls(): Scroll[] {
+  const scrolls: Scroll[] = [];
+  for (const el of document.body.querySelectorAll<HTMLElement>("*")) {
+    const top = el.scrollTop;
+    const left = el.scrollLeft;
+    if (!(top > 0) && !(left > 0)) continue; // 음수는 거꾸로 쌓는 칸(…-reverse·오른쪽부터 쓰기) — 건드리지 않는다
+    if (el.closest(EXCLUDE)) continue;
+    const cs = getComputedStyle(el);
+    if (cs.display.includes("grid")) continue; // 격자는 여백으로 옮기면 줄 크기가 바뀐다 — 맨 위로 찍히게 둔다
+    const flex = cs.display.includes("flex");
+    if (flex && cs.flexDirection.endsWith("reverse")) continue;
+    const flow = flex && cs.flexDirection === "row" ? "row" : "column";
+    const gap = flex ? parseFloat(flow === "row" ? cs.columnGap : cs.rowGap) || 0 : 0;
+    el.setAttribute(SCROLL_ATTR, String(scrolls.length));
+    scrolls.push({ top: Math.max(0, top), left: Math.max(0, left), flow, gap });
+  }
+  return scrolls;
+}
+
+/** 여백 값 앞에 지울 논리 방향 값 — 겹치면 나중 것이 이겨서 (LOGICAL_OFFSETS와 같은 이유) */
+const LOGICAL_MARGIN: Record<"margin-top" | "margin-left", string> = { "margin-top": "margin-block-start", "margin-left": "margin-inline-start" };
+
+/** 복제본에서 스크롤 칸 안의 내용을 여백으로 당긴다 — 칸은 원래 크기·overflow hidden으로 두고, transform·relative는 쓰지 않는다 */
+function applyScrolls(clone: Node, scrolls: Scroll[]) {
+  if (!(clone instanceof Element)) return;
+  clone.querySelectorAll<HTMLElement>(`[${SCROLL_ATTR}]`).forEach((box) => {
+    const scroll = scrolls[Number(box.getAttribute(SCROLL_ATTR))];
+    box.removeAttribute(SCROLL_ATTR);
+    if (!scroll) return;
+    const along = scroll.flow === "row" ? scroll.left : scroll.top; // 쌓이는 방향 스크롤
+    const across = scroll.flow === "row" ? scroll.top : scroll.left; // 옆 방향 스크롤
+    const alongSide = scroll.flow === "row" ? "margin-left" : "margin-top";
+    const acrossSide = scroll.flow === "row" ? "margin-top" : "margin-left";
+
+    // 옆 방향은 자식이 서로 밀지 않는다 — 자식마다 당긴다 (복제본 자식은 너비·높이가 px로 박혀 있어 크기는 그대로)
+    if (across) {
+      for (const child of box.children) {
+        if (!(child instanceof HTMLElement)) continue;
+        const current = parseFloat(child.style.getPropertyValue(acrossSide)) || 0;
+        child.style.removeProperty(LOGICAL_MARGIN[acrossSide]);
+        child.style.setProperty(acrossSide, `${current - across}px`);
+      }
+    }
+    // 쌓이는 방향은 맨 앞에 빈 칸 하나를 넣어 음수 여백으로 뒤 내용 전체를 당긴다 (flex면 빈 칸이 만드는 간격 하나도 같이 뺀다)
+    if (along) {
+      const spacer = box.ownerDocument.createElement("div");
+      spacer.setAttribute("aria-hidden", "true");
+      spacer.style.cssText = "display:block;flex:none;width:0;height:0;padding:0;border:0;margin:0";
+      spacer.style.setProperty(alongSide, `${-(along + scroll.gap)}px`);
+      box.prepend(spacer);
+    }
+    box.style.overflow = "hidden";
   });
 }
 
@@ -271,6 +345,7 @@ export async function captureViewport(): Promise<Blob> {
   const cropX = Math.max(0, -bodyRect.left); // body 왼쪽 위에서 보이던 구간까지의 거리 = 스크롤
   const cropY = Math.max(0, -bodyRect.top);
   const backgroundColor = pageBackground();
+  const scrolls = markScrolls();
   const pins = markPins();
 
   try {
@@ -296,10 +371,14 @@ export async function captureViewport(): Promise<Blob> {
       filter: (node) => !(node instanceof Element && node.matches(EXCLUDE)),
       font: fontCss ? { cssText: fontCss } : false,
       onCloneEachNode: ringToOutline,
-      onCloneNode: (clone) => applyPins(clone, pins),
+      // 스크롤 칸 먼저 — 못 박은 칸은 applyPins가 여백을 0으로 되돌려 당겨지지 않는다
+      onCloneNode: (clone) => {
+        applyScrolls(clone, scrolls);
+        applyPins(clone, pins);
+      },
       timeout: 8000,
     });
-    unmarkPins();
+    unmarkAll();
 
     // 보이던 구간만 잘라 바탕색 위에 옮겨 그린다
     const ratioX = source.width / renderWidth;
@@ -330,7 +409,7 @@ export async function captureViewport(): Promise<Blob> {
       source.width = source.height = 0; // 아이폰 캔버스 메모리를 바로 돌려준다
     }
   } finally {
-    unmarkPins();
+    unmarkAll();
   }
 }
 ```
