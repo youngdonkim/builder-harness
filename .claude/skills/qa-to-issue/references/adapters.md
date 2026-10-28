@@ -1,6 +1,6 @@
 # 어댑터 — 프로젝트마다 바꾸는 자리
 
-코드 견본(`code/*.md`) 안에서 `[ADAPTER:아이디]`로 표시한 자리의 정본이다. SKILL.md 단계 1 「적용 전 확인」에서 AI가 이 표를 **프로젝트 코드·설정을 읽어 먼저 채우고**, 못 찾은 칸만 사용자에게 묻는다. 채운 표는 코딩 위임 지시서에 그대로 넘기고, 다 깐 뒤 프로젝트 `docs/qa-feedback.md` 「어댑터 결정」에 남긴다.
+코드 견본(`code/*.md`) 안에서 `[ADAPTER:아이디]`로 표시한 자리의 정본이다. SKILL.md 4.1 「적용 전 확인」에서 AI가 이 표를 **프로젝트 코드·설정을 읽어 먼저 채우고**, 못 찾은 칸만 사용자에게 묻는다. 채운 표는 코딩 위임 지시서에 그대로 넘기고, 다 깐 뒤 프로젝트 `docs/qa-feedback.md` 「어댑터 결정」에 남긴다.
 
 - **표시 모양** — 블록은 `// [ADAPTER:아이디] 설명` … `// [/ADAPTER:아이디]`, 한 줄짜리는 줄 끝 주석. 블록 안에는 참고 구현(Next.js·Supabase·shadcn) 코드가 **기본값**으로 들어 있다 — 하네스 고정 스택이면 대개 그대로 맞는다.
 - **이름 끝 `?`** (`team?`) — 그 개념이 없는 프로젝트는 블록째 지운다.
@@ -39,12 +39,13 @@
 | `tz-lang` | 공통 | `issue.ts` `TIME_ZONE`·`TIME_ZONE_LABEL` | `Asia/Seoul` · `한국` | 이슈의 시각 기준. 바꾸면 `issue.test.mjs` 마지막 시험의 기대값도 그 시간대로 고친다. 이슈 본문은 개발자가 읽는 글이라 한국어 그대로 둔다 | 기본값 그대로 |
 | `rate-limit` | 공통 | `server.ts` `GAP_MS`·`DAY_MAX`·`HOUR_MAX_ALL` | 같은 보낸 사람 30초 1번·하루 20번, 인스턴스 전체 한 시간 60번 | 보통 그대로. 같은 와이파이의 테스터들이 IP 하나를 나눠 쓰면(anon) 실측 뒤 늘린다 | — |
 
-**견본 밖에서 확인하는 것** (어댑터 표시는 없지만 단계 1에서 같이 본다)
+**견본 밖에서 확인하는 것** (어댑터 표시는 없지만 4.1에서 같이 본다)
 
 - **스택** — Next.js App Router(`src/app` 또는 `app` 폴더)와 Vercel(`.vercel/project.json` 또는 Vercel 대시보드의 git 연동). 아니면 깔지 않고 멈춰 보고한다 — 서버 주소·스위치 옮기는 줄·배포 정보·IP 머리글·요청 본문 한도가 모두 다시 짜야 하는 자리다.
 - **middleware/proxy matcher** — `code/wiring.md` 6절.
 - **전역 CSS 위치** — `code/wiring.md` 3절.
 - **처리방침 자리** — 처리방침 문구가 있는 파일·페이지. 없으면 `code/wiring.md` 8절 끝.
+- **`next.config`의 `cacheComponents: true`** — 있으면 `route.ts`의 `export const dynamic = "force-dynamic"` 줄을 뺀다. 같이 쓰면 빌드가 실패한다(이벤트 알리미 실측). POST라 빼도 요청마다 실행된다. 뺐다고 파일 머리 주석·`docs/qa-feedback.md` 「어댑터 결정」에 적는다.
 - **Node 판** — `node --version` 22.18 이상(단위 시험). 아니면 사용자에게 알리고, 시험은 판을 올린 뒤 돌린다.
 - **부품 목록 문서** — `code/wiring.md` 11절.
 
