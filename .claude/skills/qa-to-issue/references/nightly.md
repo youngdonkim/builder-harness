@@ -49,9 +49,9 @@ SKILL.md 4.5·4.6·5.3·5.1에서 읽는다. 쌓인 `qa` 이슈를 퇴근 뒤 �
 
 ## 3. 만들기와 손 실행
 
-1. [AI] 시험용 `qa` 이슈 목록을 보여 주고 닫을 것을 묻는다(안 닫으면 첫 실행이 고치려 든다).
+1. [AI] 시험용 `qa` 이슈 목록을 보여 주고 닫을 것을 묻는다(안 닫으면 첫 실행이 고치려 든다). 3·4번을 먼저 하는 경우(SKILL.md 4.2 4번) 첫 실행(6번) 전까지만 하면 된다.
 2. [AI] 지시문·실행 시각·리뷰어·정책을 보여 주고 **멈춤** — 확인받는다.
-3. [AI] `create`(1절 값, `enabled: false`). **403 `repo_access_denied`면 반복하지 않는다** → `human-setup.md` 5절 → 승인 뒤 한 번만 재시도.
+3. [AI] `create`(1절 값, `enabled: false`) — **Claude 앱 허락 확인을 겸한다**: 만들어지면 허락이 이미 된 것이라 `human-setup.md` 5절을 건너뛰고, 점검표 10번도 ✅. **403 `repo_access_denied`면 반복하지 않는다** → `human-setup.md` 5절 → 승인 뒤 한 번만 재시도. 사람에게 앱 설정 화면을 확인시키지 않는다.
 4. [AI] `update`로 `clear_mcp_connections: true` → `get`으로 커넥터 없음 확인.
 5. [사람] 손 실행용 실제 이슈 1~3개를 톡톡톡으로 남긴다(없으면 실행이 「처리할 QA 이슈 없음」으로 바로 끝난다).
 6. [AI] `run` → 끝나면 `list_runs`·`get_run_log`로 읽고 PR 확인:
@@ -103,14 +103,14 @@ SKILL.md 4.6 머지 뒤.
 
 1. [AI] `update`로 `enabled: false`(묻고). 지우기는 사용자가 원할 때만.
 2. [AI] 열린 `qa/nightly` PR — 머지할지 닫을지 묻는다.
-3. [사람] GitHub → (조직) **Settings** → **GitHub Apps** → **Claude** → **Configure** → 저장소 빼기 또는 **Uninstall**(다른 곳에서도 쓰면 빼기만).
+3. [사람] (조직이면 소유자 몫) GitHub → (조직) **Settings** → **GitHub Apps** → **Claude** → **Configure** → 저장소 빼기 또는 **Uninstall**(다른 곳에서도 쓰면 빼기만).
 4. [AI] 라벨은 둔다. 문서에 끈 날짜. 처리방침의 AI 제공사 줄은 사람이 정한다.
 
 ## 7. 실패할 때
 
 | 증상 | 할 일 |
 |---|---|
-| 만들기·실행 403 `repo_access_denied` | 반복 금지 → `human-setup.md` 5절 → 승인 뒤 한 번만 |
+| 만들기·실행 403 `repo_access_denied` | 반복 금지 → `human-setup.md` 5절(만들기에서 처음 만나는 게 정상 — 앱 확인은 이 만들기가 한다) → 승인 뒤 한 번만 |
 | 승인 페이지 404 | 소유자 계정이 아님 → `human-setup.md` 5.1 견본을 소유자에게 |
 | 로그에 `gh issue list` 등 403 | 클라우드는 `gh` GraphQL이 막힘 → 지시문이 GitHub MCP 도구·`gh api`(REST)만 쓰는지 확인 |
 | 메일이 안 옴 | PR 리뷰어, `human-setup.md` 7절 1번, 그날 고친 게 있었나 |

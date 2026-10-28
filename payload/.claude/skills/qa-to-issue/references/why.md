@@ -203,6 +203,7 @@ PC 크롬에선 그대로 잘 찍혔는데 아이폰에서만 깨졌다. 모두 
 **시행착오** (참고 구현 2026-10-27 — eval 색인 50~54)
 
 - 루틴 생성이 **403 `repo_access_denied`** — Claude GitHub 앱이 조직에 설치·승인되기 전이었다. 반복하지 말고 사람 몫을 안내한 뒤 승인되면 한 번만 다시.
+- **앱 허락 확인은 사람에게 묻지 않고 루틴을 꺼진 채로 만들어 본다** — 조직 일반 멤버는 앱 설정 화면(Configure·설치 목록)을 볼 수도 바꿀 수도 없고(「This action must be performed by an organization owner」) 앱 권한 목록(Permissions)은 어떤 저장소가 들어 있는지 알려 주지 않는다. 만들어지면 통과, 403이면 그때만 사람 몫. 조직이 앱을 All repositories로 깔아 뒀으면 새 캡처 저장소도 저절로 들어간다(이벤트 알리미 2026-10-28, eval 색인 57).
 - **로컬 `gh` 인증은 클라우드에서 못 쓴다** — 클라우드 접근은 GitHub 앱이 전부. 클라우드의 `gh`는 GraphQL이 막혀(403) REST(`gh api`)나 GitHub MCP 도구만 된다.
 - **앱 권한 묶음의 actions·workflows·repository hooks 쓰기는 뺄 수 없다** — 사람에게 미리 알리고 지시문에서 `.github/` 수정 금지.
 - 루틴을 만들면 claude.ai에 연결된 **커넥터(Notion 등)가 저절로 붙는다** — `clear_mcp_connections: true`로 뗀다.
