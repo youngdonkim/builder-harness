@@ -3,9 +3,9 @@
 - 놓을 곳: `src/lib/qa-feedback/client.ts` (`src/` 없이 `app/`이 루트에 있는 프로젝트면 `src/`를 빼고 같은 경로)
 - 방식: 두 방식 공통
 - 출처: sangsiki-quiugi@5e9aa46 `src/lib/qa-feedback/client.ts`
-- 참고 구현에서 바꾼 점: 프로젝트 도우미(`../device`) 대신 UA 기반 최소 기기 판별을 안에 넣음
+- 참고 구현에서 바꾼 점: 프로젝트 도우미(`../device`) 대신 UA 기반 최소 기기 판별을 안에 넣음 · 보이는 입구(메뉴·설정 화면의 「의견 보내기」)가 같은 창을 여는 `openQaFeedback()`·`QA_OPEN_EVENT` · 503 → `unavailable`
 - 어댑터: `device-line` — 뜻과 채우는 법은 `../adapters.md`
-- 손대지 않는 곳: 보내는 주소 `/api/qa-feedback`, 상태 코드 → 결과 매핑
+- 손대지 않는 곳: 보내는 주소 `/api/qa-feedback`, 상태 코드 → 결과 매핑(401은 로그인이 풀림, 503은 토큰 거절로 지금은 보낼 수 없음)
 - 의존: 없음 (`NEXT_PUBLIC_QA_FEEDBACK`·`NEXT_PUBLIC_BUILD_ID`는 next.config가 넣음 — wiring.md)
 
 아래 코드 블록 안 전체를 그대로 옮긴 뒤 `[ADAPTER:…]` 자리만 이 프로젝트 것으로 바꾸고 표시 주석을 지운다. 다 깐 뒤 `grep -rn "\[ADAPTER:" src`가 0건이어야 한다.
@@ -19,6 +19,18 @@ import { maskPath, type QaClientMeta, type QaCollectedMeta, type QaFeedbackResul
 
 /** 이 빌드에서 켜져 있나 — 서버 환경변수 QA_FEEDBACK=on을 next.config가 빌드 때 "1"로 옮겨 준다(바꾸면 다시 배포) */
 export const QA_FEEDBACK_ENABLED = process.env.NEXT_PUBLIC_QA_FEEDBACK === "1";
+
+/** 보이는 입구가 창을 열어 달라고 알리는 이벤트 이름 — QaFeedback.tsx가 듣는다 */
+export const QA_OPEN_EVENT = "qa-feedback:open";
+
+/**
+ * 보이는 입구(메뉴·설정 화면의 「의견 보내기」 같은 버튼)에서 부른다 — 화면 3번 터치와 같은 창을 연다(그 순간 화면을 찍고 정보를 모은다).
+ * 스위치가 꺼졌거나 감지가 꺼져 있으면(로그인 방식에서 로그인 전) 듣는 쪽이 없어 아무 일도 없다 — 버튼도 그때는 보이지 않게 둔다(wiring.md 「보이는 입구」).
+ */
+export function openQaFeedback(): void {
+  if (!QA_FEEDBACK_ENABLED) return;
+  window.dispatchEvent(new Event(QA_OPEN_EVENT));
+}
 
 // [ADAPTER:device-line] 기기 한 줄 — 이슈에서 개발자가 읽는 값(화면 문구 아님). 프로젝트에 기기 판별 도우미가 있으면 그걸 쓰고, 없으면 아래 최소 판별을 그대로 둔다
 function deviceLine(): string {
@@ -64,6 +76,7 @@ export async function sendQaFeedback(input: { text: string; meta: QaClientMeta; 
     if (res.ok) return { kind: "sent" };
     if (res.status === 429) return { kind: "too-many" };
     if (res.status === 401) return { kind: "signed-out" };
+    if (res.status === 503) return { kind: "unavailable" };
     return { kind: "failed" };
   } catch {
     return { kind: "failed" };

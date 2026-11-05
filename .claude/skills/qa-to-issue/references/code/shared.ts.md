@@ -80,6 +80,9 @@ export type QaClientMeta = {
 /** 3번째 터치 순간 화면이 모은 정보 — 캡처 결과(shotFailed)는 보낼 때 채운다 */
 export type QaCollectedMeta = Omit<QaClientMeta, "shotFailed">;
 
-/** 서버 응답 — 이슈 번호·주소는 돌려주지 않는다 */
-export type QaFeedbackResult = { kind: "sent" } | { kind: "too-many" } | { kind: "signed-out" } | { kind: "failed" };
+/**
+ * 서버 응답 — 이슈 번호·주소는 돌려주지 않는다.
+ * unavailable: GitHub가 토큰을 거절했다(401 — 만료·폐기). 다시 눌러도 안 되니 「지금은 보낼 수 없다」고 알린다.
+ */
+export type QaFeedbackResult = { kind: "sent" } | { kind: "too-many" } | { kind: "signed-out" } | { kind: "unavailable" } | { kind: "failed" };
 ```

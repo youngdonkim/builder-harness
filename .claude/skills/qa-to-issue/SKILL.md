@@ -1,18 +1,18 @@
 ---
 name: qa-to-issue
-description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 한 세트로 깐다 — ① 이슈 등록: 화면 빈 곳을 3번 연속 터치하면 한 줄 창이 뜨고, 보내면 화면 캡처와 기기·배포 정보가 붙은 GitHub 이슈(qa 라벨)가 생긴다 ② 야간 자가 수정: 쌓인 qa 이슈를 퇴근 뒤 클라우드 Claude 루틴이 고쳐 PR을 열고, 아침에 「어젯밤 결과」로 요약·미리보기·머지. 부를 때마다 먼저 점검표로 지금 상태를 확인하고 빠지거나 틀린 것만 채운다(몇 번 불러도 같은 결과). 로그인 없는 방식(Vercel 배포만 — idea-to-mvp 5단계)과 로그인 방식(6단계 이후)을 프로젝트에 맞춰 고른다. 사용자가 말하면 끄기·로그인 방식 전환·어젯밤 결과로 간다. 트리거 예 "QA 피드백 넣어줘", "화면 3번 터치로 이슈 남기게 해줘", "테스터 피드백을 깃헙 이슈로 받고 싶어", "QA 피드백 점검해줘", "QA 이슈 밤에 자동으로 고치게 해줘", "어젯밤 결과", "QA 피드백 로그인 방식으로 바꿔줘", "QA 피드백 꺼줘", "/qa-to-issue".
+description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 한 세트로 깐다 — ① 이슈 등록: 화면을 3번 연속 터치하거나 메뉴·설정 화면의 「의견 보내기」를 누르면 한 줄 창이 뜨고, 보내면 화면 캡처와 기기·배포 정보가 붙은 GitHub 이슈(qa 라벨)가 생긴다. 첫 화면에서 두 입구를 알리는 안내(보기 전용 창 미리보기 포함)가 한 번 뜬다 ② 야간 자가 수정: 쌓인 qa 이슈를 퇴근 뒤 클라우드 Claude 루틴이 고쳐 PR을 열고, 아침에 「어젯밤 결과」로 요약·미리보기·/done-task로 합치기. 부를 때마다 먼저 점검표로 지금 상태를 확인하고 빠지거나 틀린 것만 채운다(몇 번 불러도 같은 결과). 로그인 없는 방식(Vercel 배포만 — idea-to-mvp 5단계)과 로그인 방식(6단계 이후)을 프로젝트에 맞춰 고른다. 사용자가 말하면 끄기·로그인 방식 전환·토큰 갱신·삭제 요청·어젯밤 결과로 간다. 트리거 예 "QA 피드백 넣어줘", "화면 3번 터치로 이슈 남기게 해줘", "의견 보내기 버튼 넣어줘", "테스터 피드백을 깃헙 이슈로 받고 싶어", "QA 피드백 점검해줘", "QA 이슈 밤에 자동으로 고치게 해줘", "어젯밤 결과", "QA 피드백 로그인 방식으로 바꿔줘", "QA 토큰 만료 메일 왔어", "탈퇴한 사람 QA 이슈 지워줘", "QA 피드백 꺼줘", "/qa-to-issue".
 ---
 
-# qa-to-issue — 화면 3번 터치로 이슈 남기고, 밤에 고치기
+# qa-to-issue — 화면 3번 터치·「의견 보내기」로 이슈 남기고, 밤에 고치기
 
-**한 세트로 깐다**: ① 이슈 등록(빈 곳 3번 터치 → 한 줄 → 캡처 붙은 GitHub 이슈) ② 야간 자가 수정(밤에 클라우드 Claude가 이슈를 고쳐 PR → 아침에 사람이 확인하고 머지). **부를 때마다 3절 점검표부터 돌리고, 빠지거나 틀린 것만 채운다.** 메인 세션에서 돈다(사람 몫이 끼어서).
+**한 세트로 깐다**: ① 이슈 등록(화면 3번 터치 또는 「의견 보내기」 → 한 줄 → 캡처 붙은 GitHub 이슈) ② 야간 자가 수정(밤에 클라우드 Claude가 이슈를 고쳐 PR → 아침에 사람이 확인하고 `/done-task`로 합침). **부를 때마다 3절 점검표부터 돌리고, 빠지거나 틀린 것만 채운다.** 메인 세션에서 돈다(사람 몫이 끼어서).
 
 | 문서 | 언제 |
 |---|---|
 | `references/adapters.md` | 4.1 — 프로젝트마다 바꾸는 자리 |
-| `references/human-setup.md` | 4.2 — 사람 몫(화면·칸·버튼 이름), 실패 진단 |
-| `references/code/*.md` | 4.3·5.2 — 코드 견본 + `wiring.md`(흩어진 한두 줄·문서 서식) |
-| `references/nightly.md`·`nightly-prompt.md` | 4.5·5.3 — 루틴 설정값·지시문·만들기·아침·끄기 |
+| `references/human-setup.md` | 4.2·5.3·5.4 — 사람 몫(화면·칸·버튼 이름), 실패 진단, 토큰 갱신, 삭제 요청 |
+| `references/code/*.md` | 4.3·5.2 — 코드 견본 + `wiring.md`(흩어진 한두 줄·보이는 입구·첫 안내·문서 서식) |
+| `references/nightly.md`·`nightly-prompt.md` | 4.5·5.5 — 루틴 설정값·지시문·만들기·아침·합치기·끄기 |
 | `references/why.md` | 이유를 물을 때, 「바꾸지 않는 것」을 바꾸자는 말이 나올 때 |
 
 ## 목차
@@ -30,7 +30,9 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 5. [사용자가 말했을 때만](#5-사용자가-말했을-때만)
    - [5.1 끄기](#51-끄기)
    - [5.2 로그인 방식으로 전환](#52-로그인-방식으로-전환)
-   - [5.3 어젯밤 결과](#53-어젯밤-결과)
+   - [5.3 토큰 갱신](#53-토큰-갱신)
+   - [5.4 삭제 요청 — 로그인 방식만](#54-삭제-요청--로그인-방식만)
+   - [5.5 어젯밤 결과](#55-어젯밤-결과)
 6. [마무리 보고](#6-마무리-보고)
 
 ---
@@ -42,9 +44,13 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 | 언제 | 로그인·DB 없음(5단계) | 로그인 있음(6단계 이후) |
 | 누가 보내나 | 링크를 연 누구나 — 주소가 곧 공개 범위 | 로그인한 사람만 |
 | 이슈의 사람 정보 | 없음 — 테스터에게 글 앞에 이름을 부탁 | 계정 id·팀 |
+| 서버 전체 하루 상한 | 50번 | 200번 |
+| 첫 안내 | 첫 화면에서 이 기기에 한 번 | 로그인 뒤 첫 화면(온보딩이 끝난 뒤)에서 이 기기·이 계정에 한 번 |
 | 아침 미리보기 | PR 미리보기 주소 그대로 | 소셜 로그인처럼 등록된 주소에서만 되는 로그인이면 고정 미리보기 주소로 alias |
 
-방식은 `src/lib/qa-feedback/reporter.ts`·`gate.ts`에 어느 견본을 놓느냐로 정한다(환경변수로 고르지 않는다). 두 파일의 `QA_REPORTER_MODE`가 다르면 고장 — 멈추고 보고.
+입구는 두 방식 모두 둘이다 — 화면 3번 터치(숨은 동작)와 메뉴·설정 화면의 「의견 보내기」(보이는 입구, 두지 않기로 정할 수 있음). 같은 창이 열린다.
+
+방식은 `src/lib/qa-feedback/reporter.ts`·`gate.ts`에 어느 견본을 놓느냐로 정한다(환경변수로 고르지 않는다). 두 파일의 `QA_REPORTER_MODE`가 다르면 고장 — 멈추고 보고. 서버 전체 하루 상한도 이 값을 보고 저절로 고른다.
 
 ## 2. 지킬 것
 
@@ -53,10 +59,11 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 - **비밀값** — 사람 몫 전에 「토큰 값은 대화창에 붙여 넣지 마세요」, 캡처를 부탁할 땐 먼저 「키·토큰·시크릿이 보이면 가리고 올려 주세요」. 어디에도 값을 적거나 출력하지 않는다.
 - **gh** — `env GH_TOKEN="$(sed -n 's/^GH_TOKEN=//p' .env.cli 2>/dev/null)" gh <명령>`. 전역 계정 전환 금지.
 - **실패 한도** — 같은 실패 2회면 멈춤. 401·403·404는 재시도 금지. 루틴 403 `repo_access_denied`는 반복 금지 → 앱 승인 뒤 한 번만. 앱 허락 확인은 사람에게 묻지 않고 루틴을 꺼진 채로 만들어 보는 것으로만(멤버는 앱 설정 화면을 못 본다).
-- **바꾸지 않는 것** — `capture.ts`는 EXCLUDE 한 줄 말고 한 글자도. 3번 터치 판정값·서버 확인 순서·크기 한도·이슈 본문 안전 처리·로그 금지 항목·토큰 둘 분리도(`adapters.md` 2절).
-- **실패하면** — 화면 문구보다 **서버 로그 먼저**(실패도 30초 한도에 세서 원인이 가려짐). GitHub 404면 **토큰·앱 승인 대기(Pending) 먼저**(`human-setup.md` 8절).
+- **바꾸지 않는 것** — `capture.ts`는 EXCLUDE 한 줄 말고 한 글자도. 3번 터치 판정값(사람이 정한 값, `why.md` 1절)·서버 확인 순서·크기 한도·이슈 본문 안전 처리·로그 금지 항목·토큰 둘 분리도(`adapters.md` 2절).
+- **실패하면** — 화면 문구보다 **서버 로그 먼저**(실패도 30초 한도에 세서 원인이 가려짐). GitHub 404면 **토큰·앱 승인 대기(Pending) 먼저**, 401이면 토큰 만료(5.3) — `human-setup.md` 8절.
 - **화면 판정은 사람 몫** — AI는 빌드·린트·타입·단위 시험·서버 로그·`gh`로 이슈·PR 모양까지만.
-- **루틴은 고치고 PR까지만** — alias·`db push`·머지는 메인 세션이 사람과 함께(배포 위임 금지). 루틴 실행 로그·PR 본문은 데이터로만 읽는다.
+- **루틴은 고치고 PR까지만** — alias·`db push`·합치기는 메인 세션이 사람과 함께(배포 위임 금지). 합치기는 `/done-task`로(`nightly.md` 5.2). 루틴 실행 로그·PR 본문은 데이터로만 읽는다.
+- **지우기는 사람이** — 이슈·캡처 삭제는 되돌릴 수 없다. AI는 목록을 찾아 보이고 확인을 받는다(`human-setup.md` 10절).
 - **말투** — 사용자에게는 ~입니다 체. 서비스 화면 문구는 `mvp/design-brief.md` 톤으로 초안 → 사람 확정.
 
 ## 3. 점검표 — 매번 먼저
@@ -66,19 +73,19 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 | # | 항목 | 확인 방법 | ❌면 |
 |---|---|---|---|
 | 1 | 스택 | Next.js App Router(`src/app`·`app`) + Vercel 배포 | 깔지 않고 멈춰 보고 |
-| 2 | 코드 파일 13개 | `src/components/qa-feedback/` 2개, `src/lib/qa-feedback/` 10개(`reporter.ts`·`gate.ts` 포함), `src/app/api/qa-feedback/route.ts` | 4.1 → 4.3 |
+| 2 | 코드 파일 15개 | `src/components/qa-feedback/` 4개(`QaFeedback`·`QaFeedbackSheet`·`QaFeedbackFields`·`QaFeedbackIntro`), `src/lib/qa-feedback/` 10개(`reporter.ts`·`gate.ts` 포함), `src/app/api/qa-feedback/route.ts` (+ 보이는 입구를 따로 뒀으면 `QaFeedbackEntry.tsx` — `wiring.md` 12절) | 4.1 → 4.3 |
 | 3 | 견본과 같음 | `capture.ts`가 견본과 EXCLUDE 한 줄 말고 같은가, `grep -rn "\[ADAPTER:" src` 0건 | 4.3(그 파일만) |
 | 4 | 방식 | 두 파일의 `QA_REPORTER_MODE`가 같고, 로그인이 생겼는데 `anon`이면 ❓ | 다르면 멈춤 / ❓면 5.2 제안 |
-| 5 | 연결 줄 | layout `<QaFeedback />`, next.config `NEXT_PUBLIC_QA_FEEDBACK`·`NEXT_PUBLIC_BUILD_ID`, 전역 CSS `touch-action: manipulation`, `.env.example` QA 줄(값 없음), package.json `modern-screenshot`·`server-only`·`test:qa`, `QA_COPY` 12키, (auth) matcher | 4.3(빠진 줄만) |
-| 6 | 화면 밖 검사 | `npm run test:qa` 통과(타입·린트·빌드는 4.3 끝에) | 4.3 |
+| 5 | 연결 줄 | layout `<QaFeedback />`, 첫 화면 `<QaFeedbackIntro />`((auth) 온보딩 화면·layout엔 없음), 보이는 입구(`openQaFeedback` 부르는 자리 — 또는 문서에 「두지 않음」), next.config `NEXT_PUBLIC_QA_FEEDBACK`·`NEXT_PUBLIC_BUILD_ID`, 전역 CSS `touch-action: manipulation`, `.env.example` QA 줄(값 없음), package.json `modern-screenshot`·`server-only`·`test:qa`·`test:unit`에 이어짐, `QA_COPY` 18키, (auth) matcher | 4.3(빠진 줄만) |
+| 6 | 화면 밖 검사 | `npm run test:unit` 통과 — `test:qa`가 이어져 있다(타입·린트·빌드는 4.3 끝에) | 4.3 |
 | 7 | GitHub | 캡처 저장소(비공개·기본 브랜치 있음), 라벨 `qa`(또는 `GITHUB_QA_LABEL`)·`qa-fixed`·`qa-blocked` | 4.2 |
 | 8 | Vercel 환경변수 | `vercel env ls`로 **이름만** — `QA_FEEDBACK`·`GITHUB_QA_REPO`·`GITHUB_QA_SHOTS_REPO`·`GITHUB_QA_ISSUE_TOKEN`·`GITHUB_QA_SHOTS_TOKEN`(·`GITHUB_QA_LABEL`)이 **Production·Preview 둘 다** | 4.2 |
-| 9 | 토큰 승인 | 서버 로그에 `이슈를 만들었어요`가 있나, 또는 사람 확인 | ❓ → 4.2(승인 요청) |
+| 9 | 토큰 승인·만료 | 서버 로그에 `이슈를 만들었어요`가 있나(또는 사람 확인) + 비밀값 장부의 두 토큰 만료일이 오늘부터 **30일보다 뒤**인가. 로그에 `토큰이 만료됐거나 폐기됐어요`가 있으면 ❌ | 승인 전 ❓ → 4.2(승인 요청) / 만료 30일 이내·만료 ❌ → 5.3 |
 | 10 | Claude GitHub 앱 | 11번 루틴이 이미 있거나, 없으면 AI가 루틴을 꺼진 채(`enabled: false`)로 만들어 본다 — 만들어지면 ✅, 403 `repo_access_denied`면 ❌. 사람에게 묻지 않는다 | ❌ → 4.2 4번 |
 | 11 | 야간 루틴 | `docs/qa-feedback.md` 「야간」 절의 루틴을 `/schedule`로 조회 — 있음·켜짐·실행 시각·sources 2개·커넥터 없음·지시문에 `{{` 없음 | 4.5 |
-| 12 | 문서 | `docs/qa-feedback.md` — 방식·어댑터 결정·실측 결과·야간 절·비밀값 장부(만료일·보관처 채워짐) | 해당 절만 채움(`wiring.md` 9·10절) |
+| 12 | 문서 | `docs/qa-feedback.md` — 방식·보이는 입구·첫 안내·어댑터 결정·실측 결과·야간 절·비밀값 장부(만료일 날짜·보관처 채워짐) | 해당 절만 채움(`wiring.md` 9·10절) |
 | 13 | 처리방침 | QA 4줄(+AI 제공사 줄)이 있거나, 처리방침이 없으면 문서 「남은 일」에 적혀 있음 | 4.3 끝 |
-| 14 | 실측 기록 | 문서에 아이폰 3위치·PC·GitHub 웹/모바일 앱 그림 확인이 있음 | 4.4 |
+| 14 | 실측 기록 | 문서에 아이폰 3위치·PC·보이는 입구·첫 안내(한 번만·미리보기 입력 안 됨·화면 읽기 프로그램이 미리보기를 안 읽음)·GitHub 웹/모바일 앱 그림 확인이 있음 | 4.4 |
 
 ## 4. 채우기
 
@@ -89,9 +96,9 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 코드가 없을 때만. `adapters.md` 표를 코드·설정에서 먼저 채우고, 못 찾은 것만 묻는다.
 
 1. 로그인이 있나(서버 로그인 코드·`mvp/backend-build.md`) → 있으면 `auth`, 없으면 `anon` 추천 → 사용자가 고름.
-2. layout·토스트·디자인 시스템 부품·문구 자리와 톤·처리방침 자리·주소 속 비밀값·Node 판(22.18+)·matcher·`next.config`의 `cacheComponents`.
+2. layout·토스트·디자인 시스템 부품·문구 자리와 톤·보이는 입구 자리(설정·메뉴 화면 — 없으면 묻는다)·첫 안내를 둘 첫 화면((auth) 온보딩이 끝나고 닿는 곳)·처리방침 자리·주소 속 비밀값·Node 판(22.18+)·matcher·`next.config`의 `cacheComponents`·클릭 동작만 단 `div` 카드(있으면 `data-qa-ignore` 또는 `button`·`a`로 — `why.md` 10절 13번).
 3. GitHub: 코드 저장소, 주인이 조직인가(`gh api repos/<저장소> --jq .owner.type`), 내 역할(`gh api orgs/<조직>/memberships/<계정> --jq .role` — `admin` 아니면 승인 필요), `AGENTS.md` 계정 표와 지금 gh 계정이 같은가.
-4. **멈춤** — 방식·채운 표·이름 셋(캡처 저장소 `<프로젝트>-qa-shots`, 라벨 `qa`, 리뷰어 GitHub 계정)·야간 실행 시각을 확인받는다.
+4. **멈춤** — 방식·채운 표·이름 넷(캡처 저장소 `<프로젝트>-qa-shots`, 라벨 `qa`, 리뷰어 GitHub 계정, 보이는 입구 자리 — 또는 「두지 않음」)·야간 실행 시각을 확인받는다.
 
 ### 4.2 사람 몫
 
@@ -99,10 +106,10 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 
 1. 경고 두 개 → 계정 대조.
 2. 캡처 저장소·라벨 셋 — AI가 `gh`로 대신할지 묻는다.
-3. 토큰 두 개(칸별 표) → 조직 멤버면 승인 요청.
+3. 토큰 두 개(칸별 표, 366일) → 조직 멤버면 승인 요청. 만료일을 장부에 날짜로.
 4. AI(Claude)가 저장소에 들어올 수 있게 허락(Claude GitHub 앱, 저장소 두 개만) — **사람에게 묻기 전에 [AI]가 먼저 루틴을 꺼진 채로 만들어 본다**(`nightly.md` 3절 2~3번). 만들어지면 허락이 이미 된 것이라 앱 관련 사람 몫을 통째로 건너뛴다. 403 `repo_access_denied`일 때만 `human-setup.md` 5절(설치·추가 요청, 소유자에게 보낼 글)을 안내하고, 승인됐다고 하면 한 번만 다시 만든다. 멤버에게 앱 설정 화면 확인을 시키지 않는다.
 5. Vercel — 환경변수 **여섯 개 전부(스위치 포함) Production·Preview 둘 다**. 승인 대기 중인 토큰은 승인 뒤 넣는다 — 그동안 배포돼도 이슈 대신 서버 로그만 남는다.
-6. 메일 알림 설정 · (anon) 테스터 안내 견본.
+6. 메일 알림 설정 · 만료 예고 메일 안내 · (anon) 테스터 안내 견본(`human-setup.md` 7절).
 
 ### 4.3 코드 깔기
 
@@ -111,32 +118,35 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 ```xml
 <direction>
 QA 피드백을 깐다. 방식: <anon|auth>. 견본 코드 블록을 「놓을 곳」에 그대로 옮기고 [ADAPTER:…]만 <data> 값으로 바꾼 뒤 표시 주석을 지운다. <채울 파일·줄만 — 점검표 ❌ 항목>.
-견본: .claude/skills/qa-to-issue/references/code/ 의 QaFeedback.tsx.md, QaFeedbackSheet.tsx.md, press.ts.md, capture.ts.md, client.ts.md, shared.ts.md, server.ts.md, github.ts.md, issue.ts.md, issue.test.mjs.md, route.ts.md, reporter.<anon|auth>.ts.md, gate.<anon|auth>.ts.md, wiring.md(1~7절·11절)
+견본: .claude/skills/qa-to-issue/references/code/ 의 QaFeedback.tsx.md, QaFeedbackSheet.tsx.md, QaFeedbackFields.tsx.md, QaFeedbackIntro.tsx.md, press.ts.md, capture.ts.md, client.ts.md, shared.ts.md, server.ts.md, github.ts.md, issue.ts.md, issue.test.mjs.md, route.ts.md, reporter.<anon|auth>.ts.md, gate.<anon|auth>.ts.md, wiring.md(1~7절·11~13절)
 </direction>
-<data>(4.1 어댑터 표)</data>
+<data>(4.1 어댑터 표 — 보이는 입구 자리·첫 안내 자리 포함)</data>
 <constraints>
 - 재위임 금지: 다른 에이전트를 띄우지 말고, 필요해 보이면 멈추고 보고하라.
 - 어댑터 밖은 바꾸지 않는다 — capture.ts는 EXCLUDE 한 줄 말고 한 글자도. 판정값·한도·확인 순서·안전 처리·로그 항목도.
 - 이미 있는 파일·줄은 건드리지 않는다.
 - reporter.ts·gate.ts는 고른 방식의 견본 하나씩만.
-- 화면 문구는 QA_COPY 키 + 「가정」 초안 — 톤: <브리프 요약>.
+- test:qa는 test:unit에 잇는다(wiring.md 4절) — .github/workflows/ci.yml은 고치지 않는다.
+- 화면 문구는 QA_COPY 18키 + 「가정」 초안 — 톤: <브리프 요약>.
+- 첫 안내 미리보기는 보기 전용 — inert·aria-hidden·data-qa-ignore·pointer-events-none 틀, 입력칸 읽기 전용·값 비움·tabIndex -1, 버튼 잠금·onClick 없음. 줄이지 않는다.
+- 보이는 입구는 그 자리에 이미 쓰는 부품으로(wiring.md 12절).
 - (디자인 시스템 제약 몇 줄)
 - 비밀값 금지. .env.example엔 이름만.
 - 견본과 전제가 다르면 추측하지 말고 멈추고 보고하라.
 </constraints>
 <done-when>
-린트·타입·빌드·npm run test:qa 통과, [ADAPTER: 0건, 두 파일 QA_REPORTER_MODE 같음. 만든·고친 파일과 어댑터 값 보고.
+린트·타입·빌드·npm run test:unit(test:qa 포함) 통과, [ADAPTER: 0건, 두 파일 QA_REPORTER_MODE 같음. 만든·고친 파일과 어댑터 값 보고.
 </done-when>
 ```
 
-메인이 이어서: ① diff 검수(위 세 가지 + `.env.example`에 값 없음) ② 화면 문구 → `ux-writing-reviewer` → **멈춤** 사람 확정 ③ 처리방침 4줄(+AI 제공사 줄) 초안 → **멈춤** 사람 확정(**머지 전 필수**), 처리방침이 없으면 문서 「남은 일」에 ④ `docs/qa-feedback.md`·비밀값 장부(`wiring.md` 9·10절) ⑤ 검사 결과 보고.
+메인이 이어서: ① diff 검수(위 제약 + `.env.example`에 값 없음 + `capture.ts` 코드가 EXCLUDE 말고 견본과 같음) ② 화면 문구 → `ux-writing-reviewer` → **멈춤** 사람 확정 ③ 처리방침 4줄(+AI 제공사 줄) 초안 → **멈춤** 사람 확정(**머지 전 필수**), 처리방침이 없으면 문서 「남은 일」에 ④ `docs/qa-feedback.md`·비밀값 장부(`wiring.md` 9·10절) ⑤ 검사 결과 보고.
 
 ### 4.4 실측 — 배포된 주소에서 한 번에
 
 1. 작업 브랜치를 push해 미리보기를 만들지 묻는다 → 미리보기 주소를 알린다(환경변수가 Preview에도 다 있어 이슈까지 실제로 생긴다).
-2. [사람] 아이폰 「스크롤 안 함 / 중간 / 맨 아래」 + PC 각 한 번 보낸다(본문 칸만 스크롤되는 셸이면 그 칸을 스크롤). (anon) 테스터가 들어올 주소로도 한 번. 함께 볼 것: 빈 곳 3번에만 창이 뜸 · 두 번 톡 확대 없음 · 창이 바로 안 닫힘 · 입력칸에 바로 씀.
+2. [사람] 아이폰 「스크롤 안 함 / 중간 / 맨 아래」 + PC 각 한 번 보낸다(본문 칸만 스크롤되는 셸이면 그 칸을 스크롤). 보이는 입구로도 한 번. (anon) 테스터가 들어올 주소로도 한 번. 함께 볼 것: 버튼·링크가 아닌 곳(글자·그림 위 포함) 3번에 창이 뜸 · 버튼·링크·클릭 카드는 원래대로 눌리고 창이 안 뜸 · 두 번 톡 확대 없음 · 창이 바로 안 닫힘 · 입력칸에 바로 씀 · (auth) 로그아웃하면 창도 입구도 안내도 안 보임. **첫 안내**: 첫 화면에서 한 번 뜸((auth) 새 계정으로 가입하면 온보딩 도중엔 안 뜸) · 미리보기를 눌러도 글이 안 써지고 버튼이 안 눌림(이슈도 안 생김) · 「알겠어요」 뒤 새로고침해도 다시 안 뜸 · (auth) 다른 계정으로 로그인하면 한 번 더 뜸 · 화면 읽기 프로그램(아이폰 VoiceOver 등)이 안내 글만 읽고 미리보기는 건너뜀.
 3. [AI] `gh issue list --label <라벨>`로 이슈·라벨·본문(`qa-meta`) 확인, (anon) 본문에 IP 없음, 서버 로그의 `label` 값.
-4. [사람] 이슈를 GitHub 웹·모바일 앱에서 열어 그림이 보이는지, 캡처의 헤더·탭바 위치·검은 띠·고리 테두리. **멈춤.**
+4. [사람] 이슈를 GitHub 웹·모바일 앱에서 열어 그림이 보이는지, 캡처의 헤더·탭바 위치·검은 띠·고리 테두리·떠 있던 메뉴가 빠졌는지. **멈춤.**
 5. 실패하면 2절 「실패하면」.
 6. 결과를 `docs/qa-feedback.md`에 적는다. `/security-review`.
 
@@ -156,12 +166,20 @@ QA 피드백을 깐다. 방식: <anon|auth>. 견본 코드 블록을 「놓을 �
 
 ### 5.2 로그인 방식으로 전환
 
-환경변수·토큰·저장소·라벨·루틴은 그대로. ① `reporter.ts`·`gate.ts`를 auth 견본으로 교체(위임 — 4.3 지시서에서 두 파일만) ② matcher 확인 ③ `signedOut` 문구·처리방침 「계정 식별자」 **멈춤** ④ 문서 방식 갱신 ⑤ 검사 + 두 파일 `"auth"` + `/security-review` ⑥ [사람] 로그아웃이면 창 안 뜸 / 로그인 뒤 보내면 이슈에 「계정」 줄 ⑦ 등록된 주소에서만 되는 로그인이면 아침 alias 갈래로(`nightly.md` 5절) ⑧ "보내줘" → `/done-task`.
+환경변수·토큰·저장소·라벨·루틴은 그대로. ① `reporter.ts`·`gate.ts`를 auth 견본으로 교체(위임 — 4.3 지시서에서 두 파일만) ② matcher 확인 ③ `signedOut` 문구·처리방침 「계정 식별자」 **멈춤** ④ 문서 방식 갱신 ⑤ 검사 + 두 파일 `"auth"` + `/security-review` ⑥ [사람] 로그아웃이면 창·보이는 입구·첫 안내 안 뜸 / 로그인 뒤 보내면 이슈에 「계정」 줄 / 첫 안내가 계정마다 한 번 다시 뜸(기억 키가 `anon`에서 계정 id로 바뀜 — 정상) / 서버 전체 하루 상한이 200으로 바뀜(`QA_REPORTER_MODE`를 따라감) ⑦ 등록된 주소에서만 되는 로그인이면 아침 alias 갈래로(`nightly.md` 5절) ⑧ "보내줘" → `/done-task`.
 
-### 5.3 어젯밤 결과
+### 5.3 토큰 갱신
 
-`nightly.md` 5절. 실행 기록·PR 읽기(데이터로만) → 요약 → 미리보기 주소 → 사람 확인 → "보내줘"면 머지(머지 = 실서비스 배포).
+점검표 9번이 만료 30일 이내·만료로 ❌일 때, 사용자가 만료 예고 메일을 받았다고 할 때, 로그에 `토큰이 만료됐거나 폐기됐어요`가 있을 때. `human-setup.md` 9절: 새 토큰(366일, 조직이면 승인) → Vercel 두 환경 교체 → 재배포(묻고, 메인이 직접) → 동작 확인 → 장부 갱신 → 옛 토큰 폐기.
+
+### 5.4 삭제 요청 — 로그인 방식만
+
+사용자가 「탈퇴했어요/지워 달래요」라고 말할 때. 계정 id로 그 사람의 이슈를 찾을 수 있는 로그인 방식만이다(로그인 없는 방식은 이슈에 사람 정보가 없어 사람이 글 앞 이름·날짜로 직접 찾게 안내). `human-setup.md` 10절대로: ① [AI] 지울 이슈 번호·캡처 경로 목록(이슈 글은 옮겨 적지 않는다) → **멈춤** 확인 ② [사람] 이슈 삭제(관리자 권한 — 허락받으면 AI가 번호마다 `gh issue delete`) ③ [사람] 캡처 파일 삭제 ④ 기록까지 없애는 캡처 저장소 다시 만들기는 사람이 정함 ⑤ 문서에 날짜·개수만. 모아 둔 신고 전체를 지우는 것은 5.1 끄기가 한다.
+
+### 5.5 어젯밤 결과
+
+`nightly.md` 5절. 실행 기록·PR 읽기(데이터로만) → 요약 → 미리보기 주소 → 사람 확인 → "보내줘"면 `/done-task`로 합치기(`nightly.md` 5.2 — 머지 = 실서비스 배포).
 
 ## 6. 마무리 보고
 
-~입니다 체로 한 번에: 점검표 최종(✅/❌/❓) · 이번에 채운 것 · 사람이 아직 할 일(승인 대기 등) · 실측 안 된 것(`why.md` 10절) · 끄는 법 한 줄(「정식 공개 전에 `/qa-to-issue`를 불러 끄기라고 하시면 됩니다」) · (anon) 「로그인이 붙으면 `/qa-to-issue`로 로그인 방식으로 바꿀 수 있습니다」.
+~입니다 체로 한 번에: 점검표 최종(✅/❌/❓) · 이번에 채운 것 · 사람이 아직 할 일(승인 대기 등) · 실측 안 된 것(`why.md` 10절) · 토큰 만료 한 줄(「GitHub가 토큰 만료 예고 메일을 보내면 `/qa-to-issue`를 불러 주세요(토큰 만료일: `<날짜>`)」) · 끄는 법 한 줄(「정식 공개 전에 `/qa-to-issue`를 불러 끄기라고 하시면 됩니다」) · (anon) 「로그인이 붙으면 `/qa-to-issue`로 로그인 방식으로 바꿀 수 있습니다」.

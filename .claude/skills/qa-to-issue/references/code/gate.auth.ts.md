@@ -1,18 +1,18 @@
-# gate.ts — 3번 터치 감지를 켜도 되나 — 로그인 방식
+# gate.ts — 3번 터치 감지를 켜도 되나 · 지금 누구인가 — 로그인 방식
 
 - 놓을 곳: `src/lib/qa-feedback/gate.ts` (`src/` 없이 `app/`이 루트에 있는 프로젝트면 `src/`를 빼고 같은 경로)
 - 방식: **로그인 방식만** — 로그인 없는 방식이면 gate.anon.ts.md를 같은 자리에
 - 출처: sangsiki-quiugi@5e9aa46 `src/components/system/QaFeedback.tsx`의 로그인 확인 부분
-- 참고 구현에서 바꾼 점: 프로젝트 자체 훅 대신 Supabase 세션 조회 + `onAuthStateChange`를 기본값으로
+- 참고 구현에서 바꾼 점: 프로젝트 자체 훅 대신 Supabase 세션 조회 + `onAuthStateChange`를 기본값으로 · 계정 id를 돌려주는 `useQaUserId()`(첫 안내가 기억 키에 씀)를 두고 `useQaReady()`는 그 위에
 - 어댑터: `auth-client` — 뜻과 채우는 법은 `../adapters.md`
-- 손대지 않는 곳: —
+- 손대지 않는 곳: 화면의 계정 id는 「한 번만」 기억 키에만 쓴다 — 서버는 이 값을 믿지 않고 로그인 세션으로 다시 읽는다(reporter.ts)
 - 의존: React, 프로젝트의 브라우저 로그인 클라이언트
 
 아래 코드 블록 안 전체를 그대로 옮긴 뒤 `[ADAPTER:…]` 자리만 이 프로젝트 것으로 바꾸고 표시 주석을 지운다. 다 깐 뒤 `grep -rn "\[ADAPTER:" src`가 0건이어야 한다.
 
 ```ts
 /**
- * QA 피드백 — 3번 터치 감지를 켜도 되나: **로그인 방식**.
+ * QA 피드백 — 3번 터치 감지(와 보이는 입구·첫 안내)를 켜도 되나, 지금 누구인가: **로그인 방식**.
  * 두 방식이 갈리는 화면 쪽 자리는 이 파일 하나다(서버 쪽은 reporter.ts). 스위치(QA_FEEDBACK)는 QaFeedback.tsx가 먼저 본다.
  * 로그인이 확인돼야 켜고, 로그아웃하면 끈다 — 서버도 로그인을 다시 확인하니(401) 이건 화면에서 헛걸음을 줄이는 몫이다.
  */
@@ -24,23 +24,28 @@ import { createClient } from "@/lib/supabase/client";
 /** 지금 방식 — reporter.ts와 같아야 한다 */
 export const QA_REPORTER_MODE: "anon" | "auth" = "auth";
 
-/** 감지를 켜도 되나 — 로그인돼 있을 때만 참 */
-export function useQaReady(): boolean {
-  const [signedIn, setSignedIn] = useState(false);
+/** 지금 로그인한 계정 id — 로그인 전·로그아웃이면 null. 첫 안내(QaFeedbackIntro)가 「이 계정이 봤나」를 기억하는 키에 쓴다 */
+export function useQaUserId(): string | null {
+  const [userId, setUserId] = useState<string | null>(null);
   useEffect(() => {
-    // [ADAPTER:auth-client] 지금 로그인돼 있나 + 바뀔 때마다 알림
+    // [ADAPTER:auth-client] 지금 로그인한 계정 id + 바뀔 때마다 알림
     const supabase = createClient();
     let alive = true;
     void supabase.auth.getSession().then(({ data }) => {
-      if (alive) setSignedIn(Boolean(data.session));
+      if (alive) setUserId(data.session?.user.id ?? null);
     });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session)));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setUserId(session?.user.id ?? null));
     return () => {
       alive = false;
       data.subscription.unsubscribe();
     };
     // [/ADAPTER:auth-client]
   }, []);
-  return signedIn;
+  return userId;
+}
+
+/** 감지를 켜도 되나 — 로그인돼 있을 때만 참 */
+export function useQaReady(): boolean {
+  return useQaUserId() !== null;
 }
 ```
