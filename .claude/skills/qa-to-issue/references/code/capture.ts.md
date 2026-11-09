@@ -33,6 +33,7 @@
  *    absolute로 못 박는다(sticky는 빈 자리 지킴이를 남겨 흐름을 그대로 둔다). 원본에 잠깐 data-qa-pin 표시를 달아 복제본과 짝짓는다.
  *    특정 클래스 이름을 적지 않고 계산된 position으로 찾는다. 안쪽 스크롤 칸 안의 sticky도 같다 — 자리를 그 순간의 기준 상자에서
  *    재고, 기준 상자가 칸 안에 있으면 그 상자도 여백으로 같이 당겨지고, 칸 밖이나 칸 자신이면 원래 그 자리라 따로 손대지 않는다.
+ *  - 못 박는 칸·자리 지킴이에는 잰 폭·높이도 px로 준다(border-box): absolute로 바뀌면 폭이 내용에 맞춰 줄어 부모 폭을 따르던 내용(폭 100%·aspect-ratio·컨테이너 쿼리 무대)이 0으로 쪼그라들고, 자식 없는 자리 지킴이는 높이 0이 된다.
  *  - 고리 그림자(`0 0 0 Npx 색` — 흐림·옮김 없는 spread만): WebKit이 그림 안에서 옆으로 어긋나(반달처럼) 그려서, 복제본에서만
  *    맨 위 고리를 outline으로 바꾼다. 흐림 있는 그림자·나머지 층은 그대로.
  *  - 글꼴: 조각(unicode-range) 글꼴은 라이브러리에 맡기면 조각 수백 개를 다 받아 넣는다.
@@ -65,7 +66,7 @@ const FONT_FETCH_MS = 4000;
 
 /* ── 붙어 있는 칸·고정된 칸 못 박기 ── */
 
-type Pin = { top: number; left: number; inFlow: boolean };
+type Pin = { top: number; left: number; width: number; height: number; inFlow: boolean };
 
 /** absolute 자식의 기준 상자(containing block)가 되는 조상. 못 찾으면 body(복제본에서 relative로 둔다) */
 function absoluteContainer(el: Element): Element {
@@ -97,7 +98,7 @@ function markPins(): Pin[] {
     const cb = absoluteContainer(el);
     const cbRect = cb.getBoundingClientRect();
     el.setAttribute(PIN_ATTR, String(pins.length));
-    pins.push({ top: rect.top - cbRect.top - cb.clientTop, left: rect.left - cbRect.left - cb.clientLeft, inFlow: position === "sticky" });
+    pins.push({ top: rect.top - cbRect.top - cb.clientTop, left: rect.left - cbRect.left - cb.clientLeft, width: rect.width, height: rect.height, inFlow: position === "sticky" });
   }
   return pins;
 }
@@ -127,6 +128,9 @@ function applyPins(clone: Node, pins: Pin[]) {
       const keeper = el.cloneNode(false) as HTMLElement;
       keeper.style.position = "static";
       keeper.style.visibility = "hidden";
+      keeper.style.boxSizing = "border-box";
+      keeper.style.width = `${pin.width}px`;
+      keeper.style.height = `${pin.height}px`;
       keeper.removeAttribute("id");
       keeper.setAttribute("aria-hidden", "true");
       el.before(keeper);
@@ -135,6 +139,9 @@ function applyPins(clone: Node, pins: Pin[]) {
     el.style.position = "absolute";
     el.style.top = `${pin.top}px`;
     el.style.left = `${pin.left}px`;
+    el.style.boxSizing = "border-box";
+    el.style.width = `${pin.width}px`;
+    el.style.height = `${pin.height}px`;
     el.style.right = "auto";
     el.style.bottom = "auto";
     el.style.margin = "0";
