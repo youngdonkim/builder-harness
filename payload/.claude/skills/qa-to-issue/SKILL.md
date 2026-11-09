@@ -86,6 +86,7 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 | 12 | 문서 | `docs/qa-feedback.md` — 방식·보이는 입구·첫 안내·어댑터 결정·실측 결과·야간 절·비밀값 장부(만료일 날짜·보관처 채워짐) | 해당 절만 채움(`wiring.md` 9·10절) |
 | 13 | 처리방침 | QA 4줄(+AI 제공사 줄)이 있거나, 처리방침이 없으면 문서 「남은 일」에 적혀 있음 | 4.3 끝 |
 | 14 | 실측 기록 | 문서에 아이폰 3위치·PC·보이는 입구·첫 안내(한 번만·미리보기 입력 안 됨·화면 읽기 프로그램이 미리보기를 안 읽음)·GitHub 웹/모바일 앱 그림 확인이 있음 | 4.4 |
+| 15 | 일부러 뺀 곳 표시 | `grep -rn "data-qa-ignore" src` — 쓰인 곳이 「사진에서도 빠져도 되는 곳」(첫 안내 미리보기 같은 보기 전용)인가. 누르기 많은 곳(캐릭터·게임판·캔버스)·카드면 `data-qa-no-tap`이어야 한다(`why.md` 10절 18번) | 해당 줄을 `data-qa-no-tap`으로 바꿈(4.3) |
 
 ## 4. 채우기
 
@@ -96,7 +97,7 @@ description: Vercel에 배포된 Next.js(App Router) 웹앱에 QA 피드백을 �
 코드가 없을 때만. `adapters.md` 표를 코드·설정에서 먼저 채우고, 못 찾은 것만 묻는다.
 
 1. 로그인이 있나(서버 로그인 코드·`mvp/backend-build.md`) → 있으면 `auth`, 없으면 `anon` 추천 → 사용자가 고름.
-2. layout·토스트·디자인 시스템 부품·문구 자리와 톤·보이는 입구 자리(설정·메뉴 화면 — 없으면 묻는다)·첫 안내를 둘 첫 화면((auth) 온보딩이 끝나고 닿는 곳)·처리방침 자리·주소 속 비밀값·Node 판(22.18+)·matcher·`next.config`의 `cacheComponents`·클릭 동작만 단 `div` 카드(있으면 `data-qa-ignore` 또는 `button`·`a`로 — `why.md` 10절 13번).
+2. layout·토스트·디자인 시스템 부품·문구 자리와 톤·보이는 입구 자리(설정·메뉴 화면 — 없으면 묻는다)·첫 안내를 둘 첫 화면((auth) 온보딩이 끝나고 닿는 곳)·처리방침 자리·주소 속 비밀값·Node 판(22.18+)·matcher·`next.config`의 `cacheComponents`·클릭 동작만 단 `div` 카드(있으면 `data-qa-no-tap` 또는 `button`·`a`로 — 카드는 사진엔 남아야 하므로 `data-qa-ignore`는 아니다. `why.md` 10절 13번).
 3. GitHub: 코드 저장소, 주인이 조직인가(`gh api repos/<저장소> --jq .owner.type`), 내 역할(`gh api orgs/<조직>/memberships/<계정> --jq .role` — `admin` 아니면 승인 필요), `AGENTS.md` 계정 표와 지금 gh 계정이 같은가.
 4. **멈춤** — 방식·채운 표·이름 넷(캡처 저장소 `<프로젝트>-qa-shots`, 라벨 `qa`, 리뷰어 GitHub 계정, 보이는 입구 자리 — 또는 「두지 않음」)·야간 실행 시각을 확인받는다.
 

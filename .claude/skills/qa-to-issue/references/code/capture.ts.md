@@ -46,7 +46,7 @@
  */
 import { domToCanvas } from "modern-screenshot";
 
-/** 캡처에서 빼는 것 — nextjs-portal(Next 개발 표시)·[data-qa-ignore]·라이브러리 임시 iframe은 그대로 두고, 창·토스트 선택자만 프로젝트 것으로 */
+/** 캡처에서 빼는 것 — nextjs-portal(Next 개발 표시)·[data-qa-ignore](세지도 찍지도 않음 — 3번 터치만 빼는 data-qa-no-tap은 여기 넣지 않는다)·라이브러리 임시 iframe은 그대로 두고, 창·토스트 선택자만 프로젝트 것으로 */
 const EXCLUDE = '[role=dialog], [data-slot$="-overlay"], [data-radix-popper-content-wrapper], [data-sonner-toaster], nextjs-portal, [data-qa-ignore], iframe[id^="__SANDBOX__"]'; // [ADAPTER:exclude-selectors] 열린 창·토스트 선택자. 기본값은 shadcn(Radix 창·sonner 토스트) 후보 — 실측 필요
 /** 원본·복제본 짝짓기 표시 (찍는 동안만 원본에 붙는다) */
 const PIN_ATTR = "data-qa-pin";

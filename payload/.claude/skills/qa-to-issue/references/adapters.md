@@ -32,7 +32,7 @@
 | `entry-point` | 공통 | `code/wiring.md` 12절 보이는 입구 | 설정(또는 내 정보) 화면 맨 아래 목록 항목 「의견 보내기」 | 프로젝트 화면 목록·셸 메뉴를 보고 AI가 자리를 제안 → 사람이 정한다. 그 자리에 이미 쓰는 부품(목록 항목·메뉴 항목)으로 | 설정·메뉴 화면이 아직 없으면 사람에게 자리를 묻는다. 「두지 않는다」로 정했으면 문서에 적고 `QA_COPY.introEntry`를 빈 글로 |
 | `intro-mount` | 공통 | `code/wiring.md` 13절 — `<QaFeedbackIntro />`를 둘 첫 화면 | 첫 화면(홈) 페이지 파일 하나 | anon: 링크를 열면 처음 닿는 화면. auth: 가입·온보딩 흐름이 끝나고 닿는 화면 — 온보딩 화면·layout에는 두지 않는다(가입 도중에 끼어들지 않게) | 첫 화면이 여럿이면 사람에게 묻는다 |
 | `intro-ui` | 공통 | `QaFeedbackIntro`의 창 부품 import·`<Dialog>` 블록 | shadcn `Dialog`(가운데 창) + `Button`, 미리보기 틀 클래스 `pointer-events-none select-none rounded-lg border bg-background p-4 scale-90` | 프로젝트가 안내에 쓰는 창 부품(가운데 창 또는 아래에서 올라오는 창). 미리보기 틀의 `inert`·`aria-hidden`·`data-qa-ignore`·`pointer-events-none`은 빼지 않는다. `inert`를 불리언으로 쓰는 것은 React 19 모양이다 — React 18이면 `inert=""`. 어떻게 닫든(「알겠어요」·창 밖·Esc) 봤음으로 기억하는 동작은 유지 | `npx shadcn@latest add dialog` |
-| `overlay-selector` | 공통 | `press.ts` `SKIP` | `[role=dialog], [role=alertdialog], [data-qa-ignore]` | 「열린 창 위에선 세지 않음」 선택자. 프로젝트 창·시트 부품이 role=dialog를 다는지 확인. **실측 필요** | — |
+| `overlay-selector` | 공통 | `press.ts` `SKIP` | `[role=dialog], [role=alertdialog], [data-qa-ignore], [data-qa-no-tap]` | 「열린 창 위에선 세지 않음」 선택자. 일부러 뺄 곳 표시는 둘 — 누르기 많은 곳(캐릭터·게임판·캔버스)은 `data-qa-no-tap`(3번 터치만 안 셈, 사진엔 남음), 화면에 보여도 사진엔 담기면 안 되는 곳만 `data-qa-ignore`(세지도 찍지도 않음). 프로젝트 창·시트 부품이 role=dialog를 다는지 확인. **실측 필요** | — |
 | `exclude-selectors` | 공통 | `capture.ts` `EXCLUDE` | `[role=dialog], [data-slot$="-overlay"], [data-radix-popper-content-wrapper], [data-sonner-toaster], nextjs-portal, [data-qa-ignore], iframe[id^="__SANDBOX__"]` | 창·창 배경·떠 있는 메뉴·토스트 선택자만 프로젝트 것으로. `nextjs-portal`(Next 개발 표시)·`[data-qa-ignore]`·`__SANDBOX__`(라이브러리 임시 iframe)는 그대로. **캡처에 창 배경·떠 있는 메뉴(보이는 입구를 메뉴 안에 뒀을 때)가 찍히지 않는지 실측 필요** | — |
 | `mask-rules` | 공통 | `shared.ts` `SECRET_PARAMS`·`SECRET_PATHS` | 쿼리 `code`·`token`, 경로 `/invite/{코드}` | 초대·비밀번호 재설정·공유 링크처럼 주소에 비밀 코드가 들어가는 경로와 쿼리 이름. `src/app` 폴더의 `[code]`·`[token]` 같은 동적 경로, 로그인 콜백의 `code` 검색. `#` 뒤는 처음부터 안 보낸다 | 경로 규칙이 없으면 `SECRET_PATHS`를 빈 배열로 |
 | `device-line` | 공통 | `client.ts` `deviceLine()` | UA·`display-mode: standalone` 기반 최소 판별(아이폰·아이패드 / 안드로이드 / PC, 앱 안 브라우저 / 홈 화면 앱 / 브라우저) | 프로젝트에 기기 판별 도우미가 있으면 그걸 쓴다. 이슈에서 개발자가 읽는 값이라 서비스 문구 규칙과 별개 | 기본값 그대로 |
@@ -56,7 +56,7 @@
 
 아래는 실기기·실측으로 정한 값이거나 사람이 정한 판정값(3번 터치 — 아이폰 실측 전, `why.md` 1절)이거나 보안 장치라 프로젝트마다 바꾸지 않는다. 바꾸고 싶은 이유가 생기면 고치기 전에 사용자에게 근거(`why.md`)와 함께 묻는다.
 
-- 3번 터치 판정값 — 3번 · 각 사이 700ms · 첫 터치에서 44px · 누른 채 10px 넘게 움직이면 그 터치 무효 · 창을 연 뒤 400ms 닫기 무시 · 세지 않는 곳은 누르는 요소·열린 창·`data-qa-ignore`뿐(글자·그림 위는 센다)
+- 3번 터치 판정값 — 3번 · 각 사이 700ms · 첫 터치에서 44px · 누른 채 10px 넘게 움직이면 그 터치 무효 · 창을 연 뒤 400ms 닫기 무시 · 세지 않는 곳은 누르는 요소·열린 창·`data-qa-no-tap`·`data-qa-ignore`뿐(글자·그림 위는 센다)
 - `capture.ts`의 `EXCLUDE` 밖 전부(아이폰 대응 4종·안쪽 스크롤 칸·글꼴·상한)
 - 서버 확인 순서 — 스위치 404 → 같은 출처 403 → 크기 413 → 누구인가 401(auth만) → 연속 제출 429 → 내용 400
 - 크기 한도 — 요청 4MB · 캡처 2MB · 메타 4KB · 글 200자
